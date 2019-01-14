@@ -1,0 +1,24 @@
+{
+  "name": "hello_js",
+  "version": "1.0.0",
+  "description": "hello js",
+  "main": "hello.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/w7989363/hello_js.git"
+  },
+  "author": "wtl",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/w7989363/hello_js/issues"
+  },
+  "homepage": "https://github.com/w7989363/hello_js#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "js-cookie": "^2.2.0",
+    "ws": "^6.1.0"
+  }
+}

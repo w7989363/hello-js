@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>列表与表格</title>
+</head>
+
+<body>
+
+  <!-- 列标标签 -->
+  <!-- 有序ol 无序ul -->
+  <ol>
+    <li>有序列表ol</li>
+    <li>有序列表ol</li>
+    <li>有序列表ol</li>
+  </ol>
+  <!-- 定义一个定义列表 dl -->
+  <dl>
+    <dt>Coffee</dt>
+    <dd>Black hot drink</dd>
+    <dt>Milk</dt>
+    <dd>White cold drink</dd>
+  </dl>
+
+
+  <!-- 表格标签 -->
+  <table border="1">
+    <!-- 表格标题 -->
+    <caption>Students</caption>
+    <!-- colgroup和col用来同意指定每一列 col的span属性指定跨列数-->
+    <colgroup>
+      <col span="2" style="background-color:red">
+      <col style="background-color:yellow">
+    </colgroup>
+    <!-- thead用于组合表头 -->
+    <thead>
+      <tr>
+        <!-- 表头 colspan跨列数  rowspan跨行数-->
+        <th></th>
+        <th>Name</th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <!-- tbody用于组合表主体 -->
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Wendy</td>
+        <td>98</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Tom</td>
+        <td>100</td>
+      </tr>
+    </tbody>
+    <!-- tfoot用于组合脚注 -->
+    <tfoot>
+      <tr>
+        <td>Ave</td>
+        <td></td>
+        <td>99</td>
+      </tr>
+    </tfoot>
+  </table>
+
+
+</body>
+
+</html>

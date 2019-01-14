@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>多媒体</title>
+</head>
+
+<body>
+  <!-- controls显示控件    autoplay自动播放    loop循环播放    poster指定封面 -->
+  <!-- source标签做兼容性处理，浏览器依次遍历source标签，遇到支持的就播放 -->
+  <video controls>
+    <source src="/Users/wentianlin/Movies/waltz1.mp4">
+    <source src="/Users/wentianlin/Movies/DearBasketball.mp4">
+    <!-- track定义外部文本轨道 -->
+    <track src="subtitles_en.vtt" kind="subtitles" srclang="en" label="English">
+    <track src="subtitles_no.vtt" kind="subtitles" srclang="no" label="Norwegian">
+    <p>对不起，您的浏览器不支持 HTML5 video</p>
+  </video>
+
+
+  <audio controls autoplay loop>
+    <source src="/Users/wentianlin/Music/5.10am.m4a">
+    <p>对不起，您的浏览器不支持 HTML5 audio</p>
+  </audio>
+
+
+  <script>
+    let video = document.querySelector("video");
+
+    // 方法
+    // video.canPlayType(type); 是否支持媒体类型，返回probably maybe 空
+    // video/ogg; codecs="theora, vorbis"
+    // video/mp4; codecs="avc1.4D401E, mp4a.40.2"
+    // video/webm; codecs="vp8.0, vorbis"
+    // audio/ogg; codecs="vorbis"
+    // audio/mp4; codecs="mp4a.40.5"
+    // video.load() 重新加载
+    // video.play() 播放
+    // video.pause() 暂停
+
+
+    // 属性
+    // video.autoplay 设置或返回是否自动播放
+    // video.controls 设置货或返回是否显示控件
+    // video.loop 设置或返回是否循环播放
+    // video.src 设置或返回媒体url
+    // video.currentTime 设置或返回播放位置
+    // video.playbackRate 设置或返回播放速度
+    // video.volume 设置或返回音量
+    // video.muted 设置或返回是否静音
+    // video.paused 设置或返回是否暂停
+    // video.preload 设置或返回是否自动加载视频
+
+    // video.buffered 返回缓冲对象TimeRanges，该对象包含length start数组 end数组
+    // video.played 返回已播放部分的TimeRanges对象
+    // video.seekable 返回媒体可寻址部分的TimeRanges对象
+    // video.networkState 返回媒体的网络状况0 1 2 3
+    // video.readyState 返回媒体的就绪状态0 1 2 3 4
+    // video.seek 返回是否在拖动寻址条
+    // video.duration 返回媒体时长
+    // video.ended 返回媒体是否已经结束
+    // video.currentSrc 返回当前媒体的url
+
+
+    // 事件
+    // abort 媒体放弃加载
+    // error 加载出错
+    // stalled 媒体数据不可用
+    // suspend 媒体被阻止加载(完成加载或者因暂停而阻止加载)
+
+    // 以下事件会在视频加载过程中按顺序触发
+    // loadstart 开始加载
+    // durationchange 媒体数据长度变化(NaN到时长)
+    // loadedmetadata 元数据已加载(时长、尺寸、文本轨道)
+    // loadeddata 当前帧数据已经加载，但没有足够数据播放下一帧
+    // progress 正在下载指定媒体
+    // canplay 可以开始播放
+    // canplaythrough 浏览器预计可以在不停下来缓冲的情况下持续播放
+
+    // pause 暂停 play 开始播放 playing 重新开始播放 waiting 缓冲暂停
+    // ratechange 播放速度改变 volumechange 音量改变
+    // seeking 开始寻址 seeked 寻址完成
+    // timeupdate 当前播放位置改变
+  </script>
+</body>
+
+</html>

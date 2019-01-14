@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- meta元素通常指定网页的描述，关键词，文件的最后修改时间，作者及其他元数据 -->
+  <!--
+        charset 属性规定 HTML 文档的字符编码
+        UTF-8 - Unicode 字符编码
+        ISO-8859-1 - 拉丁字母表的字符编码
+    -->
+  <meta charset="UTF-8">
+
+  <!-- http-equiv和content相当于响应头的键、值 -->
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <!-- name和content提供另外的键值对，常用的有keywords description author-->
+  <meta name="keywords" content="html,h5,语义化标签">
+  <meta name="description" content="免费 Web & 编程 教程">
+  <meta name="author" content="Wen dabei">
+
+  <title>语义化标签</title>
+
+  <!-- IE9之前不支持H5，使用html5shiv来解决。以下注释必须放在head中 -->
+  <!--[if lt IE 9]>
+    <script src="http://cdn.static.runoob.com/libs/html5shiv/3.7/html5shiv.min.js"></script>
+    <![endif]-->
+
+  <style>
+    /* 三角形 */
+    .san-shang {
+      display: inline-block;
+      /* 设置容器内容为一个点 */
+      width: 0;
+      height: 0;
+      /* 下边框厚100，因为容器没有宽，所以现在是一条从容器中心点往下高100的绿线(看不见，因为没有宽度) */
+      border-bottom: 100px solid green;
+      /* 设置左边框50，透明。相当于将下边框往左延伸了50，两个点连向中心点形成直角三角形 */
+      border-left: 50px solid transparent;
+      /* 同理，向右延伸50 */
+      border-right: 50px solid transparent;
+    }
+
+    /* 平行四边形 */
+    .parallelogram {
+      display: inline-block;
+      width: 50px;
+      /* 沿x轴倾斜 形成平行四边形 */
+      transform: skewX(-20deg);
+      border: 1px solid #58a;
+      text-align: center;
+    }
+    .parallelogram a {
+      display: inline-block;
+      /* 沿x轴倾斜回来 */
+      transform: skewX(20deg);
+    }
+
+    .arrow-right {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      /* 设置上右边框 */
+      border-top: 1px solid #000;
+      border-right: 1px solid #000;
+      /* 顺时针旋转45度 */
+      transform: rotate(45deg);
+    }
+
+
+  </style>
+
+
+  <script>
+    // IE8不支持的标签怎么办？
+        // 解决方案1：在该标签的css中设置display:block;然后通过DOM的方式创建该标签
+        // document.createElement('header');
+  </script>
+
+  <!-- 解决方案2：响应式兼容，引入外部html5shiv.js文件，原理同方案1 -->
+  <!--[if lt IE 9]>
+    <script src="http://cdn.static.runoob.com/libs/html5shiv/3.7/html5shiv.min.js"></script>
+    <script src="//api.html5media.info/1.2.2/html5media.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+  <!-- css边框画三角形 -->
+  <div class="san-shang"></div>
+  <!-- 平行四边形 -->
+  <div class="parallelogram">
+    <a href="#sad">sad</a>
+  </div>
+  <!-- 朝右的箭头 -->
+  <div class="arrow-right">
+  </div>
+
+
+  <!-- H5标签的全局属性 -->
+  <p contenteditable="true">这是一个可编辑段落。</p>
+  <p data-param-name="somevalue">可以在所有的 HTML 元素中嵌入数据 </p>
+  <p dir="rtl">文本方向从右到左 rtl ltr auto</p>
+  <p draggable="true">这是一段可移动的段落。参考http://www.runoob.com/html/html5-draganddrop.html</p>
+  <p hidden>这是一段隐藏的段落。</p>
+  <p contenteditable="true" spellcheck="true">对元素内容进行拼写检查。</p>
+  <div>
+    <!-- <element tabindex="number"> tabindex设置tab键的顺序 -->
+    <a href="http://www.runoob.com//" tabindex="2"> runoob.com 菜鸟教程</a><br>
+    <a href="http://www.google.com/" tabindex="1">Google</a><br>
+    <a href="http://www.microsoft.com/" tabindex="3">Microsoft</a>
+  </div>
+  <p><abbr title="世界卫生组织">WHO</abbr> title在鼠标移到元素上时显示一段工具提示文本（tooltip text）</p>
+
+
+  <!-- 格式标签 -->
+  <abbr title="缩写">abbr 用来表示一个缩写词 title 属性可被用来展示缩写词的完整版本</abbr>
+  <address class="">
+        address 定义文档作者/所有者的联系信息 <br>
+        通常被包含在 footer>元素的其他信息中
+    </address>
+  <bdi>Bi-directional Isolation设置一段文本，使其脱离其父元素的文本方向设置</bdi>
+  <bdo dir="rtl" >bdo用来覆盖默认的文本方向。</bdo>
+  <blockquote cite="http://">
+    blockquote定义块引用
+    <q cite="">q定义短引用</q>
+  </blockquote>
+  <cite>cite定义作品（比如书籍、歌曲、电影、电视节目、绘画、雕塑等等）的标题</cite> <br>
+  <code>code定义代码</code> <br>
+  <em>em强调斜体</em> <br>
+  <strong>strong重要文本粗体</strong> <br>
+  <dfn>dfn定义项目</dfn> <br>
+  <samp>samp定义样本</samp> <br>
+  <kbd>kbd定义键盘输入</kbd> <br>
+  <var>var定义变量</var> <br>
+  <mark>mark标记突出显示的文本</mark> <br>
+  <del>del定义删除文本</del><br>
+  <ins>ins定义插入文本</ins><br>
+  <meter value="35" min="0" max="100">meter定义一个进度，用于已知最大和最小值的度量。</meter><br>
+  <progress value="22" max="100">进度条，配合js使用</progress>
+  <pre>预格式文本，保留空格 换行等</pre>
+  <!-- ruby注释，中文注音 -->
+  <ruby>
+    漢 <rp>(</rp><rt>han</rt><rp>)</rp>
+    字 <rp>(</rp><rt>zi</rt><rp>)</rp>
+  </ruby> <br>
+    下标上标  2<sup>2</sup> log<sub>2</sub> <br>
+  <time datetime="2016-02-14">情人节</time> <br>
+  <wbr>wbr表示在此位置合适换行word break opportunity <br>
+
+
+
+  <!-- 内联框架iframe标签 -->
+  <iframe src="http://www.baidu.com" >
+    <p>您的浏览器不支持  iframe 标签。</p>
+  </iframe> <br>
+
+
+  <!-- 图像标签 -->
+  <img src="/Users/wentianlin/Pictures/bage.jpg" alt="八哥" width="100" height="100" usemap="#mymap"> <br>
+  <!-- 设置图像map，点击设置区域访问不同URL -->
+  <map name="mymap">
+    <!-- 设定区域area -->
+    <area shape="rect" coords="0,50,100,100" alt="长方形" href="someURL1.htm">
+    <area shape="circle" coords="50,25,20" alt="狗头" href="someURL2.htm">
+  </map>
+  <!-- figure标签用来组合图片 -->
+  <!-- figcaption用来给图片注明标题 -->
+  <!-- canvas画布 -->
+
+
+  <!-- 链接 a link nav-->
+  <!-- a属性    download指定下载文件名  rel指定目标url是当前文档的什么(关系) -->
+  <a href="/123.xlsx" download="下载文件名.xlsx">超链接</a>
+  <!-- link用来外联样式表，只能在head中出现 -->
+  <!-- <link rel="stylesheet" type="text/css" href="theme.css"> -->
+  <!-- nav标记一个区域为导航栏 -->
+  <nav>
+    <a href="#">导航1</a> |
+    <a href="#">导航2</a> |
+    <a href="#">导航3</a>
+  </nav>
+
+
+  <!-- 样式标签 -->
+  <header>
+    header定义文档页眉，简介、导航的容器
+  </header>
+  <section>
+    section定义文档的一个区域，章节、头部、底部
+    <article>
+      article定义独立的内容，论坛帖子、博客文章、新闻故事、评论
+    </article>
+    <aside>
+      aside标签定义article标签外的内容，可以用于侧边栏
+    </aside>
+  </section>
+  <footer>
+    footer定义文档页脚，文档创作者的姓名、文档的版权信息、使用条款的链接、联系信息等
+  </footer>
+  <details close>
+    <summary>点我展开或关闭</summary>
+    <p>details是开启/关闭的交互式控件</p>
+  </details>
+
+
+  <!-- 程序标签 -->
+  <!-- embed定义了一个容器，用来嵌入外部应用或者互动程序（插件） -->
+  <embed type="video/quicktime" src="#" width="300" height="300">
+  <!-- object用于包含对象，比如图像、音频、视频、Java applets、ActiveX、PDF 以及 Flash -->
+  <object type="" data="https://">
+    <!-- param为object对象提供参数 -->
+    <param name="autoplay" value="true">
+  </object>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>地理位置</title>
+
+  <style type="text/css">
+    body,
+    html,
+    #allmap {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      margin: 0;
+      font-family: "微软雅黑";
+    }
+  </style>
+  <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=rGTMfG2FueyRd90qtU2vrrgUlVB1WRW9"></script>
+</head>
+
+<body>
+  <div id="allmap"></div>
+
+  <script>
+    if (navigator.geolocation) {
+      // getCurrentPosition获取当前地理位置，只调用一次
+      navigator.geolocation.getCurrentPosition((pos) => {
+        let latitude = pos.coords.latitude;
+        let longitude = pos.coords.longitude;
+        console.log(longitude);
+        console.log(latitude);
+        console.log(pos.coords);
+
+        // 百度地图API功能
+        // 创建Map实例
+        let map = new BMap.Map("allmap");
+        // 初始化地图,设置中心点坐标和地图级别
+        let p = new BMap.Point(longitude, latitude);
+        map.centerAndZoom(p, 15);
+        // 添加地图类型控件
+        map.addControl(new BMap.MapTypeControl({
+          mapTypes: [
+            BMAP_NORMAL_MAP,
+            BMAP_HYBRID_MAP
+          ]
+        }));
+        // 设置地图显示的城市 此项是必须设置的
+        map.setCurrentCity("北京");
+        // 开启鼠标滚轮缩放
+        map.enableScrollWheelZoom(true);
+        // 添加当前点
+        map.addOverlay(new BMap.Marker(p));
+      }, (err) => {
+        // 获取地理位置失败回调
+        console.log(err);
+      })
+
+
+      // watchPosition注册两个监听器，成功、失败回调，位置发生该表就调用
+      navigator.watchPosition((pos) => {
+        // 成功回调
+      }, (err) => {
+        // 失败回调
+      })
+    } else {
+      console.log('浏览器不支持获取地理位置');
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Vue</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+  <style>
+    .demo-alert-box {
+      padding: 10px 20px;
+      background: #f3beb8;
+      border: 1px solid #f09898;
+    }
+    body > div{
+      padding: 10px 0;
+      border-bottom: 1px solid #aaa;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- v-bind -->
+  <!-- v-bind缩写 :title="mytitle" 绑定class时还可以传入对象或数组 -->
+  <!-- isActive为true时，div有active类 -->
+  <div id="app" v-bind:title="mytitle" :class="{ active: isActive }">
+    <!-- mustache语法会将值解释为文本，即使他是一段html -->
+    <p>mustache语法 : {{ message }}</p>
+    <!-- v-html 指令可以将值解释为html代码，注意不要对用户提供的内容进行渲染以导致xss攻击 -->
+    <p>v-html指令 : <span v-html="message"></span></p>
+    <!-- v-pre 跳过这个元素及其子元素的编译过程，显示原始mustache标签 -->
+    <p v-pre>{{ this will not be compiled }}</p>
+    <!-- v-once指令只会初次渲染，之后改变数据值不会更新，这会创建低开销的有缓存的静态组件 -->
+    <p v-once>这里的值不会随message而改变 : {{message}}</p>
+    <!-- v-cloak 指令会保持在元素上，直到关联实例结束编译 -->
+    <!-- 添加 css 规则 [v-cloak] { display: none } 可以隐藏未编译的mustache -->
+  </div>
+  <script>
+    // 启用chrome vue devtools
+    Vue.config.devtools = true;
+    // v-bind
+    let app = new Vue({
+    	el: '#app',
+    	data: {
+    		message: '<span style="color:red">This should be red.</span>',
+    		mytitle: '页面加载于 ' + new Date().toLocaleString(),
+    		isActive: true,
+    	}
+    });
+  </script>
+
+
+  <!-- v-if v-else v-else-if -->
+  <div id="app-2">
+    <p v-if="seen">能看到</p>
+    <p v-else>看不到</p>
+  </div>
+  <script>
+    // v-if
+    let app2 = new Vue({
+    	el: '#app-2',
+    	data: {
+    		seen: false,
+    	}
+    });
+  </script>
+
+
+  <!-- v-for="(item, index) in array" 或者用 of 代替 in -->
+  <!-- v-for="(value, key, index) in object" -->
+  <!-- 遍历是按照Object.keys()的结果进行的 -->
+  <!-- 用 v-bind:key="item.id" 来让Vue跟踪每个节点的身份 -->
+  <!-- v-for:"n in 10"  1~10 -->
+  <!-- v-for 和 v-if 在同级时，for 优先级高，if会在每个for中执行 -->
+  <div id="app-3">
+    <ol>
+      <li v-for="todo in todos">
+        {{ todo.text }}
+      </li>
+    </ol>
+  </div>
+  <script>
+    // v-for
+    let app3 = new Vue({
+    	el: '#app-3',
+    	data: {
+    		todos: [{
+    				text: '学习 JavaScript'
+    			},
+    			{
+    				text: '学习 Vue'
+    			},
+    			{
+    				text: '学习 aaa'
+    			},
+    		]
+    	}
+    });
+  </script>
+
+
+  <!-- v-on 监听事件 -->
+  <!-- v-on缩写 @click="reverse" -->
+  <div id="app-4">
+    <p> {{ message }} </p>
+    <button type="button" name="button" v-on:click="reverse" v-bind:disabled="isDisabled">倒置</button>
+  </div>
+  <script>
+    // v-on
+    let app4 = new Vue({
+    	el: '#app-4',
+    	data: {
+    		message: 'Hello Vue.',
+    		isDisabled: false,
+    	},
+    	methods: {
+    		reverse: function() {
+    			this.message = this.message.split('').reverse().join('');
+    		},
+    	},
+    });
+  </script>
+
+
+  <!-- v-model表单输入绑定 watch侦听属性-->
+  <div id="app-5">
+    <p>total: {{ total }} </p>
+    num: <input type="number" v-model="num" value="" />
+    <br/>
+    <select v-model="selected">
+            <option disabled value="">请选择</option>
+            <option value="a">A</option>
+            <option value="b">B</option>
+            <option value="c">C</option>
+        </select>
+    <span>Selected: {{ selected }}</span>
+  </div>
+  <script>
+    // v-model watch侦听属性，需要在数据变化时执行异步操作或开销较大的操作时，使用watch
+    let app5 = new Vue({
+    	el: '#app-5',
+    	data: {
+    		num: 5,
+    		total: 50,
+    		selected: ''
+    	},
+    	watch: {
+    		num: function(newVal, oldVal) {
+    			this.total = newVal * 10;
+    		}
+    	}
+    });
+  </script>
+
+
+  <!-- computed 计算属性-->
+  <div id="app-7">
+    <p>message: {{message}}</p>
+    <p>reverseMessage: {{reverseMessage}}</p>
+  </div>
+  <script>
+    // computed
+    // 计算属性基于他们的依赖进行结果的缓存，只要依赖不改变，多次访问就会直接返回结果
+    // 而如果用methods，则需要每次都执行方法返回结果
+    // 上面的watch例子用computed改写更好
+    let app7 = new Vue({
+    	el: '#app-7',
+    	data: {
+    		message: 'hello',
+    	},
+    	computed: {
+    		reverseMessage: function() {
+    			return this.message.split('').reverse().join('');
+    		},
+    		// 双向绑定的计算属性，常用语 v-model 配合 Vuex 使用
+    		someData: {
+    			get() {
+    				// 如果是从 Vuex store 中取
+    				// return this.$store.state.someData
+    			},
+    			set(value) {
+    				// 不能直接修改 Vuex 中的 state，所以发送 commit/dispatch
+    				// this.$store.commit('updateSomeData', value);
+    			}
+    		}
+    	}
+    });
+  </script>
+
+
+  <!-- 组件的 v-for ，不能将item自动注入组件，需要使用props -->
+  <div id="todo-list">
+    <form @submit.prevent="addNewTodo">
+      <label for="new-todo">Add a todo</label>
+      <input v-model="newTodoText" type="text" id="new-todo" placeholder="E.g. Feed the cat">
+      <button>Add</button>
+    </form>
+    <ul>
+      <!-- 因为只有li才能直接出现在ul内部，如果直接使用todo-item标签会解析出错，因此用is指定模板 -->
+      <li is="todo-item" v-for="(todo, index) in todos" :key="todo.id" :title="todo.title" @remove="todos.splice(index,1)"></li>
+    </ul>
+  </div>
+  <script>
+    Vue.component('todo-item', {
+      template: `<li>{{title}} <button @click="$emit('remove')">Remove</button> </li>`,
+      props: ['title'],
+    });
+
+    let todoList = new Vue({
+      el: '#todo-list',
+      data: {
+        newTodoText: '',
+        todos: [{
+            id: 1,
+            title: 'Do the dishes'
+          },
+          {
+            id: 2,
+            title: 'Take out the trash'
+          },
+          {
+            id: 3,
+            title: 'Mow the lawn'
+          },
+        ],
+        nextTodoId: 4,
+      },
+      methods: {
+        addNewTodo: function() {
+          this.todos.push({
+            id: this.nextTodoId++,
+            title: this.newTodoText,
+          });
+          this.newTodoText = ''
+        },
+      },
+    });
+  </script>
+
+  <!-- 事件修饰符 可以串联，可以只有修饰符-->
+  <!-- @click.stop="doThis" 阻止事件继续传播 -->
+  <!-- @submit.prevent="onSubmit" 提交事件不再重载页面 阻止默认事件-->
+  <!-- @click.capture="doThis" 在事件捕获阶段处理 -->
+  <!-- @click.self="doThat" event.target是当前元素时触发处理函数 -->
+  <!-- @click.once="doThis" 点击事件只触发一次 -->
+  <!-- @scroll.passive="onScroll"  相当于addEventListener中的passive选项， -->
+  <!-- 告诉浏览器在事件处理函数中不会调用preventDefault()，以提升滚动性能 -->
+
+  <!-- 按键修饰符 .keyCode 或 .别名 -->
+  <!-- @keyup.enter="submit"  -->
+  <!-- 自带别名 .tab .delete .esc .space .up .down .left .right -->
+  <!-- 自定义按键修饰符别名 Vue.config.keyCodes.f1 = 112 -->
+
+  <!-- 系统修饰键 仅在按下相应按键时才触发鼠标或键盘事件的监听器 -->
+  <!-- @keyup.alt.67  alt+c -->
+  <!-- @click.ctrl="doSomething"  ctrl+click -->
+  <!-- .ctrl .alt .shift .meta -->
+  <!-- .exact 为精确模式，不能按下别的系统键 -->
+
+  <!-- 鼠标按键修饰符 .left .right .middle -->
+  <!-- 这些修饰符会限制处理函数仅响应特定的鼠标按钮。 -->
+
+  <!-- v-model.lazy="msg" 使用change事件对数据进行同步，而不是默认的input事件 -->
+  <!-- v-model.number="age" 自动转换为数值类型 -->
+  <!-- v-model.trim="msg" 自动过滤首尾空白符 -->
+
+  <script>
+  // 由于 JavaScript 的限制，Vue 不能检测以下变动的数组：
+  // 1.当你利用索引直接设置一个项时，例如：vm.items[indexOfItem] = newValue
+  // 2.当你修改数组的长度时，例如：vm.items.length = newLength
+  // 解决：
+  // 1.Vue.set() vm.$set(vm.array, index, value) 或用 splice
+  // 2.vm.items.splice(newLength)
+
+  // 还是由于 JavaScript 的限制，Vue 不能检测对象属性的添加或删除：
+  // 对于已经创建的实例，Vue 不能动态添加根级别的响应式属性，即data里面直接定义的属性
+  // 可以使用 Vue.set(object, key, value) 方法向嵌套对象添加响应式属性 Vue.set(vm.obj, key, value)
+  // 使用Object.assign()添加多个属性时，应该新建对象赋值给原对象，如下
+  // vm.obj = Object.assign({}, vm.obj, {newkey1:newvalue1, newkey2:newvalue2})
+
+
+  // 生命周期钩子
+  // mounted() 不能保证所有子组件都挂载，可以使用 this.$nextTick() 代替mounted()
+  // mounted() {
+  //   this.$nextTick(function () {
+  //     // Code that will run only after the
+  //     // entire view has been rendered
+  //   })
+  // }
+
+  // updated() 不会承诺所有的子组件也都一起被重绘，可以用 vm.$nextTick() 替换掉 updated()
+  // updated() {
+  //   this.$nextTick(function () {
+  //     // Code that will run only after the
+  //     // entire view has been re-rendered
+  //   })
+  // }
+
+  // activated() <keep-alive>组件被激活时调用
+  // deactivated() keep-alive组件失活时调用
+  </script>
+
+
+  <div id="button-counter-demo">
+    <button-counter v-bind="test"></button-counter>
+    <button-counter></button-counter>
+    <button-counter></button-counter>
+  </div>
+  <script>
+    Vue.config.devtools = true;
+    // 全局注册组件，一个组件只能有一个根元素，组件名字母全小写且必须包含一个连字符
+    Vue.component('button-counter', {
+    	props: ['a', 'b'],
+    	// 组件的data必须是函数，每个组件实例维护一份独立的数据
+    	data: function() {
+    		return {
+    			count: 0
+    		}
+    	},
+    	template: '<button v-on:click="count++">You clicked me {{ count }} times. {{a}},{{b}}</button>'
+    });
+    let buttonCounterDemo = new Vue({
+    	el: '#button-counter-demo',
+    	data: {
+    		test: {
+    			a: 1,
+    			b: 2
+    		}
+    	}
+    });
+
+    // 局部注册组件
+    // 如果不再使用某个全局注册的组件，它始终会包含在构建结果中增加js体积
+    // 用对象定义组件
+    // var ComponentA = { /* ... */ }
+    // var ComponentB = { /* ... */ }
+    // var ComponentC = { /* ... */ }
+    // 然后在components选项中定义需要的组件，注意平级组件之间不可相互调用
+    // new Vue({
+    //     el: '#app'
+    //     components: {
+    //         'component-a': ComponentA,
+    //         'component-b': ComponentB
+    //     }
+    // })
+
+    // 如果在ComponentB.js中使用ComponentA和ComponentC
+    // ComponentB.js如下
+    // import ComponentA from './ComponentA'
+    // import ComponentC from './ComponentC'
+    //
+    // export default {
+    //     components: {
+    //         ComponentA,
+    //         ComponentC
+    //     },
+    //     // ...
+    // }
+
+    // 基础组件自动化全局注册https://cn.vuejs.org/v2/guide/components-registration.html#%E5%9F%BA%E7%A1%80%E7%BB%84%E4%BB%B6%E7%9A%84%E8%87%AA%E5%8A%A8%E5%8C%96%E5%85%A8%E5%B1%80%E6%B3%A8%E5%86%8C
+
+    // 可以通过 ref 特性为子组件赋予一个 ID 引用 <base-input ref="usernameInput"></base-input>
+    // 在父组件中使用 this.$refs.usernameInput 来访问这个子组件
+    </script>
+
+  <!-- 通过props向子组件传递数据 v-bind -->
+  <!-- @enlarge-text="onEnlargeText" 监听组件内部触发的事件，可通过$event访问到传递的参数 -->
+  <div id="blog-post-demo">
+    <div :style="{ fontSize: postFontSize+'em'}">
+      <blog-post v-for="post in posts" :key="post.id" :post="post" @enlarge-text="onEnlargeText"></blog-post>
+    </div>
+  </div>
+  <script>
+    // 通过props向子组件传递数据
+    Vue.component('blog-post', {
+    	props: ['post'],
+    	// 通过$emit(name, arg)向父级组件发送一个事件，事件名推荐使用kebab-case
+    	template: `
+        <div id="custom-input-demoblog-post">
+            <h3>{{post.title}}</h3>
+            <button @click="$emit('enlarge-text', 0.1)">Enlarge text</button>
+            <div v-html="post.content"></div>
+        </div>`,
+    });
+    let blogPostDemo = new Vue({
+    	el: '#blog-post-demo',
+    	data: {
+    		posts: [{
+    				id: 1,
+    				title: 'My journey with Vue',
+    				content: '...content...'
+    			},
+    			{
+    				id: 2,
+    				title: 'Blogging with Vue',
+    				content: '...content...'
+    			},
+    			{
+    				id: 3,
+    				title: 'Why Vue is so fun',
+    				content: '...content...'
+    			}
+    		],
+    		postFontSize: 1,
+    	},
+    	methods: {
+    		onEnlargeText: function(enlargeAmount) {
+    			this.postFontSize += enlargeAmount;
+    		}
+    	}
+    });
+    // 通过props传递数据，数据流是单向的，只能由父组件到子组件
+    // 如果想要实现双向绑定，可以用 .sync 修饰符
+    // v-bind:name.sync="myName"  v-bind.sync="obj"
+    // 然后在子组件中，发送一个update事件 this.$emit('upodate:name', newVal);
+
+
+    // props中的变量名出现在html属性中，而属性不区分大小写，所以用kebab-case(短横线分隔)命名
+    // 可以指定变量的类型、验证要求，没有满足要求会在控制台发出警告
+    // props: {
+    // 	title: String,
+    // 	likes: [Number, Date, Function, Symbol],
+    // 	isPublished: Boolean,
+    // 	commentIds: Array,
+    // 	author: Object,
+    // 	propA: {
+    // 		type: Number, // 类型，可以是个构造函数
+    // 		required: true, // 必填字段
+    // 		default: 100, // 默认值，如果是对象、数组，必须从一个函数返回
+    // 		validator: function(value) {
+    // 			// 自定义验证函数，value必须是数组中的一个
+    // 			// 验证失败时，开发环境下回再控制台产生警告
+    // 			// props会在实例创建之前进行验证，所以validator和default里不能用data、computed等
+    // 			return ['success', 'warning', 'danger'].indexOf(value) !== -1;
+    // 		}
+    // 	},
+    // 	propB: {
+    // 		type: Object,
+    // 		defaut: function() {
+    // 			return {};
+    // 		},
+    // 	}
+    // }
+
+    // 不应该在一个子组件内部修改prop的值，最好定义一个本地data属性接受prop传来的初始值，然后改变data中的值
+    // 数组、对象通过引用传入，直接赋值再修改还是会导致父组件内容被修改
+  </script>
+
+  <!-- 在组件上使用v-model -->
+  <div id="custom-input-demo">
+    <!-- placeholder 没有在 props 中接受，默认情况下会被组件的根元素 label 继承 -->
+    <!-- 如果设置了 inherritAttrs=false 后 label 就不会继承 placeholder  -->
+    <!-- 而子元素 input 有 v-bind="$attrs" 所以 placeholder 属性会被组件内的 input 继承 -->
+    <!-- 子元素监听事件可以用 v-on="$listeners" 包含了父作用域中v-on的监听器，不包括.native -->
+    <custom-input
+      v-model="searchText"
+      :label="label"
+      @input="console.log(event.target.value)"
+      @focus="console.log('focus event')"
+      placeholder="input and check console">
+    </custom-input>
+    <p>{{searchText}}</p>
+    <custom-checkbox v-model="foo" value="some value"></custom-checkbox>
+  </div>
+  <script>
+    // 在组件中使用v-model
+    // <input v-model="searchText">
+    // 等价于
+    // <input v-bind:value="searchText" v-on:input="searchText = $event.target.value">
+    // 而用在组件上时， v-model则会这样
+    // <custom-input v-bind:value="searchText" v-on:input="searchText = $event"></custom-input>
+    // 为了让其正常工作，这个组件内的input必须：
+    // 1.将其 value 属性绑定到一个名叫 value 的 prop 上
+    // 2.在其 input 事件被触发时，将新的值通过自定义的 input 事件抛出
+    Vue.component('custom-input', {
+    	// 默认情况下，不被props识别的属性将会自动继承到组件的根元素上，设置为false时，跟元素不会继承这些属性
+    	inheritAttrs: false,
+    	props: ['label', 'value'],
+    	// 如果需要发出多个事件，可以和$listeners合并到一个对象里，然后v-on="listeners"
+    	computed: {
+    		listeners() {
+    			return {
+            ...this.$listeners,
+    				input: event => {
+    					this.$emit('input', event.target.value);
+    				},
+            // 因为focus只是触发了focus事件，没有任何改动，所以可以不显式的声明
+    				// focus: event => {
+    				// 	this.$emit('focus');
+    				// }
+    			}
+    		}
+    	},
+    	// 使用 v-bind=$attrs 可以在非根元素上继承不被props识别的属性(一般配合inheritAttrs:false使用)
+    	// input不是根元素，所以想在 custom-input 标签中监听输入框的原生事件(例如input)时使用$listeners
+    	template: `
+        <label>
+          {{label}}
+          <input v-bind="$attrs" :value="value" v-on="listeners" />
+        </label>`
+    });
+    Vue.component('custom-checkbox', {
+    	// 默认情况下v-model会把实例的属性绑定到value，event为input
+    	// model字段允许自定义组件在使用v-model时定制绑定的属性prop和event
+    	model: {
+    		prop: 'checked',
+    		event: 'change',
+    	},
+    	props: {
+    		checked: Boolean,
+    		// value 可以用作其他用途了
+    		value: String
+    	},
+    	template: `
+        <label>
+          <input
+            type="checkbox"
+            :checked="checked"
+            v-on:change="$emit('change', $event.target.checked)" />
+          {{value}}
+        </label>`
+    })
+    let customInputDemo = new Vue({
+    	el: '#custom-input-demo',
+    	data: {
+    		label: 'input:',
+    		searchText: '',
+    		foo: true,
+    	}
+    })
+  </script>
+
+  <!-- slot插槽分发内容 -->
+  <div id="alert-box-demo">
+    <alert-box> <span slot="my-slot">Something bad happened.</span> </alert-box>
+  </div>
+  <script>
+    // slot插槽分发内容
+    // 插槽可以有多个，这时需要为slot指定name，
+    // 在使用组件时，需要指定slot="slot-name"来分配到不同插槽，没有分配到的会分配到默认插槽(没有name的插槽)
+    Vue.component('alert-box', {
+    	template: `
+            <div class="demo-alert-box">
+                <strong>Error!</strong>
+                <slot name="my-slot">default contents</slot>
+            </div>`
+    });
+    let alertBoxDemo = new Vue({
+    	el: '#alert-box-demo'
+    });
+  </script>
+
+
+  <!-- 可以通过slot-scope来获取插槽里v-bind的变量作用域 -->
+  <!-- 相当于从组件里获取数据 -->
+  <div id="todo-list-demo">
+    <todo-list :todos="todos">
+      <template slot-scope="slotProps">
+        <span v-if="slotProps.mytodo.isComplete">✔️</span>{{ slotProps.mytodo.text }}
+      </template>
+    </todo-list>
+  </div>
+  <script>
+    Vue.component('todo-list', {
+    	props: ['todos'],
+    	template: `
+        <ul>
+          <li
+          v-for="todo in todos"
+          v-bind:key="todo.id">
+            <slot v-bind:mytodo="todo">
+              {{ todo.text }}
+            </slot>
+          </li>
+        </ul>`
+    });
+    let todoListDemo = new Vue({
+    	el: '#todo-list-demo',
+    	data: {
+    		todos: [{
+    				id: 1,
+    				text: '学习 JavaScript',
+    				isComplete: true,
+    			},
+    			{
+    				id: 2,
+    				text: '学习 Vue',
+    				isComplete: false,
+    			},
+    			{
+    				id: 3,
+    				text: '学习 aaa',
+    				isComplete: true,
+    			},
+    		]
+    	}
+    });
+  </script>
+
+
+  <!-- 动态组件 -->
+  <!-- v-bind:is="computedAttr" 来绑定显示哪个组件 -->
+  <!-- 可以用 keep-alive 标签包裹 component 标签，这样切换回来不会重构 -->
+  <div id="dynamic-component-demo">
+    <button v-for="tab in tabs" @click="currentTab=tab">{{tab}}</button>
+    <component v-bind:is="currentTabComponent"></component>
+  </div>
+  <script>
+    let dynamicComponentDemo = new Vue({
+    	el: '#dynamic-component-demo',
+    	data: {
+    		currentTab: 'Home',
+    		tabs: ['Home', 'Posts', 'Archive']
+    	},
+    	computed: {
+    		currentTabComponent: function() {
+    			return 'tab-' + this.currentTab.toLowerCase();
+    		}
+    	},
+    	components: {
+    		'tab-home': {
+    			template: '<p>Home component</p>'
+    		},
+    		'tab-posts': {
+    			template: '<p>Posts component</p>'
+    		},
+    		'tab-archive': {
+    			template: '<p>Archive component</p>'
+    		}
+    	}
+    });
+  </script>
+
+
+  <script>
+
+    // provide和inject实现依赖注入。
+    // provide指定我们想要提供给后代组件的数据/方法
+    // provide: function() {
+    // 	return {
+    // 		getMap: this.getMap
+    // 	}
+    // }
+    // 在后代组件里可以用inject来接收指定的属性
+    // inject: ['getMap']
+
+
+    // 在Vue实例中可以手动监听事件
+    // 通过 vm.$on(eventName, eventHandler) 侦听一个事件
+    // 通过 vm.$once(eventName, eventHandler) 一次性侦听一个事件
+    // 通过 vm.$off(eventName, eventHandler) 停止侦听一个事件
+    // 集成一个第三方库，销毁代码可以用$once('hook:beforeDestroy', func)
+    // mounted: function() {
+    // 	// Pikaday 是一个第三方日期选择器的库
+    // 	var picker = new Pikaday({
+    // 		field: this.$refs.input,
+    // 		format: 'YYYY-MM-DD'
+    // 	})
+    // 	// 在组件被销毁之前，
+    // 	// 也销毁这个日期选择器。
+    // 	this.$once('hook:beforeDestroy', function() {
+    // 		picker.destroy()
+    // 	})
+    // }
+
+
+    // 组件可以递归引用，通过实例中的 name 选项，注意设定递归终止条件
+
+    // 组件之间可以循环调用，如果使用全局注册组件，可以自动解除悖论；使用webapck模块导入时，会报错组件未定义
+    // 可以在生命周期钩子beforeCreate去注册子组件来解决
+    // beforeCreate: function() {
+    //   this.$options.components.TreeFolderContents = require('./tree-folder-contents.vue').default;
+    // }
+    // 或者使用webpack异步import
+    // components: {
+    //   TreeFolderContents: () => import('.tree-folder-contents.vue');
+    // }
+
+  </script>
+
+
+  <!-- 过滤器 filters -->
+  <!-- msg | filterA  接受msg的值为第一个参数 -->
+  <!-- msg | filter('arg1', arg2) 接受三个参数 msg值 'arg1'字符串 arg2值 -->
+  <div id="filter-demo">
+    <input type="text" v-model="msg" id="ip">
+    <br>
+    <label for="ip">{{ msg | capitalize }}</label>
+  </div>
+  <script>
+    // 全局注册过滤器
+    // Vue.filter('capitalize', function(value) {
+    //     if (!value) return '';
+    //     value = value.toString();
+    //     return value.charAt(0).toUpperCase() + value.slice(1);
+    // });
+
+    // 定义本地过滤器
+    new Vue({
+    	el: '#filter-demo',
+    	data: {
+    		msg: 'tom',
+    	},
+    	filters: {
+    		capitalize: function(value) {
+    			if (!value) return '';
+    			value = value.toString();
+    			return value[0].toUpperCase() + value.slice(1);
+    		}
+    	}
+    })
+  </script>
+</body>
+
+</html>

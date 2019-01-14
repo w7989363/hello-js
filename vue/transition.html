@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Transition</title>
+  <link rel="stylesheet" href="./transition.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/2.0.5/velocity.min.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/1.2.3/velocity.min.js"></script>
+</head>
+
+<body>
+  <script>
+    Vue.config.devtools = true;
+    // Vue在插入更新移除DOM时，提供多种方式应用过渡效果
+    // 1.在 CSS 过渡和动画中自动应用 class
+    // 2.可以配合使用第三方 CSS 动画库，如 Animate.css
+    // 3.在过渡钩子函数中使用 JavaScript 直接操作 DOM
+    // 4.可以配合使用第三方 JavaScript 动画库，如 Velocity.js
+
+    // 当插入或删除包含在 transition 组件中的元素时，Vue 将会做以下处理：
+    // 1.自动嗅探目标元素是否应用了 CSS 过渡或动画，如果是，在恰当的时机添加/删除 CSS 类名。
+    // 2.如果过渡组件提供了 JavaScript 钩子函数，这些钩子函数将在恰当的时机被调用。
+    // 3.如果没有找到 JavaScript 钩子并且也没有检测到 CSS 过渡/动画，DOM 操作 (插入/删除) 在下一帧中立即执行。(注意：此指浏览器逐帧动画机制，和 Vue 的 nextTick 概念不同)
+  </script>
+
+  <div id="transition-demo">
+    <button @click="show = !show">Toggle</button>
+    <br>
+    <!-- transition标签用于定义过渡，DOM中不会存在这个标签 -->
+    <!-- transition 有 name 属性的话，类名为  -->
+    <!-- name-enter(leave) 开始  name-enter(leave)-to 结束  name-enter(leave)-active 过程 -->
+    <!-- 没有 name 属性的话，前缀为 v- -->
+    <!-- 也可以使用 enter-class enter-active-class enter-to-class 属性自定义类名 -->
+    <transition name="fade" enter-active-class="animated bounce" leave-active-class="animated bounceOutRight">
+      <!-- trasitionend 过渡结束事件 animationend 动画结束事件  动画的根元素结束时自动捕获 -->
+      <!-- 如果动画根元素结束而子元素还未结束，可以在transition标签显式的设定duration毫秒 :duration="1000" -->
+      <p v-if="show" style="display:inline-block" @trasitionend="console.log('456')">transition</p>
+    </transition>
+  </div>
+  <script>
+    let transitionDemo = new Vue({
+    	el: '#transition-demo',
+    	data: {
+    		show: true,
+    	}
+    })
+  </script>
+
+  <div id="animation-demo">
+    <button @click="show = !show">Toggle</button>
+    <transition name="bounce">
+      <p v-if="show" @animationend="console.log('123')">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris facilisis enim libero, at lacinia diam fermentum id. Pellentesque habitant morbi tristique senectus et netus.</p>
+    </transition>
+  </div>
+  <script>
+    let animationDemo = new Vue({
+    	el: '#animation-demo',
+    	data: {
+    		show: true,
+    	}
+    })
+  </script>
+
+  <script>
+    // 除了使用css，还可以设置 js hook 来设定动画
+    // 如果元素仅使用 JavaScript 过渡，推荐为元素添加 v-bind:css="false"，Vue 会跳过 CSS 的检测
+    // <transition
+    //   v-on:before-enter="beforeEnter"
+    //   v-on:enter="enter"
+    //   v-on:after-enter="afterEnter"
+    //   v-on:enter-cancelled="enterCancelled"
+    //   v-on:before-leave="beforeLeave"
+    //   v-on:leave="leave"
+    //   v-on:after-leave="afterLeave"
+    //   v-on:leave-cancelled="leaveCancelled"
+    // >
+
+    // methods: {
+    // 	beforeEnter: function(el) {
+    // 		// ...
+    // 	},
+    // 	// 此回调函数是可选项的设置
+    // 	// 与 CSS 结合时使用
+    // 	enter: function(el, done) {
+    // 		// ...
+    // 		// 只用js过渡时，在 enter 和 leave 中必须使用 done 进行回调。否则，它们将被同步调用，过渡会立即完成
+    // 		done()
+    // 	},
+    // 	afterEnter: function(el) {
+    // 		// ...
+    // 	},
+    // 	enterCancelled: function(el) {
+    // 		// ...
+    // 	},
+    // }
+
+  </script>
+
+  <!-- appear 初始渲染过渡 也可以自定义类名appear-class等 -->
+  <!-- 也可以使用 js hook 例如 v-on:beafore-appear="beforeAppearHook" -->
+  <div id="appear-demo">
+    <transition appear appear-active-class="animated bounce">
+      <p>appear</p>
+    </transition>
+  </div>
+  <script>
+    let appearDemo = new Vue({
+    	el: '#appear-demo',
+    })
+  </script>
+
+  <!-- 多个元素的过渡 -->
+  <div id="multi-el-demo">
+    <!-- 默认情况下，切换按钮的动画会同时发生，由于DOM还未销毁，所以看起来难看。可以绝对定位覆盖+滑动效果解决 -->
+    <!-- mode过渡模式 in-out 新元素先进行过渡，完成后当前元素离开 out-in相反-->
+    <transition mode="out-in" enter-active-class="animated fadeInRight" leave-active-class="animated fadeOutLeft">
+      <!-- 名字相同的标签需要加 key 让Vue区分，否则Vue出于效率考虑只会修改元素内容，而不是进行DOM重建 -->
+      <button v-if="isEditing" key="save" @click="isEditing = !isEditing">Save</button>
+      <button v-else key="edit" @click="isEditing = !isEditing">Edit</button>
+    </transition>
+  </div>
+  <script>
+    let multiElDemo = new Vue({
+    	el: '#multi-el-demo',
+    	data: {
+    		isEditing: true,
+    	},
+    });
+  </script>
+
+  <!-- 多组件过渡不需要加 key，使用动态组件即可 -->
+  <div id="multi-component-demo">
+    <input type="radio" name="component" v-model="current" value="c-a" id="c-a"><label for="c-a">A</label>
+    <input type="radio" name="component" v-model="current" value="c-b" id="c-b"><label for="c-b">B</label>
+    <transition mode="out-in" leave-active-class="animated fadeOut" enter-active-class="animated fadeIn">
+      <component :is="current"></component>
+    </transition>
+  </div>
+  <script>
+    let multiComponentDemo = new Vue({
+    	el: '#multi-component-demo',
+    	data: {
+    		current: 'c-a'
+    	},
+    	components: {
+    		'c-a': {
+    			template: '<p>Component A</p>'
+    		},
+    		'c-b': {
+    			template: '<p>Component B</p>'
+    		}
+    	},
+    });
+  </script>
+
+  <!-- 列表的进入/离开过渡 -->
+  <div id="list-demo">
+    <button @click="add">Add</button>
+    <button @click="remove">Remove</button>
+    <!-- transition-group标签会以一个真实的标签存在，默认为span，可以通过tag属性来设定 -->
+    <!-- 过渡模式不可用 内部每个元素都需要提供key-->
+    <!-- group有 v-move 属性，元素改变定位的过程中应用。一样可以通过 name 定义前缀，或 move-class 手动设置 -->
+    <!-- 由于删除元素的时候，动画结束才移除DOM，所以没有看到后面的元素滑过来，可以在leave-active设置position:absolute将元素移出文档流即可同时动 -->
+    <transition-group enter-active-class="animated fadeInUp" leave-active-class="animated fadeOutDown absolute" name="list" tag="p">
+      <span v-for="item in items" :key="item" class="list-item">{{item}}</span>
+    </transition-group>
+  </div>
+  <script>
+    let listDemo = new Vue({
+    	el: '#list-demo',
+    	data: {
+    		items: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    		nextNum: 10,
+    	},
+    	methods: {
+    		randomIndex: function() {
+    			return Math.floor(Math.random() * this.items.length);
+    		},
+    		add: function() {
+    			this.items.splice(this.randomIndex(), 0, this.nextNum++);
+    		},
+    		remove: function() {
+    			this.items.splice(this.randomIndex(), 1);
+    		}
+    	},
+    });
+  </script>
+
+  <!-- 另一个例子 -->
+  <div id="staggered-list-demo">
+    <input v-model="query" placeholder="input query">
+    <transition-group leave-active-class="animated fadeOut absolute" enter-active-class="animated fadeIn" tag="ul">
+      <!-- 如果想要每个li发生动画的时间错开，可以给li一个data-index，在 js hook 里根据index 来 setTimeOut -->
+      <li v-for="item in computedItems" :key="item.msg" class="staggered-list-item">{{item.msg}}</li>
+    </transition-group>
+  </div>
+  <script>
+    let staggeredListDemo = new Vue({
+    	el: '#staggered-list-demo',
+    	data: {
+    		query: '',
+    		items: [{
+    				msg: 'Bruce Lee'
+    			},
+    			{
+    				msg: 'Jackie Chan'
+    			},
+    			{
+    				msg: 'Chuck Norris'
+    			},
+    			{
+    				msg: 'Jet Li'
+    			},
+    			{
+    				msg: 'Kung Fury'
+    			}
+    		]
+    	},
+    	computed: {
+    		computedItems: function() {
+    			let vm = this;
+    			return this.items.filter((item) => {
+    				return item.msg.toLowerCase().indexOf(vm.query.toLowerCase()) !== -1;
+    			})
+    		}
+    	},
+    });
+  </script>
+
+  <!-- 实现可复用的过渡/动画，直接将transition/transition-group作为组件的根节点即可 -->
+
+  <!-- 动态过渡 -->
+  <div id="dynamic-fade-demo">
+    Fade In: <input type="range" v-model="fadeInDuration" min="0" :max="maxFadeDuration">
+    Fade Out: <input type="range" v-model="fadeOutDuration" min="0" :max="maxFadeDuration">
+    <button v-if="stop" @click="stop=false; show=false">start</button>
+    <button v-else @click="stop=true">stop</button>
+    <transition v-bind:css="false" @before-enter="beforeEnter" @enter="enter" @leave="leave">
+      <p v-if="show">hello</p>
+    </transition>
+  </div>
+  <script>
+    let dynamicFadeDemo = new Vue({
+      el: '#dynamic-fade-demo',
+      data: {
+        show: true,
+        stop: true,
+        fadeInDuration: 1000,
+        fadeOutDuration: 1000,
+        maxFadeDuration: 1500,
+      },
+      mounted: function() {
+        this.show = false;
+      },
+      methods: {
+        beforeEnter: function(el) {
+          el.style.opacity = 0;
+        },
+        enter: function(el, done) {
+          let vm = this;
+          Velocity(el, {
+            opacity: 1
+          }, {
+            duration: this.fadeInDuration,
+            complete: function() {
+              done();
+              if (!vm.stop) vm.show = false;
+            }
+          });
+        },
+        leave: function(el, done) {
+          let vm = this;
+          Velocity(el, {
+            opacity: 0
+          }, {
+            duration: this.fadeOutDuration,
+            complete: function() {
+              done();
+              vm.show = true;
+            }
+          });
+          done();
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Canvas</title>
+
+  <style>
+    canvas {
+      border: 1px solid red;
+    }
+  </style>
+</head>
+
+<body>
+  <!--
+基本过程：
+1.创建画布canvas标签，其宽高不能通过css设置，只能内联
+2.创建绘图对象，一个画布对应一个绘图对象
+3.绘图
+-->
+  <canvas id="canvas" width="800" height="600"></canvas>
+
+  <script>
+    // 获取画布
+    let canvas = document.querySelector("canvas");
+    // 生成绘图对象
+    let ctx = canvas.getContext("2d");
+
+    // 画折线
+    // 移动到起点
+    ctx.moveTo(100, 100);
+    // 设置一条线的终点
+    ctx.lineTo(200, 150);
+    // 设置第二条线终点
+    ctx.lineTo(100, 200);
+    // 设置连接处 miter尖头默认 round圆头 bevel平头
+    // 当设置为mister时，可以设置尖头的最大长度ctx.miterLimit，超过这个长度会变为bevel
+    ctx.lineJoin = 'round';
+    // 设置线头 butt平直边缘默认 round圆头 square正方形
+    ctx.lineCap = 'round';
+    // 设置线条颜色属性strokeStyle   (如果是填充则是fillStyle)
+    ctx.strokeStyle = "red";
+    // 宽度
+    ctx.lineWidth = 10;
+    // 设置为虚线，参数为一个任意长度的数组，描述线、空格的长度循环
+    // ctx.setLineDash([5,10,15]);
+    // 画线
+    ctx.stroke();
+    // 重置路径，使得不影响后面画图
+    ctx.beginPath();
+
+
+    // 画闭合图形 例如三角形
+    ctx.moveTo(250, 100);
+    ctx.lineTo(250, 150);
+    ctx.lineTo(350, 150);
+    // 闭合路径，从当前点回到起始点
+    ctx.closePath();
+    ctx.lineWidth = 3;
+    // 镂空图形(只画边，不填充)   填充的话用fillStyle和fill方法
+    ctx.strokeStyle = "green";
+    // 绘制阴影
+    // 阴影颜色
+    ctx.shadowColor = "black";
+    // 阴影模糊级别
+    ctx.shadowBlur = 20;
+    // shadowOffsetX 和 shadowOffsetY设置阴影偏移
+    ctx.shadowOffsetX = 5;
+    ctx.shadowOffsetY = 5;
+    ctx.stroke();
+    ctx.beginPath();
+
+
+    // 线性渐变
+    // 创建线性渐变对象 参数：起始左边 结束坐标
+    let lgd = ctx.createLinearGradient(400, 100, 600, 100);
+    // 设置起始结束颜色 第一个参数可取0~1，表示位置百分比
+    lgd.addColorStop(0, "yellow");
+    lgd.addColorStop(1, "pink");
+    // 把渐变对象赋值给颜色属性
+    ctx.strokeStyle = lgd;
+    ctx.moveTo(400, 100);
+    ctx.lineTo(600, 100);
+    ctx.lineWidth = 30;
+    ctx.stroke();
+    ctx.beginPath();
+
+    // 辐射渐变
+    // 创建辐射渐变对象 参数：起始圆心坐标、半径、结束圆心坐标、半径
+    let rgd = ctx.createRadialGradient(500, 200, 0, 500, 200, 50);
+    rgd.addColorStop(0, '#657beb');
+    rgd.addColorStop(1, '#55c4fb');
+    // 因为是填充区域，所以设置填充颜色属性fillStyle
+    ctx.fillStyle = rgd;
+    // 画弧 context.arc(x,y,r,sAngle,eAngle,counterclockwise);
+    // 参数：圆心坐标 半径 开始角度(弧度) 结束角度 逆时针画?
+    ctx.arc(500, 200, 50, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.beginPath();
+    // ctx.arcTo(x1,y1, x2,y2, r) 画与两条线相切的弧
+    // 当前点到x1,y1为一条线，x1,y1到x2,y2为一条线，画这两条线相切半径为r的弧
+
+
+    // fill的非零环绕规则：
+    // 判定某一个闭合区域是否要填充，就从该区域往外延伸一条直线
+    // 这条线经过边时 顺时针+1，逆时针-1（也可以反过来），最后结果如果是非零的，那就填充
+    // 最后结果等于零，就不填充
+    // 外面逆时针长方形
+    ctx.moveTo(100, 300);
+    ctx.lineTo(100, 400);
+    ctx.lineTo(200, 400);
+    ctx.lineTo(200, 300);
+    ctx.closePath();
+    // 里面顺时针长方形
+    ctx.moveTo(130, 330);
+    ctx.lineTo(170, 330);
+    ctx.lineTo(170, 370);
+    ctx.lineTo(130, 370);
+    ctx.closePath();
+    // 最终 相交区域不填充，因为和为零
+    ctx.fill();
+    ctx.beginPath();
+
+
+    // 矩形
+    // 创建一个矩形对象 rect参数：左上角坐标 矩形长、宽，用fill或stroke画出
+    ctx.rect(300, 300, 100, 100);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'black';
+    ctx.stroke();
+    // 直接绘制镂空矩形
+    ctx.strokeRect(420, 300, 100, 100);
+    // 直接填充一个矩形
+    ctx.fillRect(540, 300, 100, 100);
+    // 清除指定矩形内的像素，但不会有阴影了
+    // 可以用来清理画布ctx.clearRect(0,0, canvas.width, canvas.height)
+    ctx.clearRect(570, 330, 40, 40);
+
+
+    // 文本
+    // font设置文本格式，同css的font
+    ctx.font = "30px Arial";
+    ctx.shadowBlur = 10;
+    // textAlign设置锚点横坐标在文本哪里，left锚点在左边 right锚点在右边 center锚点居中
+    ctx.textAlign = "left";
+    // textBaseline设置文字基线，top基线在头顶 bottom基线在下 middle中线 alphabetic默认字母基线
+    ctx.textBaseline = "middle";
+    // 也可以用strokeText镂空，参数为文本、锚点坐标
+    ctx.fillText("Hello World", 100, 50);
+    // measureText(txt) 返回txt文本对象，包含宽度等
+
+
+    // 绘制图像
+    let img = document.createElement('img');
+    img.src = '/Users/wentianlin/Pictures/bage.jpg';
+    img.addEventListener('load', function() {
+      // 第一种调用方式，整张图片绘制
+      // 参数：img、图片放置的左上角坐标、图片宽、高
+      ctx.drawImage(img, 300, 420, 100, 100);
+      // 第二种，绘制图片的一部分到画布
+      // 参数：img，图片中需要截取的部分左上角坐标、宽、高，放置在画布中左上角坐标、宽、高
+      // ctx.drawImage(img, 100,100,100,100, 300,420,100,100);
+
+    })
+
+
+    // 转换
+    // 将当前绘图沿x y方向缩放，坐标也会被缩放
+    // ctx.scale(x,y);
+    // 以画布原点为轴顺时针旋转当前绘图多少弧度
+    // ctx.rotate(angle);
+    // 将画布原点移动到x,y，以后x,y就是0,0
+    // ctx.translate(x,y);
+    // 将前面的变换集合到一个函数
+    // transform()或setTransform()
+
+
+    // 像素操作
+    // 创建一个空的100*100像素对象
+    // let imgData = ctx.createImageData(100,100);
+    // 也可以从画布上截取一个矩形，返回像素对象
+    let imgData = ctx.getImageData(100, 300, 100, 100);
+    console.log(imgData.width);
+    console.log(imgData.height);
+    // 获取像素对象的数据数组
+    let data = imgData.data;
+    // 该数组每4个一循环，为 R G B A(透明度)
+    // 因此data的大小为 100*100*4
+    console.log(data.length);
+    // 遍历data
+    /*
+    for(let i = 0; i < data.length; i+=4) {
+        // R
+        data[i+0];
+        // G
+        data[i+1];
+        // B
+        data[i+2];
+        // A
+        data[i+3];
+    }
+    */
+    // 将像素对象贴到画布上 参数：像素对象、放置位置左上角坐标
+    ctx.putImageData(imgData, 100, 420);
+    // 也可以截取data中的部分矩形，该矩形的左上角坐标和宽高添加在后面的参数
+    // ctx.putImageData(imgData, 100,420, 20,20,60,60);
+
+
+
+    // ctx.createPattern(image,"repeat|repeat-x|repeat-y|no-repeat")
+    // 在指定的方向内重复指定的元素，元素可以是图片、视频，或者其他 <canvas> 元素。
+    // 返回的对象可用于绘制/填充矩形、圆形或线条等等。赋值给style
+
+    // ctx.clip()方法从原始画布中剪切任意形状和尺寸。
+    // 之后的绘图都会被限制在被剪切的区域内，之后的绘图都会被限制在被剪切的区域内
+
+    // ctx.isPointInPath(x,y) x,y是否在当前路径中
+
+    // ctx.quadraticCurveTo(cpx,cpy,x,y); 二次贝塞尔曲线
+    // ctx.bezierCurveTo(cp1x,cp1y,cp2x,cp2y,x,y); 三次贝塞尔曲线
+  </script>
+</body>
+
+</html>

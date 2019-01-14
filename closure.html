@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="./hello.js"></script>
+</head>
+<script src="funcall.js"></script>
+<script src="hello.js"></script>
+<body>
+    <div>0</div>
+    <div>1</div>
+    <div>2</div>
+    <div>3</div>
+    <div>4</div>
+</body>
+<script>
+// 利用闭包，点击几号div就显示数字几
+var divs = document.getElementsByTagName('div');
+// for循环设置循环变量的那里是一个父作用域，循环体是子作用域
+for (var i = 0, len = divs.length; i < len; i++) {
+	// 如果按下面注释掉的写，那点击每个div显示的都是5
+	// 因为这里是给onclick绑定了一个函数，是动态的。
+	// 当点击事件发生时，执行的仍然是alert(i)，i并没有变成数字静态绑定
+	// 所以根据闭包的原则，会一层层往上面的作用域去找i的定义，找到最外层i为5，所以输出是5。
+	// divs[i].onclick = function() {
+	//   alert(i);
+	// };
+
+	// 要实现既定功能，那就需要为alert(i)中的i做一个闭包(作用域)
+	// 写一个匿名函数，自调用。定义一个传入参数num，num在每个匿名函数中都是不一样的
+	// 因此当往上查找num时，到匿名函数这一层就停止了
+	// (function(num) {
+	//   divs[num].onclick = function() {
+	//       alert(num);
+	//   }
+	// })(i);
+
+
+	// 如果for循环中使用let来定义i，可以直接进行绑定
+	// let声明的i只在本轮循环有效，每一次循环，i都是一个新的变量
+
+	divs[i].onclick = function () {
+		alert(i);
+	};
+}
+</script>
+</html>

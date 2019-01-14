@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>AngularJs</title>
+
+  <!--
+    Angular会根据表单域的状态添加/移除以下类：
+    ng-empty
+    ng-not-empty
+    ng-touched
+    ng-untouched
+    ng-valid
+    ng-invalid
+    ng-dirty
+    ng-pending
+    ng-pristine
+    -->
+  <style>
+    input.ng-invalid {
+      background-color: lightblue;
+    }
+
+    /* 表格css */
+    table, th, td {
+      border: 1px solid grey;
+      border-collapse: collapse;
+      padding: 5px;
+    }
+
+    #animate-div {
+      transition: all linear 0.5s;
+      background-color: lightblue;
+      height: 100px;
+      width: 100px;
+    }
+    .ng-hide {
+      height: 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div>
+    <label>price:</label>
+    <input type="text" value="" ng-model="yourPrice">
+    <!-- 货币过滤器 -->
+    <p>Price: {{yourPrice | currency: "RMB ￥"}}</p>
+  </div>
+
+  <h3>ng-repeat</h3>
+  <div ng-init="names=[
+      {name:'Jani',country:'Norway'},
+      {name:'Hege',country:'Sweden'},
+      {name:'Kai',country:'Denmark'}]">
+    <p>使用 ng-repeat 来遍历数组</p>
+    <ul>
+      <!-- 排序过滤器 orderBy 按照country字段升序 -->
+      <li ng-repeat="x in names | orderBy:'country'">
+        {{ x.name + ', ' + x.country }}
+      </li>
+    </ul>
+  </div>
+
+  <div ng-init="names1={name:'Jani',country:'Norway',age:'11'}">
+    <p>使用 ng-repeat 来遍历对象</p>
+    <ul>
+      <li ng-repeat="(key, val) in names1">
+        {{ key }}: {{ val }}
+      </li>
+    </ul>
+  </div>
+
+  <form name="myForm" ng-init="myText = 'test@runoob.com'">
+    <h3>表单状态</h3>
+    Email:
+    <input type="email" name="myAddress" ng-model="myText" required></p>
+    <!-- 自定义过滤器reverse -->
+    <p>{{myText | reverse}}</p>
+    <p>状态</p>
+    <p>$valid:{{myForm.myAddress.$valid}}</p>
+    <p>$dirty:{{myForm.myAddress.$dirty}}</p>
+    <p>$touched:{{myForm.myAddress.$touched}}</p>
+  </form>
+
+
+  <div ng-controller="myCtrl">
+    <h3>控制器</h3>
+    名: <input type="text" ng-model="firstName"><br>
+        姓: <input type="text" ng-model="lastName"><br>
+    <!-- 大小写转换过滤器lowercase uppercase -->
+    <p>{{fullName() | uppercase}}</p>
+
+  </div>
+
+  <div ng-controller="serviceCtrl">
+    <h3>service</h3>
+    <p>url: {{ myUrl }}</p>
+    <p>http response: {{myResponse}}</p>
+    <p>timeout: {{myTimeout}}</p>
+    <p>interval: {{myInterval}}</p>
+    <p>myService: {{myReverse}}</p>
+  </div>
+
+  <div ng-controller="directiveCtrl">
+    <h3>directive</h3>
+    <div hello-replace>something dont show</div>
+    <div hello-transclude>test</div>
+    颜色：<input type="text" ng-model="color">
+    <!-- @单向绑定 标签中必须先声明 color="{{color}}"-->
+    <div hello-color1 style="background-color:{{color}};" color-attr="{{color}}"></div>
+    <!-- =双向绑定 标签中必须先声明 color="color" -->
+    <div hello-color2 style="background-color:{{color}};" color-attr="color"></div>
+    <!-- &绑定函数 标签中必须先声明 func="func()" -->
+    <div hello-color3 style="background-color:{{color}};" shout="shout()"></div>
+    <out-directive>
+      <in-directive>click me</in-directive>
+    </out-directive>
+  </div>
+
+  <div ng-controller="formCtrl">
+    <form name="myForm" novalidate>
+      <h3>form</h3>
+      <p>
+        邮箱: <br>
+        <input type="email" ng-model="email" name="email" required>
+        <span style="color:red">
+                <span ng-show="myForm.email.$error.required">邮箱是必须的。</span>
+        <span ng-show="myForm.email.$error.email">邮箱格式不正确。</span>
+        </span>
+      </p>
+      <p>
+        <input type="submit" ng-disabled="myForm.email.$invalid">
+        </p>
+
+        <input type="checkbox" ng-model="checkbox">多选
+        <p>checkbox: {{checkbox}}</p>
+        <input type="radio" ng-model="radio" value="1">radio1
+        <input type="radio" ng-model="radio" value="2">radio2
+        <p>radio: {{radio}}</p>
+
+        <!-- ng-model给定选中的对象变量名，便于拿到选定对象 -->
+
+        <!-- 如果循环对象为数组 -->
+        <!-- ng-options="下拉框显示值 for x in 数组" -->
+        <select ng-model="selected1" ng-options="x.site for x in siteArray"></select>
+        <p>您选择的是: {{selected1.url}}</p>
+
+        <!-- 如果循环对象为对象 -->
+        <!-- ng-options="下拉框显示值 for (key, val) in 对象" -->
+        <select ng-model="selected2" ng-options="y.brand for (x, y) in siteObj"></select>
+        <p>您选择的是: {{selected2}}</p>
+    </form>
+  </div>
+
+
+  <div ng-controller="tableCtrl">
+    <h3>ng-repeat表格</h3>
+    <table>
+      <tr style="{{$even?'background-color: #f1f1f1;':''}}" ng-repeat="x in tableArray">
+        <td>{{$index+1}}</td>
+        <td>{{x.Name}}</td>
+        <td>{{x.Country}}</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ng-disabled ng-hide ng-show -->
+
+  <div ng-controller="clickCtrl">
+    <h3>ng-click</h3>
+    <button ng-click="toggle()">隐藏/显示</button>
+    <p ng-hide="myVar">
+      show/hide
+    </p>
+  </div>
+
+  <!-- animate -->
+  <div>
+    <h3>animate</h3>
+    隐藏div: <input type="checkbox" ng-model="animateCheck">
+    <div id="animate-div" ng-hide="animateCheck"></div>
+  </div>
+
+
+  <!-- route -->
+  <div>
+    <h3>route</h3>
+    <div>
+      <a href="#/home">Home</a>
+      <a href="#/about">About</a>
+    </div>
+    <div ng-view=""></div>
+  </div>
+
+
+
+
+
+  <!-- 在底部引入AngularJs主库，优化应用加载时间 -->
+  <script type="text/javascript" src="http://apps.bdimg.com/libs/angular.js/1.5.0-beta.0/angular.min.js">
+  </script>
+  <!-- AngularJs动画 -->
+  <script type="text/javascript" src="http://apps.bdimg.com/libs/angular.js/1.5.0-beta.0/angular-animate.min.js">
+  </script>
+  <!-- AngularJs路由 -->
+  <script type="text/javascript" src="http://apps.bdimg.com/libs/angular.js/1.5.0-beta.0/angular-route.min.js">
+  </script>
+  <!-- 加载控制器 -->
+  <script type="text/javascript" src="myng.js">
+  </script>
+</body>
+
+</html>
