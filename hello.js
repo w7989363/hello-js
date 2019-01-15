@@ -406,10 +406,6 @@ let const class 声明的全局变量不属于顶层变量window/global
 */
 // 数组
 {
-	// 创建20个undefined的空数组
-	Array.apply(null, {
-		length: 20
-	})
 
 	// 数组的若干方法
 	// let arr1 = 'hello'.split('')
@@ -505,6 +501,13 @@ let const class 声明的全局变量不属于顶层变量window/global
 	let arr9 = arr8.map((item, index) => {
 		return item * item
 	})
+
+	// 生成长度为10的数组
+	// 10 个元素都为 undefined
+	Array.apply(null, { length: 10 })
+	Array.from({ length: 10 })
+	// 再利用 keys() rest 运算符可以快速生成 0~9
+	arr9 = [...Array.from({ length: 10 }).keys()]	// [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
 
 }
 
@@ -813,7 +816,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// Reflect.deleteProperty(target, name)  				相当于 delete obj[name]
 	// Reflect.defineProperty(target, name, desc)
 	// Reflect.ownKeys(target) 					基本等同于Object.getOwnPropertyNames与Object.getOwnPropertySymbols之和
-	// Reflect.isExtensible(target)
+	// Reflect.isExtensible(target)			对象是否可扩展，即是否可以在对象上添加新的属性/方法
 	// Reflect.preventExtensions(target)
 	// Reflect.getOwnPropertyDescriptor(target, name)
 	// Reflect.getPrototypeOf(target)
@@ -898,14 +901,18 @@ let const class 声明的全局变量不属于顶层变量window/global
 {
 	// Iterator 接口
 	/*
+	// 一个对象如果是可遍历的(for...of)，则应该实现以下接口
 	interface Iterable {
+		// [Symbol.iterator]() 方法返回一个遍历器对象
 		[Symbol.iterator](): Iterator,
 	}
 
+	// 该方法返回一个遍历器对象，遍历器的本质特征是具有 next() 方法
 	interface Iterator {
 		next(value ? : any): IterationResult,
 	}
 
+	// next() 方法返回一个标准对象，value 为值，done 表示是否遍历结束
 	interface IterationResult {
 		value: any,
 		done: boolean,
@@ -922,17 +929,18 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// NodeList 对象
 
 
-	// 为obj对象部署iterator接口
+	// 为 obj 对象部署 iterator 接口
 	let obj = {
 		data: ['hello', 'world'],
-		// Iterator 接口部署在数据结构的Symbol.iterator属性
+		// Iterator 接口部署在数据结构的 [Symbol.iterator] 属性
 		// 一个数据结构只要具有Symbol.iterator属性，就可以认为是“可遍历的”（iterable）
-		// Symbol.iterator属性本身是一个函数，就是当前数据结构默认的遍历器生成函数
-		// 执行这个函数，就会返回一个遍历器(对象)
+		// [Symbol.iterator] 属性本身是一个函数，就是当前数据结构默认的遍历器生成函数
+		// 执行这个函数，就会返回一个遍历器对象
 		[Symbol.iterator]() {
 			const self = this
+			// 利用闭包记录遍历 index
 			let index = 0
-			// 遍历器的根本特征就是具有next方法
+			// 返回遍历器对象，具有 next() 方法
 			return {
 				next() {
 					if (index < self.data.length) {
@@ -951,7 +959,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 		}
 	}
 
-	// 对于类似数组的对象（存在数值键名和length属性）部署 Iterator 接口，
+	// 对于类似数组的对象（存在数值index键名和length属性）部署 Iterator 接口，
 	// 有一个简便方法，就是Symbol.iterator方法直接引用Array.prototype中的 Iterator 接口。
 	// obj.prototype[Symbol.iterator] = Array.prototype[Symbol.iterator]
 	let iterable = {
@@ -997,29 +1005,30 @@ let const class 声明的全局变量不属于顶层变量window/global
 // 生成器
 {
 	// function关键字与函数名之间有一个星号，紧跟在function关键字后面
-	// Generator 函数可以理解为一个有限状态机，可以遍历有限个"状态"
-	// 执行 Generator 函数会返回一个遍历器对象(本质特征是具有next函数)
+	// Generator 函数可以理解为一个状态机，可以依次遍历其中的"状态"
+	// 执行 Generator 函数会返回一个遍历器对象
 	// 使用遍历器的 next() 函数可以依次遍历 Generator 函数内部的每一个状态
-	// 因此 Generator 函数可以直接作为对象的 [Symbol.iterator] 接口
+	// next() 函数返回一个对象，value 为值 done 表示是否遍历结束
 
 	// 调用 Generator 函数后，该函数并不执行，返回的是一个指向内部状态的指针对象
-	// 调用next会执行到yield暂停，并返回yield后面的值；再次next继续执行
+	// 调用 next() 会执行到 yield() 暂停，并返回 yield 后面的值，再次调用 next() 继续执行
 	function* helloWorldGenerator() {
 		yield 'hello'
 		yield 'world'
 		return 'ending'
 	}
-	let hw = helloWorldGenerator()
-	hw.next() // { value: 'hello', done: false }
-	hw.next() // { value: 'world', done: false }
-	hw.next() // { value: 'ending', done: true }
+	let it = helloWorldGenerator()
+	it.next() // { value: 'hello', done: false }
+	it.next() // { value: 'world', done: false }
+	it.next() // { value: 'ending', done: true }
 
 
-	// yield表达式返回值总是为undefined
+	// 如果 next() 不添加任何参数，则 yield 表达式返回值总是为 undefined
 	// next()函数的参数可以作为上次yield的返回值
 	function* f() {
-		for (var i = 0; true; i++) {
-			// reset == undefined
+		for (let i = 0; true; i++) {
+			// 如果 next() 传入参数为空，则 reset === undefined
+			// 如果传入参数不为空，则 reset === 传入参数
 			var reset = yield i
 			if (reset) {
 				i = -1
@@ -1029,7 +1038,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 	let g = f()
 	g.next() // { value: 0, done: false }
 	g.next() // { value: 1, done: false }
-	// 此时reset == true，i=-1，i++，所以输出0
+	// 此时 reset === true 重置 i === -1 所以经过 i++ 输出 0
 	g.next(true) // { value: 0, done: false }
 
 	// yield* Generator/Iteratable表示进入后面对象的遍历
@@ -1045,11 +1054,12 @@ let const class 声明的全局变量不属于顶层变量window/global
 	}
 	// bar的遍历顺序是 x a b y
 
-	let read = (function*() {
+	function* foobar() {
 		yield 'test'
-		// 因为String原生具有遍历器，会一个字符一个字符的返回
-		yield*'hello'
-	})() // test h e l l o
+		// 因为 String 原生具有遍历器，会一个字符一个字符的返回
+		yield* 'hello'
+	}
+	// test h e l l o
 }
 
 
@@ -1062,21 +1072,20 @@ let const class 声明的全局变量不属于顶层变量window/global
 */
 {
 	// async 就是 Generator 的语法糖
-	// * 替换成async   yield替换成await
-	// async表示函数里有异步操作，await表示紧跟在后面的表达式需要等待结果。
-	// async的改进：
-	// 1.内置执行器，不用像Generator一样使用co模块
-	// 2.async函数的await命令后面，可以是 Promise 对象和原始类型的值（数值、字符串和布尔值，但这时等同于同步操作）
+	// async 表示函数里有异步操作，await表示紧跟在后面的表达式需要等待结果。
+	// async 的改进：
+	// 1.内置执行器，不用像 Generator 一样使用 co 模块
+	// 2.async 函数的 await 命令后面，可以是 Promise 对象和原始类型的值（数值、字符串和布尔值，但这时等同于同步操作）
 	// 3.返回值是 Promise。async函数完全可以看作多个异步操作，包装成的一个 Promise 对象，而await命令就是内部then命令的语法糖
 
 	// async函数返回一个 Promise 对象，可以使用then方法添加回调函数。
-	// 当函数执行的时候，一旦遇到await就会先返回，等到异步操作完成，再接着执行函数体内后面的语句。
+	// 当函数执行的时候，一旦遇到 await 就会先返回，等到异步操作完成，再接着执行函数体内后面的语句。
 
 
 	const fs = require('fs')
 	const readFile = function (fileName) {
-		return new Promise(function (resolve, reject) {
-			fs.readFile(fileName, function (error, data) {
+		return new Promise((resolve, reject) => {
+			fs.readFile(fileName, (error, data) => {
 				if (error) return reject(error)
 				resolve(data)
 			})
@@ -1099,7 +1108,8 @@ let const class 声明的全局变量不属于顶层变量window/global
 		// console.log(res.babelrc, res.test)
 	})
 
-
+	// 或者用 await asyncReadFile
+	// const res = await asyncReadFile()
 
 
 
@@ -1130,18 +1140,23 @@ let const class 声明的全局变量不属于顶层变量window/global
 // 类
 {
 	// 用于定义私有方法
-	const bar = Symbol('bar')
+	const privateAttr = Symbol('bar')
 	// 类的声明不存在变量提升，因为要保证子类在父类之后定义
 	// 类可以看做是构造函数的另一种书写方式，语法糖
 	class Point {
-		// 类中的this指的是实例，this.x定义的是实例属性
-		constructor(x, y) {
+		// 类中的 this 代表 new 出来的实例对象，所以 this.x 定义的是实例属性
+		constructor(x = 0, y = 0) {
 			this.x = x
 			this.y = y
-			// 可以在构造方法中为类内方法绑定this为当前类
+
+			// 可以在构造方法中为类内方法绑定this为当前当前实例
 			this.toString = this.toString.bind(this)
+			// 也可以直接使用箭头函数定义
+			// this.toString = () => {}
+			// 这样的一个变化是 toString 变成了实例方法，而在类中定义的方法是定义在 prototype 中的
+
 			// new.target，返回当前 Class，如果子类继承则返回子类Class
-			// 可以利用这个特性写出不能实例化的类
+			// 可以利用这个特性写出不能实例化的类(虚类)
 			// if(new.target === Point){
 			//     throw new Error('本类不能实例化')
 			// }
@@ -1150,16 +1165,16 @@ let const class 声明的全局变量不属于顶层变量window/global
 		// ES6规定不能定义静态属性，以下定义会报错
 		// xy = 41
 		// 只能在外部使用Point.xy = 41来定义
-		// 糟心啊。。。什么时候能直接定义属性，不用在constructor里定义
 
-		// 类内定义方法不用加function关键字 属于原型对象
+		// 类内直接定义的方法属于原型对象 Point.prototype.toString()
+		// 类内定义方法不用加function关键字
 		toString() {
 			return `(${this.x}, ${this.y})`
 		}
 		// 如果是私有方法可以在前面加一个下划线标识，但是仍然可以被外部访问
 		_privateFunc() {}
 		// 可以使用Symbol来定义私有方法，类作为模块导出时外部就没法访问
-		[bar]() {}
+		[privateAttr]() {}
 		// get set 关键字
 		set distence(d) {
 			this.d = d
@@ -1176,36 +1191,42 @@ let const class 声明的全局变量不属于顶层变量window/global
 			//   console.log(v) // 2 3
 			// }
 		}
-		// 静态方法static，可以直接用类调用
-		// Point.staticFunc()
+		// 静态方法 static，直接用类调用，无法通过实例调用
+		// 因为 static 定义的方法是定义在构造函数对象中的，不存在于原型链
 		static staticFunc() {
 			return 'hey'
 		}
+		// 也可以在外部定义静态方法
+		// Point.staticFunc()
+
+		// 静态属性提案
+		// static staticAttr = 'staticAttr'
+		// 也可以在外部定义静态属性
+		// Point.six = 6
 	}
-	// 类的数据类型就是函数
+	// 类的数据类型是函数，因为类本身就指向构造函数
 	typeof Point // function
-	// 类本身就指向构造函数
 	Point === Point.prototype.constructor // true
-	// 类的方法都定义在prototype对象上面，新方法可以添加在prototype对象上面。
+	// 类的方法都定义在 prototype 对象上面，新方法可以添加在 prototype 对象上面。
 	Point.prototype.fun1 = function() {}
-	// Object.assign方法可以很方便地一次向类添加多个方法。
+	// Object.assign 方法可以很方便地一次向原型对象添加多个属性/方法
 	Object.assign(Point.prototype, {
+		protoAttr: 'protoAttr',
 		func2() {},
-		func3() {},
-		// 可以在这里定义箭头函数，省去构造函数中的this绑定
-		sayhi: () => {
-			console.log('hi')
-		},
+		func3() {}
 	})
-	Point.six = 6
 	// 使用new关键字来实例化对象
 	let p = new Point(3, 4)
+	// 定义静态属性(static)，只能通过类访问
+	Point.six = 6
 	Point.six // 6
+	// 静态属性不能通过实例访问，因为定义在构造函数对象中，不在原型链中
 	p.six // undefined
+	// 使用 get 方法
 	p.distence // 5
-	// 建议使用Object.getPrototypeOf(obj)代替__proto__
+	// 建议使用 Object.getPrototypeOf(obj) 代替 obj.__proto__
 	p.__proto__ === Object.getPrototypeOf(p) // true
-	// 实例的__proto__指向类的原型对象
+	// 实例的 __proto__ 指向类(构造函数)的原型对象
 	p.__proto__ === Point.prototype // true
 
 	// in 运算符会遍历所有可枚举属性，包括原型链上继承的
@@ -1227,15 +1248,20 @@ let const class 声明的全局变量不属于顶层变量window/global
 	}('张三')
 	person.sayName() // 张三
 
+
 	// 继承
 	class colorPoint extends Point {
-		constructor(x, y, color) {
+		constructor(x, y, color = 'red') {
 			// 子类必须在constructor方法中调用super方法，否则新建实例时会报错
 			// 只有调用super之后才能在子类中使用this
 			// 因为ES6使用父类的构造函数来塑造this，然后再用子类的构造方法修改this
+			// super 内部实现为 Point.prototype.constructor.call(this)
+			// 所以这一句就相当于使用原型链实现继承时的 Parent.call(this)
 			super(x, y)
-			// super当做函数时代表父类构造函数
-			// super当做对象时，在静态方法之中指向父类，在普通方法之中指向父类的原型对象prototype
+			// super() 当做函数时代表父类构造函数
+			// super 当做对象时，用在不同地方有不同的含义
+			// 在普通方法中 super 指向父类的原型对象 prototype，在静态方法中指向父类对象(也就是定义静态属性/方法的对象)
+			
 			this.color = color
 		}
 		toString() {
@@ -1245,20 +1271,12 @@ let const class 声明的全局变量不属于顶层变量window/global
 	let cp = new colorPoint(1, 2, 'red')
 	cp.toString() // red (1, 2)
 	// 继承的内部实现
-	// setPrototypeOf内部实现是将第一个参数的__proto__指向第二个参数
-	// colorPoint.prototype.__proto__ 表示方法的继承,指向父类的prototype
+	// setPrototypeOf(obj, prototype) 方法将 obj.__proto__ 指向 prototype
+	// 下面实现了原型链 属性/方法 的继承
 	Object.setPrototypeOf(colorPoint.prototype, Point.prototype)
-	// colorPoint.__proto__ 表示构造函数的继承,指向父类
+	// 下面实现了静态 属性/方法 的继承
 	Object.setPrototypeOf(colorPoint, Point)
-	// 因此
-	// 子类的__proto__指向父类，是构造方法的继承
-	// Object.getPrototypeOf(colorPoint) === Point // true
-	colorPoint.__proto__ === Point
-	// 子类的原型对象就是独立的原型对象colorPoint{}，原型对象的__proto__指向父类原型对象，形成了原型链
-	// Object.getPrototypeOf(colorPoint.prototype) === Point.prototype // true
-	colorPoint.prototype.__proto__ === Point.prototype
-	// 类的实例的__proto__指向类的原型对象。所有引用类型(array object function)的__proto__都指向构造函数的prototype
-	cp.__proto__ === colorPoint.prototype // true
+	// 具体解释参考 ./prototype.js 继承方法6
 }
 
 /*
@@ -1278,10 +1296,10 @@ let const class 声明的全局变量不属于顶层变量window/global
 	    // ...
 	}
 	function testable(target) {
-	    // 这是添加的静态属性
-	    target.isTestable = true
-	    // 如果想添加实例属性
-	    target.prototype.isTest = false
+		// 这是添加的静态属性
+		target.isTestable = true
+		// 如果想添加实例属性
+		target.prototype.isTest = false
 	}
 	MyTestableClass.isTestable // true
 	let t = new MyTestableClass()
@@ -1289,6 +1307,117 @@ let const class 声明的全局变量不属于顶层变量window/global
 	*/
 
 }
+
+
+/*
+ █████  ██████  ██████   █████  ██    ██ ██████  ██    ██ ███████ ███████ ███████ ██████
+██   ██ ██   ██ ██   ██ ██   ██  ██  ██  ██   ██ ██    ██ ██      ██      ██      ██   ██
+███████ ██████  ██████  ███████   ████   ██████  ██    ██ █████   █████   █████   ██████
+██   ██ ██   ██ ██   ██ ██   ██    ██    ██   ██ ██    ██ ██      ██      ██      ██   ██
+██   ██ ██   ██ ██   ██ ██   ██    ██    ██████   ██████  ██      ██      ███████ ██   ██
+*/
+// ArrayBuffer(byteLength)
+{
+	// ArrayBuffer提供直接操作连续内存的途径
+	// ArrayBuffer本身不能直接操作内存，需要通过在其上建立“视图”
+	// 同一段内存，不同数据有不同的解读方式，这就叫做“视图”（view）
+	// 视图就是如何看待、解析这一片内存，是8位无符号整数还是32位浮点等
+	// TypedArray视图，TypedArray(buffer, byteOffset=0, length?)，包括九种类型:
+		// Int8Array
+		// Uint8Array
+		// Uint8ClampedArray	// 同上是8位无符号整数，但是溢出处理不同
+		// Int16Array
+		// Uint16Array
+		// Int32Array
+		// Uint32Array
+		// Float32Array
+		// Float64Array
+
+	
+	// 申请8字节的连续内存
+	const buffer = new ArrayBuffer(8)
+	// 在其上建立视图（可以在一个ArrayBuffer上建立多个视图，但是操作的都是同一片内存）
+	const x8 = new Uint8Array(buffer) // 一个元素占8位一个字节，x8.length === 8
+	x8 // Uint8Array [0, 0, 0, 0, 0, 0, 0, 0]
+	x8[0] = 2 // Uint8Array [ 2, 0, 0, 0, 0, 0, 0, 0 ]
+	x8[1] = 1 // Uint8Array [ 2, 1, 0, 0, 0, 0, 0, 0 ]
+	const x16 = new Uint16Array(buffer) // 一个元素占16位两个字节，x1.length === 4
+	x16 // Uint16Array [ 258, 0, 0, 0 ]
+	// 为什么是 258
+	// x86体系是小端字节序，即小的数存在前面
+	// 第1第2字节表示一个数，存的是2 1，由于是小端字节序，1表示高位
+	// 转为2进制就是 00000001 00000010，即 258
+
+	// TypedArray很像普通数组，所有数组方法都可以用
+	x8.buffer // 返回视图对应的ArrayBuffer
+
+
+	// DataView视图，可以自定义复合格式的视图，比如第一个字节是 Uint8，第二、三个字节是 Int16
+	// DataView(buffer, byteOffset = 0, length ? )
+	// DataView视图的设计目的，是用来处理网络设备传来的数据
+	// 大端字节序或小端字节序是可以自行设定的
+	// 默认情况下，DataView的get系列方法使用大端字节序解读数据
+	// 如果需要使用小端字节序解读，必须在get方法的第二个参数指定true
+	const dv = new DataView(buffer) // 内存字节 [ 2, 1, 0, 0, 0, 0, 0, 0 ]
+	dv.getUint16(0) // 2 1默认大端序读出来是 513
+	// set系列方法，第一个参数指定开始写入的字节序号，第二个参数为写入的数据
+	// 第三个参数可选，指定大小端序，默认大端序，true为小端序
+	dv.setUint16(0, 512) // 内存字节 [ 2, 0, 4, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+
+
+
+	// ArrayBuffer 在 Web Worker 中的应用
+	// 主线程与用户交互，worker线程进行运算。他们之间通过postMessage/onmessage交互
+	// 这种数据交互是通过复制实现的，如果有大量数据非常耗时
+	// SharedArrayBuffer开辟一片共享内存，实现数据的快速交互
+	/*
+	// 主线程
+	// 新建 1KB 共享内存
+	const sharedBuffer = new SharedArrayBuffer(1024)
+	// 主线程将共享内存的地址发送出去
+	w.postMessage(sharedBuffer)
+	// 在共享内存上建立视图，供写入数据
+	const sharedArray = new Int32Array(sharedBuffer)
+
+	// Worker 线程
+	onmessage = function(ev) {
+		// 主线程共享的数据，就是 1KB 的共享内存
+		const sharedBuffer = ev.data
+		// 在共享内存上建立视图，方便读写
+		const sharedArray = new Int32Array(sharedBuffer)
+		// ...
+	}
+	*/
+
+	// 线程间的同步互斥机制可以通过Atomics对象实现
+	// Atomics对象的各个方法保证了操作的原子性
+	// Atomics.load(sharedArray, index)
+	// Atomics.store(sharedArray, index, value)
+	// Atomics.add(sharedArray, index, value)
+	// Atomics.sub(sharedArray, index, value)
+	// Atomics.and(sharedArray, index, value)
+	// Atomics.or(sharedArray, index, value)
+	// Atomics.xor(sharedArray, index, value)
+
+	// 为实现线程间的同步，提供了 Atomics.wait() Atomics.wake() 方法
+	// Atomics.wait(sharedArray, index, value, time)
+	// 当满足条件 sharedArray[index] === value 时，在该函数进入休眠
+	// 并将线程保存到 sharedArray[index] 队列
+	// time 是可选参数，表示 time 时间后自动唤醒。time 默认为 Infinity，只能被 wake 唤醒
+	// wait() 返回值为字符串
+		// 如果未满足条件从而没有进入休眠，直接返回 not-equal
+		// 如果被 wake 唤醒，返回 ok
+		// 如果 time 时间到了自动唤醒，返回 timed-out
+
+
+	// Atomics.wake(sharedArray, index, count)
+	// 唤醒等待在 sharedArray[index] 队列上的 count 个线程
+	// count 默认为 Infinity，表示唤醒所有线程
+
+
+}
+
+
 
 /*
 ███    ███  ██████  ██████  ██    ██ ██      ███████
@@ -1298,16 +1427,18 @@ let const class 声明的全局变量不属于顶层变量window/global
 ██      ██  ██████  ██████   ██████  ███████ ███████
 */
 // ES6模块
-// 见module_export.mjs/module_import.js
+// 见export_import.mjs
 {
 	// 浏览器对ES6模块的加载
 
 	// 默认情况下浏览器中加载js脚本，遇到<script>标签就会停止渲染，转而下载执行js脚本
-	// js执行完毕才会继续渲染页面，可能会导致页面加载时间过长
+	// js脚本下载完就执行，执行完毕才会继续渲染页面，可能会导致页面加载时间过长
+	// 可以添加 defer async 属性加以控制
 	// defer属性: 等到DOM结构完全生成，以及其他脚本执行完成，才会执行
 	// <script src='path/to/myModule.js' defer></script>
-	// async属性: 一旦下载完，渲染引擎就会中断渲染，执行这个脚本以后，再继续渲染
+	// async属性: 脚本下载完后当页面继续进行解析，脚本将异步执行
 	// <script src='path/to/myModule.js' async></script>
+
 	// 浏览器中加载ES6模块，type属性要设置为module
 	// 对于type为module的标签默认打开defer 异步加载
 	// <script type='module' src='./module_export.js'>
@@ -1318,6 +1449,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 
 
 	// Node对ES6模块的加载
+
 	// 因为Node有自己的CommonJS模块格式，与ES6模块不兼容
 	// ES6模块(export/import 后缀.mjs)与CommonJS(module.exports/require 后缀.js)模块的区别
 	// 1.CommonJS 模块输出的是一个值的拷贝，ES6 模块输出的是值的引用
@@ -1335,7 +1467,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// ./foo/index.mjs、./foo/index.js、./foo/index.json、./foo/index.node
 
 	// ES6模块引入CommonJS模块时，直接使用default的格式
-	// import defaultM from './commonjs.js'
+	// import defaultObj from './commonjs.js'
 	// CommonJS引入ES6模块，使用import()函数
 	// const es_namespace = await import('./es6.mjs')
 
@@ -1346,20 +1478,20 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// require命令第一次加载该脚本，就会执行整个脚本，然后在内存生成一个对象
 	/*
 	{
-	    // 模块名
-	    id: '...',
-	    // 模块输出的各个接口
-	    exports: { '...' },
-	    // 该模块脚本是否执行完毕
-	    loaded: true,
-	    // ...
+		// 模块名
+		id: '...',
+		// 模块输出的各个接口
+		exports: { '...' },
+		// 该模块脚本是否执行完毕
+		loaded: true,
+		// ...
 	}
 	*/
 	// 以后用到该模块时就直接到exports属性中取缓存值，这也就是为什么CommonJS输出后不会反映实时情况
 
 	// CommonJS循环加载的情况：a.js执行一半，中间require('b.js')；b.js执行一半又require('a.js')
 	// CommonJS模块是执行到require语句才跳到脚本进行加载的，因此过程如下
-	// 假设a.js先执行，a执行到一半，去require('b.js')，这时候调到b执行
+	// 假设a.js先执行，a执行到一半，去require('b.js')，这时候跳到b执行
 	// b.js执行到一半发现需要加载a，就去内存中找a的缓存
 	// 因为此时a只执行了一半，所以exports属性中只有前一半的输出，后面代码的变化是没有的
 	// b取到a的缓存后继续执行，直到b执行完，再把执行权交还给a
@@ -1428,94 +1560,6 @@ let const class 声明的全局变量不属于顶层变量window/global
 }
 
 
-/*
- █████  ██████  ██████   █████  ██    ██ ██████  ██    ██ ███████ ███████ ███████ ██████
-██   ██ ██   ██ ██   ██ ██   ██  ██  ██  ██   ██ ██    ██ ██      ██      ██      ██   ██
-███████ ██████  ██████  ███████   ████   ██████  ██    ██ █████   █████   █████   ██████
-██   ██ ██   ██ ██   ██ ██   ██    ██    ██   ██ ██    ██ ██      ██      ██      ██   ██
-██   ██ ██   ██ ██   ██ ██   ██    ██    ██████   ██████  ██      ██      ███████ ██   ██
-*/
-// ArrayBuffer(length字节)
-{
-	// ArrayBuffer提供直接操作连续内存的途径
-	// ArrayBuffer本身不能直接操作内存，需要通过在其上建立“视图”
-	// 同一段内存，不同数据有不同的解读方式，这就叫做“视图”（view）
-	// 视图就是如何看待、解析这一片内存，是8位无符号整数还是32位浮点等
-	// TypedArray视图，包括九种类型
-	// DataView视图，可以自定义复合格式的视图，比如第一个字节是 Uint8，第二、三个字节是 Int16
-
-	// 申请16字节的连续内存
-	const buffer = new ArrayBuffer(16)
-	// 在其上建立视图（可以在一个ArrayBuffer上建立多个视图，但是操作的都是同一片内存）
-	const x1 = new Int16Array(buffer) // 一个元素占16位两个字节，x1.length === 8
-	x1[0] = 1
-	x1[1] = 4
-	const x2 = new Uint8Array(buffer) // 一个元素占8位一个字节，x1.length === 16
-	x2[5] = 2
-	x2 // Uint8Array [ 1, 0, 4, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-	x1 // Int16Array [ 1, 4, 512, 0, 0, 0, 0, 0 ]
-	// 为什么是512，x86体系是小端字节序，即小的数存在前面
-	// 第五第六字节表示一个数，存的是0 2，由于是小端字节序，2表示高位，转为2进制就是10 00000000，即512
-
-	// TypedArray很像普通数组，所有数组方法都可以用
-	x1.buffer // 返回视图对应的ArrayBuffer
-
-
-	// DataView视图的设计目的，是用来处理网络设备传来的数据
-	// 大端字节序或小端字节序是可以自行设定的
-	// 默认情况下，DataView的get系列方法使用大端字节序解读数据
-	// 如果需要使用小端字节序解读，必须在get方法的第二个参数指定true
-	const dv = new DataView(buffer) // 内存字节 [ 1, 0, 4, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-	dv.getUint16(0) // 1 0默认大端序读出来是 256
-	// set系列方法，第一个参数指定开始写入的字节序号，第二个参数为写入的数据
-	// 第三个参数可选，指定大小端序，默认大端序，true为小端序
-	dv.setUint16(0, 512) // 内存字节 [ 2, 0, 4, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-
-
-
-	// Web Worker
-	// 主线程与用户交互，worker线程进行运算。他们之间通过postMessage/onmessage交互
-	// 这种数据交互是通过复制实现的，如果有大量数据非常耗时
-	// SharedArrayBuffer开辟一片共享内存，时间数据的快速交互
-	/*
-	// 主线程
-	// 新建 1KB 共享内存
-	const sharedBuffer = new SharedArrayBuffer(1024)
-	// 主线程将共享内存的地址发送出去
-	w.postMessage(sharedBuffer)
-	// 在共享内存上建立视图，供写入数据
-	const sharedArray = new Int32Array(sharedBuffer)
-
-	// Worker 线程
-	onmessage = function(ev) {
-	    // 主线程共享的数据，就是 1KB 的共享内存
-	    const sharedBuffer = ev.data
-	    // 在共享内存上建立视图，方便读写
-	    const sharedArray = new Int32Array(sharedBuffer)
-	    // ...
-	}
-	*/
-
-	// 线程间的同步互斥机制可以通过Atomics对象实现
-	// Atomics对象的各个方法保证了操作的原子性
-	// Atomics.load(sharedArray, index)
-	// Atomics.store(sharedArray, index, value)
-	// Atomics.add(sharedArray, index, value)
-	// Atomics.sub(sharedArray, index, value)
-	// Atomics.and(sharedArray, index, value)
-	// Atomics.or(sharedArray, index, value)
-	// Atomics.xor(sharedArray, index, value)
-
-	// wait wake相当于锁操作
-	// 当sharedArray[index] === value时进入休眠,被wake或者time时间后唤醒
-	// wake唤醒返回ok，time后自动唤醒返回time-out；不等于value直接返回not-equal不会进入休眠
-	// Atomics.wait(sharedArray, index, value, time)
-	// 唤醒等待在sharedArray[index]上的count个线程
-	// Atomics.wake(sharedArray, index, count)
-
-
-}
-
 
 /*
  ██████   ██████
@@ -1526,6 +1570,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 */
 // garbage collector 内存回收
 {
+	// 哪些内存存在泄漏的风险
   // 1.全局作用域下的变量
   // 2.console.log()的对象不会被回收，在生产环境中不要保留console.log()
 
@@ -1534,11 +1579,12 @@ let const class 声明的全局变量不属于顶层变量window/global
   // 闭包会携带包含它的函数的作用域，因此会比其他函数占用更多的内存。
   // 如果以后不再使用，会造成内存泄漏
   function f() {
-  	let str = Array(10).join('#')
+		let str = Array(10).join('#')
+		// 未使用，会被回收
   	let foo = {
   		name: 'foo'
   	}
-    // 内部函数，没有使用，但是在这个函数中使用了外部函数中的 str
+    // 内部函数，没有使用，但是在这个函数中使用了闭包中的 str
   	function unused() {
   		let message = 'it is only a test message'
   		str = 'unused: ' + str
@@ -1548,8 +1594,8 @@ let const class 声明的全局变量不属于顶层变量window/global
   	}
   	return getData
   }
-  // foo 是对 getData() 的引用，形成了闭包
-  let foo = f()
+  // bar 是对 getData() 的引用，形成了闭包
+  let bar = f()
   // 形成闭包后，作用域中会保留被所有内部函数引用过变量和内部函数引用过的内部函数
   // 虽然 unused() 没有被外部引用，并且 getData() 没有使用 str 变量，
   // 但是因为形成了闭包，而且 unused() 内引用了 str ，所以 str 会被保留，unused函数不会保留
@@ -1557,20 +1603,20 @@ let const class 声明的全局变量不属于顶层变量window/global
 
 
   // 4.DOM元素
-  // 当一个DOM多次用到，我们一般用一个变量引用 let e = getElementById('#id')
+  // 当一个DOM多次用到，我们一般用一个变量引用 let e = querySelector('#id')
   // 只调用 removeChild(e) 只会将 e 为根的 DOM 树从 DOM 中删除，
   // 但是由于存在 e 的引用，内存不会被回收。调用 e = null 解决该问题
 
   // 另一种情况
   /*
     // refA 为 refB 的父节点
-    var refA = document.getElementById('refA')
-    var refB = document.getElementById('refB')
+    var refA = document.querySelector('#refA')
+    var refB = document.querySelector('#refB')
     // #refA 从DOM树种删除，但是不能GC回收，因为存在变量refA对它的引用。
     document.body.removeChild(refA)
     // 将其对 #refA 引用释放，但还是无法回收 #refA。
     refA = null
-    // 还存在变量 refB 对 #refA 的间接引用(refB引用了#refB，而#refB属于#refA)。
+    // 还存在变量 refB 对 #refA 的间接引用(refB.parent)。
     // 将变量 refB 对 #refB 的引用释放，#refA 就可以被GC回收。
     refB = null
   */
@@ -1581,7 +1627,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 
   // 6.addEventListener()
   // 如果添加监听器的回调是匿名函数，那多次调用addEventListener则会添加多个事件处理回调，事件触发时会执行多个回调
-  // 如果回调是命名函数，那多次调用addEventListener只会存在一个事件处理回调，事件触发时只会执行一个回调
+  // 如果回调是命名函数，那多次调用addEventListener只会添加一个事件处理回调，事件触发时只会执行一个回调
   // 因此如果addEventListener会被重复执行多次，回调函数需要使用命名函数
   // 另外，回收DOM一般会自动回收EventListener
 

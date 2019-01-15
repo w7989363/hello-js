@@ -229,13 +229,26 @@ class Child6 extends Parent6 {
 		super(name)
 		this.age = age
 	}
+	sayHi() {
+		console.log('hi from child')
+	}
 }
 let child6 = new Child6('Child6')
 
-// class是语法糖，内部实现为方法5
+// extends 内部实现与前5种方法都不同
+// 首先 extends 不需要实现构造函数中 Parent.call(this) 这种调用
+// 因为 constructor 中调用 super() 的内部实现就是这样的
+// 然后考虑原型链的继承
+// 由于子类 class 也会在 prototype 中定义属性和方法
+// 所以既不能将 Child6.prototype = Parent6.prototype
+// 也不能重新构造一个空对象 Child6.prototype = Object.create(Parent6.prototype)
+// 于是可以将已有的原型对象的 __proto__ 指向父类的构造函数的 prototype 实现原型链的继承
 Child6.prototype.__proto__ === Parent6.prototype		// true
-// 并且修改了constructor指向
+// 由于还是使用的子类自己的 prototype 所以 constructor 的指向是没有问题的
 Child6.prototype.constructor === Child6	// true
+// 第二步 由于 class 可以定义 static 静态属性/方法，所以还需要实现静态属性/方法的继承
+// 静态属性/方法定义在构造函数对象中，不属于原型链，所以直接将子类构造函数对象的 __proto__ 指向父类构造函数对象
+Child6.__proto__ === Parent6	// true
 
 
 // 以上继承方式(除第一种)，使用instanceof运算符判断时，都会认为子类实例对象是父类的实例
@@ -245,7 +258,10 @@ Child6.prototype.constructor === Child6	// true
 // 检查left.__proro__ === right.prototype 是则返回true，否则继续
 // 继续沿原型链检查 left.__proto__.__proto__ === right.prototype 直到左边为null 返回false
 
-
+// ps: 由于现代 JavaScript 引擎优化属性访问所带来的特性的关系
+// 更改对象的 __proto__ 在各个浏览器和 JavaScript 引擎上都是一个很慢的操作
+// 如果关心性能，你应该避免设置一个对象的 __proto__ 相反
+// 你应该使用 Object.create() 来创建带有你想要的 __proto__ 的新对象
 
 /*
 ██████   ██████  ██   ██    ██ ███    ███  ██████  ██████  ██████  ██   ██ ██  ██████
