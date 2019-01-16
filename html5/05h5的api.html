@@ -23,23 +23,23 @@
 
   <script>
     // 选择第一个
-    // document.querySelector("选择器");
-    // 选择所有
-    // document.querySelectorAll("选择器");
+    // document.querySelector("选择器")
+    // 选择所有，获得一个 NodeList 数组
+    // document.querySelectorAll("选择器")
     // document.getElementByClassName("类名")
 
     // 获取第一段
-    let obj = document.querySelector("div p");
-    obj.style.backgroundColor = "green";
+    let obj = document.querySelector("div p")
+    obj.style.backgroundColor = "green"
     // 增、删、切换、是否包含类
-    // obj.classList.add('cls');
-    // obj.classList.remove('cls');
-    // obj.classList.toggle('cls');
-    // obj.classList.contains('cls');
+    // obj.classList.add('cls')
+    // obj.classList.remove('cls')
+    // obj.classList.toggle('cls')
+    // obj.classList.contains('cls')
 
-    let ds = obj.dataset;
-    console.log(ds.name);
-    console.log(ds['userAge']);
+    let ds = obj.dataset
+    console.log(ds.name)
+    console.log(ds['userAge'])
   </script>
 </body>
 

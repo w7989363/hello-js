@@ -4,10 +4,10 @@
 <head>
   <!-- meta元素通常指定网页的描述，关键词，文件的最后修改时间，作者及其他元数据 -->
   <!--
-        charset 属性规定 HTML 文档的字符编码
-        UTF-8 - Unicode 字符编码
-        ISO-8859-1 - 拉丁字母表的字符编码
-    -->
+    charset 属性规定 HTML 文档的字符编码
+    UTF-8 - Unicode 字符编码
+    ISO-8859-1 - 拉丁字母表的字符编码
+  -->
   <meta charset="UTF-8">
 
   <!-- http-equiv和content相当于响应头的键、值 -->
@@ -17,6 +17,8 @@
   <meta name="keywords" content="html,h5,语义化标签">
   <meta name="description" content="免费 Web & 编程 教程">
   <meta name="author" content="Wen dabei">
+  <!-- 移动端 viewport 禁止缩放 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=auto,viewport-fit=cover">
 
   <title>语义化标签</title>
 
@@ -72,8 +74,8 @@
 
   <script>
     // IE8不支持的标签怎么办？
-        // 解决方案1：在该标签的css中设置display:block;然后通过DOM的方式创建该标签
-        // document.createElement('header');
+      // 解决方案1：在该标签的css中设置display:block;然后通过DOM的方式创建该标签
+      // document.createElement('header');
   </script>
 
   <!-- 解决方案2：响应式兼容，引入外部html5shiv.js文件，原理同方案1 -->
@@ -97,7 +99,7 @@
 
   <!-- H5标签的全局属性 -->
   <p contenteditable="true">这是一个可编辑段落。</p>
-  <p data-param-name="somevalue">可以在所有的 HTML 元素中嵌入数据 </p>
+  <p data-param-name="somevalue">data- 开头的属性可以在所有的 HTML 元素中嵌入数据 </p>
   <p dir="rtl">文本方向从右到左 rtl ltr auto</p>
   <p draggable="true">这是一段可移动的段落。参考http://www.runoob.com/html/html5-draganddrop.html</p>
   <p hidden>这是一段隐藏的段落。</p>
@@ -113,10 +115,10 @@
 
   <!-- 格式标签 -->
   <abbr title="缩写">abbr 用来表示一个缩写词 title 属性可被用来展示缩写词的完整版本</abbr>
-  <address class="">
-        address 定义文档作者/所有者的联系信息 <br>
-        通常被包含在 footer>元素的其他信息中
-    </address>
+  <address>
+    address 定义文档作者/所有者的联系信息 <br>
+    通常被包含在 footer 元素的其他信息中
+  </address>
   <bdi>Bi-directional Isolation设置一段文本，使其脱离其父元素的文本方向设置</bdi>
   <bdo dir="rtl" >bdo用来覆盖默认的文本方向。</bdo>
   <blockquote cite="http://">

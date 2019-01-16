@@ -65,13 +65,13 @@
       // 判断是不是拖进了div，设置border
       if (e.target.className === 'droptarget') {
         console.log('dragenter 拖动目标进入div');
-        e.target.style.border = 'dotted';
+        e.target.style.borderColor = 'red';
       }
     });
 
     // 默认情况下,数据/元素不能在其他元素中被拖放，over一般用来阻止浏览器的默认处理(跟drag一样会一直触发)
     document.addEventListener('dragover', function(e) {
-      // console.log('dragover');
+      console.log('dragover');
       e.preventDefault();
     });
 

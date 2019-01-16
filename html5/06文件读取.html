@@ -8,36 +8,36 @@
 
 </head>
 <body>
-  <!-- 将当前标签传入onchange回调函数 -->
-  <input type="file" id="f1" onchange="addCss(this)">
+	<!-- 将当前标签传入onchange回调函数 -->
+	<label for="f1">选择css文件</label>
+	<input type="file" id="f1" onchange="addCss(this)">
   <div class=""></div>
-
+	
+	<label for="f2">选择图片</label>
   <input type="file" id="f2" onchange="showImg(this)"><br>
   <img src="" alt="选择图片" width="100px">
 
   <script>
     function addCss(oInput) {
-    	console.log(oInput);
-    	console.dir(oInput);
     	// 获取上传的文件对象
-    	let fCss = oInput.files[0];
+    	let fCss = oInput.files[0]
     	// 实例化fileReader
-    	let reader = new FileReader();
+    	let reader = new FileReader()
     	// 如果文件对象存在，读取上传的文件
     	if (fCss) {
-    		reader.readAsText(fCss);
+    		reader.readAsText(fCss)
     	}
-    	// 读取完成的回调里获取读取结果
-    	reader.onload = function() {
-    		// 获取读取结果
-    		let res = reader.result;
-    		console.log(res);
-    		// 创建style标签
-    		let s = document.createElement('style');
-    		s.innerHTML = res;
-    		// 插入到head标签中
-    		document.querySelector("head").appendChild(s);
-    	}
+			// 读取完成的回调里获取读取结果
+			reader.addEventListener('load', function() {
+				// 获取读取结果
+				let res = this.result
+				console.log(res)
+				// 创建style标签
+				let s = document.createElement('style')
+				s.innerHTML = res
+				// 插入到head标签中
+				document.querySelector("head").appendChild(s)
+			})
     	// 其他事件
     	// FileReader.onabort 读取中断时触发
     	// FileReader.onerror 读取出错时触发
@@ -51,14 +51,14 @@
     }
 
     function showImg(oInput) {
-    	let fImg = oInput.files[0];
-    	let reader = new FileReader();
+    	let fImg = oInput.files[0]
+    	let reader = new FileReader()
     	if (fImg) {
-    		reader.readAsDataURL(fImg);
+    		reader.readAsDataURL(fImg)
     	}
     	reader.addEventListener('load', function() {
-    		console.log(reader.result);
-    		document.querySelector('img').src = reader.result;
+    		console.log(this.result)
+    		document.querySelector('img').src = this.result
     	})
     }
   </script>

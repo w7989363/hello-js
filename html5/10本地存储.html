@@ -14,11 +14,11 @@
     // localStorage：大小20M，永久保存，关闭浏览器仍然存在，除非用户手动清除缓存，在同源的不同窗口之间共享
 
     // 两个对象的方法相同，不能跨域，跨域问题可以通过postMessage通信解决
-    // 保存数据：localStorage.setItem(key,value); 或者localStorage.myparam="value";
-    // 读取数据：localStorage.getItem(key); 或者localStorage.myparam;
-    // 删除单个数据：localStorage.removeItem(key);
-    // 删除所有数据：localStorage.clear();
-    // 得到某个索引的key：localStorage.key(index);
+    // 保存数据：localStorage.setItem(key,value)  或者 localStorage.myparam='value'
+    // 读取数据：localStorage.getItem(key)  或者 localStorage.myparam
+    // 删除单个数据：localStorage.removeItem(key)
+    // 删除所有数据：localStorage.clear()
+    // 得到某个索引的key：localStorage.key(index)
 
     // 当存储一个对象时，要转化为字符串存储(str = JSON.stringify(obj))，因为直接存对象是存的指针
     // 当读取一个对象字符串之后转换为对象(obj = JSON.parse(str))
@@ -27,10 +27,10 @@
     if (typeof(Storage) !== "undefined") {
       // 支持 localStorage  sessionStorage 对象
       // 一些代码.....
-      localStorage.name = "wen";
-      localStorage.age = "1";
-      localStorage.setItem("haha", 1);
-      localStorage.setItem("hehe", 1);
+      localStorage.name = 'wen'
+      localStorage.age = '18'
+      localStorage.setItem('haha', 1);
+      localStorage.setItem('hehe', 1);
     } else {
       // 不支持 web 存储。
     }

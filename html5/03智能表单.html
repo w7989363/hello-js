@@ -12,31 +12,31 @@
   <!-- 表单标签 -->
   <form class="" action="" method="post">
     <!--
-            form属性：
-            autocomplete自动填充: on off
-            enctype提交表单编码:  application/x-www-form-urlencoded
-                                multipart/form-data
-                                text/plain
-            novalidate: novalidate 不验证
-            target: _blank _self _parent _top 何处打开action URL
-        -->
+      form属性：
+      autocomplete自动填充: on off
+      enctype提交表单编码:  application/x-www-form-urlencoded
+                          multipart/form-data
+                          text/plain
+      novalidate: novalidate 不验证
+      target: _blank _self _parent _top 何处打开action URL
+    -->
 
     <!-- fieldset为form表单元素分组，legend添加标题 -->
     <fieldset>
       <legend>input:</legend>
-      <!-- imput属性 autofocus自动焦点 required必填 placeholder空提示 -->
+      <!-- input属性 autofocus自动焦点 required必填 placeholder空提示 -->
       <!-- form外的input可以指定给form，值设置为form的id值 -->
       <!-- input根据type类型会自动验证，如number、email、url -->
       邮箱：<input type="email" value="" /> <br>
       数字：<input type="number" value="" /> <br>
       url：<input type="url" value="" /> <br>
-      取色器：<input type="color"> <br>
-      调节杆：<input type="range"> <br>
-      上传文件：<input type="file"> <br>
-      选择日期：<input type="date"> <br>
-      选择一年中的第几周：<input type="week"> <br>
-      选择一天中的时间：<input type="time"> <br>
-      候选填充：<input list="browsers"> <br>
+      取色器：<input type="color" /> <br>
+      调节杆：<input type="range" /> <br>
+      上传文件：<input type="file" /> <br>
+      选择日期：<input type="date" /> <br>
+      选择一年中的第几周：<input type="week" /> <br>
+      选择一天中的时间：<input type="time" /> <br>
+      候选填充：<input list="browsers" /> <br>
       <!-- datalist需要id，input属性list来指定这个id来使用 -->
       <datalist id="browsers">
         <option value="Internet Explorer">IE</option>
@@ -53,12 +53,12 @@
     <select name="xialakuang">
       <!-- 选项分组 -->
       <optgroup label="Swedish Cars">
-          <option value="volvo">Volvo</option>
-          <option value="saab">Saab</option>
+        <option value="volvo">Volvo</option>
+        <option value="saab">Saab</option>
       </optgroup>
       <optgroup label="German Cars">
-          <option value="mercedes">Mercedes</option>
-          <option value="audi">Audi</option>
+        <option value="mercedes">Mercedes</option>
+        <option value="audi">Audi</option>
       </optgroup>
     </select> <br>
 
