@@ -30,24 +30,27 @@ var obj = {
 	},
 	arrowFunc: () => {
 		// 箭头函数没有 this ，他会和定义时外层第一个 this 绑定。
-		// 注意，只是绑定，但仍然不确认this到底是什么
+		// 注意，只是绑定，但仍然不确认 this 到底是什么
 		// 因为 obj 形不成作用域，没有this，所以绑定的是全局
 		console.log('arrowFunc: ' + this.num)
 	},
 	print2: function() {
-		// 因为function可以形成作用域(闭包)，所以此处箭头函数的this与print2的this绑定
-		(() => {
+		// 返回一个箭头函数，该箭头函数的 this 与 print2 的 this 绑定
+		// 而 print2 的 this 需要等调用时才能确定
+		return () => {
 			console.log('print2: ' + this.num)
-		})()
+		}
 	}
 }
 
 // 调用时确定普通函数内的 this 为 obj
 obj.print1()  // print1: 0
-// 箭头函数没有 this，他内部的 this 与外层的 this 绑定，此时外层
+// 箭头函数没有 this，他内部的 this 与外层的 this 绑定，此时外层就是全局作用于，没有 num 所以为 undefined
 obj.arrowFunc.call(obj)   // arrowFunc: undefined
-// print2的this指向obj，因此内部的箭头函数this也指向obj
-obj.print2()	// print2: 0
+// 执行 print2 返回一个箭头函数，该箭头函数的 this 与外层 print2 的 this 绑定
+// 执行 obj.print2() 时的 this 为 obj，因此返回的箭头函数 this 指向 obj
+let myPrint2 = obj.print2()
+myPrint2() // print2: 0
 
 function fn () {
 	console.log('this', this)

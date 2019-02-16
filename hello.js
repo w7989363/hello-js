@@ -14,7 +14,7 @@
 	typeof function() {} // function
 
 	// instanceof 可以判断 Object 的类型，不能判断原始数据类型
-	// 因为 instanceof 的内部实现是根据原型链来判断的 left.__proto__ === right.prototype 直到原型链末端
+	// 因为 instanceof 的内部实现是根据原型链来判断的 left.__proto__ === right.prototype 递归直到原型链末端
 	new Date() instanceof Date	// true
 	new Number() instanceof Number // true
 	new String() instanceof String // true
@@ -150,10 +150,10 @@ let const class 声明的全局变量不属于顶层变量window/global
 
 
 	// 对象的解构赋值
-	// 按照对象键名来解构，不按顺序
+	// 按照对象键名来解构，不按顺序。并且可以给变量重命名
 	let { foo: bar } = { foo: 'aaa', bar: 'bbb' }
-	// 意思是将右边键名为foo的值赋给左边的bar，所以bar的值为aaa
-	// 然而左边的foo只是用作模式匹配，所以foo is not defined，这条语句只声明了bar一个变量
+	// 意思是将 foo 重命名为 bar，所以bar的值为aaa
+	// 然而左边的foo只是用作模式匹配，所以foo === undefined，这条语句只声明了bar一个变量
 	// 也可以指定默认值 {foo = 'abc'} = {foo: undefined}
 
 
@@ -584,11 +584,12 @@ let const class 声明的全局变量不属于顶层变量window/global
 		c: 2
 	}
 	const source2 = {
-		c: 3
+		c: 3,
+		f() {}
 	}
 	Object.assign(target, source1, source2)
 	// 有同名属性 后面source会覆盖前面
-	target // {a:1, b:2, c:3}
+	target // {a:1, b:2, c:3, f: [Function: f]}
 	// 如果想要同时克隆原型链，可以用以下方法
 	function clone(origin) {
 		let originProto = Object.getPrototypeOf(origin)
@@ -1632,3 +1633,4 @@ let const class 声明的全局变量不属于顶层变量window/global
   // 另外，回收DOM一般会自动回收EventListener
 
 }
+
