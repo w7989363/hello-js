@@ -1,5 +1,3 @@
-import { create } from "domain";
-import { type } from "os";
 
 /*
 d8888b.  .d8b.  .d8888. d888888b  .o88b.      d888888b db    db d8888b. d88888b
@@ -9,15 +7,15 @@ d8888b.  .d8b.  .d8888. d888888b  .o88b.      d888888b db    db d8888b. d88888b
 88   8D 88   88 db   8D   .88.   Y8b  d8         88       88    88      88.
 Y8888P' YP   YP `8888Y' Y888888P  `Y88P'         YP       YP    88      Y88888P
 */
-{
+namespace basicType {
   // 布尔 boolean
   let isDone: boolean = false
 
   // 数字 number
   let decLiteral: number = 6
   let hexLiteral: number = 0xf00d
-  let binaryLiteral: number = 0b1010
   let octalLiteral: number = 0o744
+  let binaryLiteral: number = 0b1010
 
   // 字符串 string
   let name: string = `Gene`
@@ -25,7 +23,6 @@ Y8888P' YP   YP `8888Y' Y888888P  `Y88P'         YP       YP    88      Y88888P
   // 数组 array
   // 元素类型[]
   let list1: number[] = [1, 2, 3]
-
   // Array<元素类型>
   let list2: Array<number> = [1, 2, 3]
   // ReadonlyArray< T > 只读数组
@@ -58,7 +55,7 @@ Y8888P' YP   YP `8888Y' Y888888P  `Y88P'         YP       YP    88      Y88888P
   notSure = false
 
   // void 没有任何类型
-  // 例如函数没有返回值
+  // 一般只用于没有返回值的函数
   function warnUser(): void {
     console.log('This is my warning message')
   }
@@ -87,7 +84,7 @@ Y8888P' YP   YP `8888Y' Y888888P  `Y88P'         YP       YP    88      Y88888P
 
   // 非原始类型 object
   // 除 number string boolean symbol null undefined 之外的类型
-  // declare function create(o: object | null): void
+  declare function create(o: object | null): void
 
   // 断言类型
   // 程序员明确知道某个值的类型，相当于其他语言的类型转换
@@ -108,7 +105,7 @@ d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b
   .88.   88  V888    88    88.     88 `88. 88      88   88 Y8b  d8 88.
 Y888888P VP   V8P    YP    Y88888P 88   YD YP      YP   YP  `Y88P' Y88888P
 */
-{
+namespace interface{
   // 下面描述了一个接口
   // 必须包含 firstName 属性，且为 string 类型
   // 可以包含 middleName 属性，类型为 string
@@ -133,7 +130,7 @@ Y888888P VP   V8P    YP    Y88888P 88   YD YP      YP   YP  `Y88P' Y88888P
   greeter({ firstName: 'Dwyane', lastName: 'Wade', age: 18 })
   // 绕开这个检查可以使用断言类型
   greeter({ firstName: 'Dwyane', lastName: 'Wade', age: 18 } as Person)
-  // 另一种方式是使用 索引签名
+  // 另一种方式是给接口定义 索引签名
   // interface Person {
   //   firstName: string
   //   middleName?: string
@@ -148,19 +145,18 @@ Y888888P VP   V8P    YP    Y88888P 88   YD YP      YP   YP  `Y88P' Y88888P
     // 指定函数第一个参数和第二个参数都为 string 类型 返回值为 boolean 类型
     (source: string, subString: string): boolean
   }
-  let mySearch: SearchFunc
-  // 具体函数的参数和返回值可以不指定类型，并且参数名可以任意指定，编译器会自动推断
-  mySearch = function(src, sub) {
+  // 具体函数实现的参数和返回值可以不指定类型，并且参数名可以任意指定，编译器会自动推断
+  let mySearch: SearchFunc = function(src, sub) {
     let result = src.search(sub)
     return result > -1
   }
 
   // 索引类型
-  // 用于描述那些能够“通过索引得到”的类型 例如 a[10] aMap['daniel'] aMap.daniel
+  // 用于描述那些能够“通过索引得到”的类型 例如 aMap['daniel'] aMap.daniel a[10]
   // 中括号里叫 索引签名，它表明了索引的类型，只能是 number 或 string。后面是索引类型的返回值
-  // 例如 a[10] === 'abc' 索引签名类型是 number 返回类型是 string
-  // 并且 number 类型的索引返回值必须是 string 类型返回值的子类型
-  // 因为内部处理的时候是将 number 转为 string 来处理的
+  // 例如 [index: number]: string 意思是使用 number 类型的索引(例如x[10])返回类型为 string
+  // 并且 number 索引类型的返回值类型必须是 string 索引类型返回值类型的子类型
+  // 因为内部处理的时候是将 number 类型的索引转为 string 类型的索引来处理的
   interface StringArray {
     [index: number]: string
     [prop: string]: string
@@ -172,7 +168,7 @@ Y888888P VP   V8P    YP    Y88888P 88   YD YP      YP   YP  `Y88P' Y88888P
 
   // 类接口 class
   interface ClockInterface {
-    // 类的接口描述的是类的实例属性/方法，编译器并不会去检查静态属性/方法(即定义在构造函数对象上的)
+    // 类的接口描述的是类的实例成员，编译器并不会去检查静态成员(即定义在构造函数对象上的)
     currentTime: Date
     setTime (d: Date)
     // 尝试使用构造器签名来限制构造函数会报错
@@ -191,7 +187,7 @@ Y888888P VP   V8P    YP    Y88888P 88   YD YP      YP   YP  `Y88P' Y88888P
   interface ClockConstructor {
     new (hour: number, minute: number): ClockInterface
   }
-  // 用一个函数代替构造函数
+  // 用一个工厂函数代替构造函数
   function createClock(ctor: ClockConstructor, h: number, m: number): ClockInterface {
     return new ctor(h, m)
   }
@@ -205,19 +201,19 @@ Y888888P VP   V8P    YP    Y88888P 88   YD YP      YP   YP  `Y88P' Y88888P
     reset(): void
   }
   function getCounter(): Counter {
-    let counter = <Counter>function (start: number) { }
+    // let counter = <Counter>function (start: number) { }
+    let counter = <Counter>function (start: number) { return 'ok' }
     counter.interval = 123
     counter.reset = function () { }
     return counter
   }
-  let c = getCounter()
+  let c: Counter = getCounter()
   // c 可以作为函数
   c(10)
   // c 也可以作为对象使用
   c.reset()
   c.interval = 5.0
 
-  // 接口继承接口
   // 接口可以继承接口，可以多继承
   interface Shape {
     color: string
@@ -249,11 +245,11 @@ Y888888P VP   V8P    YP    Y88888P 88   YD YP      YP   YP  `Y88P' Y88888P
   // 其实 SelectableControl 接口和拥有 select() 方法的 Control 类是一样的
 
   // 下面是错误的，因为 Image 不是 Control 的子类
-  // class Image implements SelectableControl {
-  //   // 即使自己再定义一个 private state 也是错误的。error “类型具有私有属性 state 的单独声明”
-  //   private state: any
-  //   select() {}
-  // }
+  class Image implements SelectableControl {
+    // 即使自己再定义一个 private state 也是错误的。error “类型具有私有属性 state 的单独声明”
+    private state: any
+    select() {}
+  }
 
 }
 
@@ -266,12 +262,12 @@ d8P  Y8 88      d8' `8b 88'  YP 88'  YP
 Y8b  d8 88booo. 88   88 db   8D db   8D
  `Y88P' Y88888P YP   YP `8888Y' `8888Y'
 */
-{
+namespace myClass {
   // 修饰符 public protected private
   // 成员默认都是 public 公开的
   // private 只能在本类中访问，实例不可访问
   // protected 可以在本类和子类中访问
-  // 可以把构造函数定义为 protected，这样的类不能被实例化，因为 new 在外部调用了构造函数
+  // 可以把构造函数定义为 protected，这样的类不能被实例化，因为使用 new 关键字时，在实现中外部调用了构造函数
   // 只能通过子类继承，然后实例化子类
 
   // TypeScript使用的是结构性类型系统。当我们比较两种不同的类型时，并不在乎它们从何处而来。
@@ -289,14 +285,17 @@ Y8b  d8 88booo. 88   88 db   8D db   8D
   // Dog 是 Animal 的子类，他们的 private 成员声明都来自 Animal 类，所以他们是兼容的
   class Dog extends Animal {
     constructor() { super('dog') }
+    bark() { console.log('wangwangwang') }
   }
   let animal = new Animal('animal')
   let dog = new Dog()
   let person = new Person('person')
-  // 可以把 dog 赋值给 animal
+  // 不可以把 Animal 给 Dog，因为 Animal 缺少 bark()
+  dog = animal
+  // 可以把 Dog 赋值给 Animal
   animal = dog
-  // 但不可以把 person 赋值给 animal，因为两个类型不兼容
-  // animal = person
+  // 但不可以把 Person 赋值给 Animal，因为两个类型不兼容
+  animal = person
   
   // readonly 修饰符
   // 将属性设置为只读的，必须在声明时或构造函数里被初始化
@@ -376,7 +375,7 @@ Y8b  d8 88booo. 88   88 db   8D db   8D
   }
   let rose: Flower
   // rose = new Flower('flower') // Error 无法实例化抽象类
-  rose = new Rose() // 正确，可以把子类对象赋值给父类型的变量，但类似C++的截断，该变量无法访问子类自己的方法和属性
+  rose = new Rose() // OK，可以把子类对象赋值给父类型的变量，但类似C++的截断，该变量无法访问子类自己的方法和属性
   rose.printName()
   rose.printOdor()
   // rose.printHello() // Error 类型 Flower 上不存在 printHello
@@ -391,7 +390,7 @@ d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db
 88      88b  d88 88  V888 Y8b  d8    88      .88.   `8b  d8' 88  V888
 YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P
 */
-{
+namespace myFunction {
   // 为函数指定类型，包括参数类型和返回值类型
   // 匿名函数写法
   // (base: number, increment: number) => number 指定了两个 number 类型的参数，返回值为 number 类型
@@ -405,7 +404,7 @@ YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P
     return base + increment
   }
 
-  // 在 typescript 中，如果不对形式参数进行特殊处理，所有声明的参数都是必须的；而在 javascript 中所有参数都是可选的
+  // 在 ts 中，如果不对形式参数进行特殊处理，所有声明的参数都是必须的；而在 js 中所有参数都是可选的
   // 如果想设置某些参数为可选，需要加 ? 修饰符。可选参数必须在必须参数之后声明
   // 例如下面的 lastName 就是可选参数，不传入第二个参数的话 lastName 默认为 undefined
   // firstName 拥有默认值，只有第一个参数传入 undefined 时才会使用默认值
@@ -464,18 +463,18 @@ YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P
     // }
   }
   // 如下调用 deck 中的 cardPicker 会报错，因为 f 的 this 不兼容 Deck
-  // let f = deck.cardPicker
-  // f()
+  let f = deck.cardPicker
+  f()
 
   // 重载
   // 有时我们需要调用同一个函数，根据传入参数的不同来执行不同的操作
   // 也就是说函数的传入参数类型有多个，但不是 any
-  function fn(x: string): string
-  function fn(x: number): number
-  function fn(x): any {
+  function overloadFn(x: string): string
+  function overloadFn(x: number): number
+  function overloadFn(x): any {
     if (typeof x === 'string') return 'str'
     else if (typeof x === 'number') return 0
-  }  
+  }
   // 前面两个 fn 的声明是重载函数列表，它可以让编译器进行正确的类型检查(只接受 x 为 string 或 number)
   // 检查顺序同定义顺序，因此越精确的类型声明应该越靠前
   // 注意 function fn(x): any 并不是重载列表的一部分，这里是函数实现
@@ -492,15 +491,16 @@ YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P
 88. ~8~ 88.     88  V888 88.     88 `88.   .88.   Y8b  d8 db   8D
  Y888P  Y88888P VP   V8P Y88888P 88   YD Y888888P  `Y88P' `8888Y'
 */
-{
+namespace generics {
   // 泛型 类型参数 <T>
 
   // 函数 echo 接受任意类型的变量，变量类型被 T 捕获
   function echo<T>(arg: T): T {
     // 因为 T 可以是任何类型，不一定存在 length 属性，所以下面会报错
-    // console.log(arg.length)
+    console.log(arg.length)
     return arg
   }
+  // 可以指定 arg 为 T 类型的数组，数组有 length 属性
   function loggingLength<T>(arg: T[]): T[] {
     console.log(arg.length)
     return arg
@@ -524,11 +524,13 @@ YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P
   interface Echo {
     <T>(arg: T): T
   }
+  // myEcho3() 接受一个任意类型的参数
   let myEcho3: Echo = echo
   // 也可以把泛型参数作为整个 interface 的参数
   interface Echo2<T> {
     (arg: T): T
   }
+  // myEcho4() 接受一个 string 类型的参数
   let myEcho4: Echo2<string> = echo
 
   // 泛型类
@@ -550,7 +552,7 @@ d8' `8b 88  `8D 88    88 d8' `8b 888o  88 d8P  Y8 88'     88  `8D      `~~88~~' 
 88   88 88  .8D  `8bd8'  88   88 88  V888 Y8b  d8 88.     88  .8D         88       88    88      88.
 YP   YP Y8888D'    YP    YP   YP VP   V8P  `Y88P' Y88888P Y8888D'         YP       YP    88      Y88888P
 */
-{
+namespace advancedType {
   // 高级类型
 
   // 交叉类型 &
@@ -560,14 +562,12 @@ YP   YP Y8888D'    YP    YP   YP VP   V8P  `Y88P' Y88888P Y8888D'         YP    
     // 创建一个类型为 T&U 的空对象
     let res = <T & U>{}
     // 将 first 和 second 的成员添加到 res
-    for (let id in first) {
+    for (let key in first) {
       // 因为 res first 不兼容，需要对其进行类型转换
-      (<any>res)[id] = (<any>first)[id]
+      (<any>res)[key] = (<any>first)[key]
     }
-    for(let id in second) {
-      if (!res.hasOwnProperty) {
-        (<any>res)[id] = (<any>second)[id]
-      }
+    for(let key in second) {
+      (<any>res)[key] = (<any>second)[key]
     }
     return res
   }
@@ -585,7 +585,6 @@ YP   YP Y8888D'    YP    YP   YP VP   V8P  `Y88P' Y88888P Y8888D'         YP    
 
   // 联合类型 |
   // 表示一个值可能是某些类型之一。例如 x: number | string 表示 x 可以是 string 或者 number 类型
-  function fn(value: string | number) {}
   // 联合类型只能访问他们的共有成员，相当于交集
   class Bird {
     fly() {}
@@ -597,7 +596,7 @@ YP   YP Y8888D'    YP    YP   YP VP   V8P  `Y88P' Y88888P Y8888D'         YP    
   }
   let animal: Bird | Fish
   animal.layEggs() // OK
-  // animal.swim() // Error swim() 不是公共部分
+  animal.swim() // Error swim() 不是公共部分
   // 那如何进行类型保护(即一次性判断类型) 例如就是想判断 animal 是不是 Fish，进而使用 animal.swim()
   // 1.自定义保护类型函数，返回值为类型谓词
   function isFish(pet: Bird | Fish): pet is Fish {
@@ -607,7 +606,7 @@ YP   YP Y8888D'    YP    YP   YP VP   V8P  `Y88P' Y88888P Y8888D'         YP    
   if (isFish(animal)) {
     animal.swim()
   }
-  // 并且在 else 块中 ts 也会知道 animal 是 Bird
+  // 在 else 块中 ts 也会知道 animal 是 Bird
   else {
     animal.fly()
   }
@@ -639,11 +638,11 @@ YP   YP Y8888D'    YP    YP   YP VP   V8P  `Y88P' Y88888P Y8888D'         YP    
 88  88  88 `8b  d8' 88  .8D 88b  d88 88booo. 88.
 YP  YP  YP  `Y88P'  Y8888D' ~Y8888P' Y88888P Y88888P
 */
-{
+namespace myModule {
   // 模块 此处的模块指的是以文件形式组织的外部模块(另外还有在代码中的内部模块，现在改称命名空间)
   // 可以直接使用 ES6 的 import export 语法
   // 另外为了兼容 CommonJs(module.exports require) 模块的 exports
-  // ts 定义了 export = 和 import = require() 语法
+  // ts 定义了 export = 和 import name = require('module') 语法
 
   // ZipCodeValidator.ts
   class ZipCodeValidator {
@@ -672,9 +671,8 @@ YP  YP  YP  `Y88P'  Y8888D' ~Y8888P' Y88888P Y88888P
   }
 
   // 引用 JavaScript 库
-  // 需要写一个声明文件 .d.ts 为每个引入的第三方库声明用到的内容
-  // node.d.ts
-  // 使用 declare 修饰符和 module 关键字
+  // 需要写一个 .d.ts 声明文件为每个引入的第三方库声明用到的内容，类似 C++ 的头文件
+  // node.d.ts 在一个综合的声明文件中声明多个模块(url path)时使用 declare module 'moduleName' 形式
   // 引号中是模块名，可以使用通配符
   declare module 'url' {
     export interface Url {
@@ -709,7 +707,7 @@ d8b   db  .d8b.  .88b  d88. d88888b .d8888. d8888b.  .d8b.   .o88b. d88888b
 88  V888 88   88 88  88  88 88.     db   8D 88      88   88 Y8b  d8 88.
 VP   V8P YP   YP YP  YP  YP Y88888P `8888Y' 88      YP   YP  `Y88P' Y88888P
 */
-{
+namespace myNamespace {
   // 命名空间 即之前的内部模块
   // 在一个文件中为了更好的组织代码结构，将一部分逻辑相关代码放入命名空间
   // 通过类似模块 export 方法对外暴露接口，然后使用 命名空间.prop 来访问暴露的接口
@@ -735,9 +733,9 @@ VP   V8P YP   YP YP  YP  YP Y88888P `8888Y' 88      YP   YP  `Y88P' Y88888P
     }
   }
   // 使用 Validation 命名空间中的 validator
-  let validators: { [s: string]: Validation.StringValidator; } = {}
-  validators["ZIP code"] = new Validation.ZipCodeValidator()
-  validators["Letters only"] = new Validation.LettersOnlyValidator()
+  let validators: { [s: string]: Validation.StringValidator } = {}
+  validators['ZIP code'] = new Validation.ZipCodeValidator()
+  validators['Letters only'] = new Validation.LettersOnlyValidator()
 
 }
 
@@ -750,7 +748,7 @@ d8888b. d88888b  .o88b.  .d88b.  d8888b.  .d8b.  d888888b  .d88b.  d8888b.
 88  .8D 88.     Y8b  d8 `8b  d8' 88 `88. 88   88    88    `8b  d8' 88 `88.
 Y8888D' Y88888P  `Y88P'  `Y88P'  88   YD YP   YP    YP     `Y88P'  88   YD
 */
-{
+namespace decorator {
   // 修饰器
   // 一种特殊类型的声明，能够被附加到类、方法、访问符、属性或参数上，对其进行相应的"装饰"
   // 修饰器使用 @expression 形式，expression 为表达式，求值后必须是一个函数(修饰器)
@@ -769,13 +767,13 @@ Y8888D' Y88888P  `Y88P'  `Y88P'  88   YD YP   YP    YP     `Y88P'  88   YD
     }
   }
   // 使用
-  @color('red')
+  // @color('red')
 
   // 修饰器组合的执行顺序
   // 例如 f() g() 是两个修饰器工厂函数 用来修饰类的方法 method()
-  f()
-  g()
-  method() {}
+  // @f()
+  // @g()
+  // method() {}
   // 先执行 f() 工厂函数 g() 工厂函数
   // 然后 g 修饰器 f 修饰器
   // 即先由上往下执行工厂函数，再由下往上执行修饰器
@@ -792,19 +790,19 @@ Y8888D' Y88888P  `Y88P'  `Y88P'  88   YD YP   YP    YP     `Y88P'  88   YD
   @addProp
   class A {}
 
-  // 方法修饰器 method
+  // 类的方法修饰器 method
   // 修饰器接受三个参数：
   // 1.对于静态方法来说是类的构造函数，对于实例方法来说是类的原型对象
   // 2.方法名
   // 3.方法的属性描述符
   // 如果方法修饰器返回一个值，则会被用作方法的属性描述符
   function log (target: any, name: string, descriptor: PropertyDescriptor) {
-    // descriptor对象原来的值如下
+    // descriptor 对象的值如下
     // {
-    //   value: specifiedFunction,
-    //   enumerable: false,
-    //   configurable: true,
-    //   writable: true
+    //   value: specifiedFunction,  // 成员的值
+    //   enumerable: false,         // 是否可枚举 影响 for...in  Object.keys()
+    //   configurable: true,        // 描述符中的 enumerable configurable 是否可更改 属性是否可删除
+    //   writable: true             // 是否可以更改初始值
     // }
     let oldMethod = descriptor.value
     descriptor.value = function () {
@@ -852,7 +850,7 @@ d888888b d8888b. d888888b d8888b. db      d88888b          .d8888. db       .d8b
    88    88 `88.   .88.   88      88booo. 88.              db   8D 88booo. 88   88 db   8D 88   88
    YP    88   YD Y888888P 88      Y88888P Y88888P          `8888Y' Y88888P YP   YP `8888Y' YP   YP
 */
-{
+namespace trpleSlash {
   // 三斜线指令
   // 是指包含单个xml标签的单行注释，注释内容会作为编译器指令
   // 三斜线指令只能放在最顶端，否则会被当做普通注释

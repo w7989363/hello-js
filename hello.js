@@ -616,8 +616,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// let newObj = JSON.parse(JSON.stringify(oldObj))
 
 	// 遍历
-	// for...in循环: 遍历对象自身的和原型链上的属性（ Symbol: X  不可枚举属性: X）
-	// 一般配合obj.hasOwnProperty(prop)使用
+	// for...in循环: 遍历对象自身的和原型链上的属性（ Symbol: X  不可枚举属性: X）一般配合obj.hasOwnProperty(prop)使用
 	// Object.keys(): 返回对象自身属性的键名数组（ Symbol: X  不可枚举属性: X）
 	// Object.getOwnPropertyNames(obj): 返回对象自身的所有普通属性键名，（ Symbol: X  不可枚举属性: √）
 	// Object.getOwnPropertySymbols(obj): 返回对象自身的symbol属性键名（ Symbol: √  不可枚举属性: √）
@@ -628,6 +627,23 @@ let const class 声明的全局变量不属于顶层变量window/global
 	})
 
 
+	// 属性描述符 descriptor
+	// {
+	// 	// 成员的值
+	// 	value: any,
+	// 	// 是否可枚举 影响 for...in  Object.keys()
+	// 	enumerable: boolean,
+	// 	// 如果设置为 false 属性不可删除，descriptor 中的 enumerable configurable 不可更改
+	// 	configurable: boolean,
+	// 	// 是否可以更改初始值
+	//   writable: boolean
+	// }
+	
+	// Object.freeze(obj) 冻结一个对象
+	// 冻结后的对象不能添加、修改、删除成员，不能修改成员的 descriptor
+	// Object.seal(obj)  密封一个对象
+	// 密封后的对象不能添加、删除成员，将所有成员的 descriptor.configurable 设置为 false
+	// 密封后的对象其属性的值可以修改
 }
 
 
