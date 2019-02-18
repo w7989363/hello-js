@@ -4,10 +4,10 @@
 
 // Promise对象是一个构造函数，用来生成Promise实例
 var promist = new Promise(function(resolve, reject) {
-	if ("asynchronous success") {
-		resolve("value")
+	if ('asynchronous success') {
+		resolve('value')
 	} else {
-		reject("error")
+		reject('error')
 	}
 })
 // resolve函数的作用是将Promise对象的状态从“未完成”变为“成功”（即从 pending 变为 resolved）
@@ -17,9 +17,9 @@ var promist = new Promise(function(resolve, reject) {
 
 // Promise 实例生成以后，可以用then 方法分别指定resolved状态和rejected状态的回调函数
 promist.then(function(value) {
-	"suucess"
+	'suucess'
 }, function(error) {
-	"error"
+	'error'
 })
 // 或者通过then、catch分别制定resolved和rejected
 // .finally(() => {}) 成功失败都会进行的回调，一般用于清理工作
@@ -41,9 +41,9 @@ var p = new Promise(function(resolve, reject) {
 		reject(timeout)
 	}
 }).then(function(value) {
-	console.log("resolved timeout: " + value)
+	console.log('resolved timeout: ' + value)
 }, function(value) {
-	console.log("rejected timeout: " + value)
+	console.log('rejected timeout: ' + value)
 })
 
 
@@ -51,10 +51,10 @@ var p = new Promise(function(resolve, reject) {
 // 例如从两个url获取信息，使用Promise.all实现
 var p1 = new Promise(function(resolve, reject) {
 	// 利用setTimeout模拟网络请求
-	setTimeout(resolve, 3000, "p1 result")
+	setTimeout(resolve, 3000, 'p1 result')
 })
 var p2 = new Promise(function(resolve, reject) {
-	setTimeout(resolve, 2000, "p2 result")
+	setTimeout(resolve, 2000, 'p2 result')
 })
 // 为两个promise指定resolve
 Promise.all([p1, p2]).then(function(result) {
@@ -67,7 +67,7 @@ Promise.all([p1, p2]).then(function(result) {
 // 例如从两个url获取相同的信息，只要获得先返回的结果就可以
 // Promise.race实现
 Promise.race([p1, p2]).then(function(result) {
-	console.log("race: ", result) // race: p2 result
+	console.log('race: ', result) // race: p2 result
 })
 
 
@@ -78,17 +78,14 @@ Promise.race([p1, p2]).then(function(result) {
 const p3 = new Promise(function(resolve, reject) {
 	setTimeout(() => reject(new Error('fail')), 3000)
 })
-
 const p4 = new Promise(function(resolve, reject) {
 	setTimeout(() => resolve(p3), 1000)
-})
-p4.then(result => console.log(`then : ${result}`))
-	.catch(error => console.log(`catch : ${error}`))
+}).then(result => console.log(`then : ${result}`)).catch(error => console.log(`catch : ${error}`))
 // catch : Error: fail
 
 // 对Ajax的封装
 const getJSON = function(url) {
-	const promise = new Promise(function(resolve, reject) {
+	return new Promise(function(resolve, reject) {
 		const handler = function() {
 			if (this.readyState !== 4) {
 				return
@@ -100,27 +97,26 @@ const getJSON = function(url) {
 			}
 		}
 		const client = new XMLHttpRequest()
-		client.open("GET", url)
+		client.open('GET', url)
 		client.onreadystatechange = handler
-		client.responseType = "json"
-		client.setRequestHeader("Accept", "application/json")
+		client.responseType = 'json'
+		client.setRequestHeader('Accept', 'application/json')
 		client.send()
 	})
-	return promise
-};
+}
 // 第一个回调函数完成以后，会将返回结果作为参数，传入第二个回调函数。
-getJSON("/posts.json").then(json => {
+getJSON('/posts.json').then(json => {
 	return json.post
 }).then(post => {
 	console.log(post)
 })
 // 前一个回调函数，有可能返回的还是一个Promise对象（即有异步操作），
 // 这时后一个回调函数，就会等待该Promise对象的状态发生变化，才会被调用。
-getJSON("/post/1.json").then(post => {
+getJSON('/post/1.json').then(post => {
 	// 返回一个promise，后面的then会根据此promise的状态进行调用
 	return getJSON(post.commentURL)
 }).then(comments => {
-	console.log("resolved: ", comments)
+	console.log('resolved: ', comments)
 }).catch(err => {
-	console.log("rejected: ", err)
+	console.log('rejected: ', err)
 })

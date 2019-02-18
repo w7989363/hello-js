@@ -15,21 +15,21 @@ Student.prototype = {
 	// 使用new时，默认会在prototype中添加constructor来指向构造函数
 	// 我们这里重新给prototype赋值一个新的对象，原有的constructor就没了，所以可以手动赋值
 	// 如果不想覆盖掉prototype中原有的东西，就要使用Student.prototype.study = function() {} 这种形式赋值
+	// 或者使用 Object.assign(Student.prototype, {}) 向原型对象添加成员
 	constructor: Student,
 	type: 'student',
 	study: function() {
 		console.log('studing')
 	}
 }
-let s = new Student("wtl", 22)
-// new 是一个语法糖，具体执行如下
-// 1.创建一个新对象，作为返回的对象实例
+let s = new Student('wtl', 22)
+// new 是一个语法糖，内部实现如下
+// 1.创建一个空对象，作为返回的对象实例
 // var tempObj = {}
 // 2.__proto__指向构造函数的prototype
 // tempObj.__proto__ = Student.prototype
 // 3.执行构造函数
-// tempObj.name = name
-// tempObj.age = age
+// constructor.apply(tempObj, arguments)
 // 4.返回对象实例
 // return tempObj
 
@@ -57,7 +57,7 @@ Person.prototype.sayName = function() {
 }
 
 // 利用构造函数新建实例对象
-let tom = new Person('tom') // Person { name: 'tom', age: 18 }
+let tom = new Person('tom')
 
 // prototype与__proto__:
 // 生产环境中不推荐用__proto__ 推荐使用Object.getPrototypeOf(obj)
@@ -98,23 +98,23 @@ tom.__proto__.gender // DK
 
 
 // 直接输出，不包括原型链中的内容
-console.log(tom); // Person { name: 'tom', age: 18, gender: '男' }
+console.log(tom) // Person { name: 'tom', age: 18, gender: '男' }
 // typeof可以用来检查属性是否存在
-typeof tom.xxx === "undefined"; // true
-// hasOwnProperty只检查当前对象(通过this定义)的实例属性，不会检查原型链
-tom.hasOwnProperty("gender"); // true 因为前面通过tom.gender定义了
-tom.hasOwnProperty("race"); // false
+typeof tom.xxx === 'undefined' // true
+// obj.hasOwnProperty(keyName) 检查当前对象是否有成员 keyName，不会检查原型链
+tom.hasOwnProperty('gender') // true 因为前面通过tom.gender定义了
+tom.hasOwnProperty('race') // false
 
 // for in 遍历对象，in操作符会查找原型链
 for (let k in tom) {
-	console.log(`${k}: ${tom[k]}`);
+	console.log(`${k}: ${tom[k]}`)
 	/*
 	name: tom
 	age: 18
 	gender: 男
 	race: DK
 	sayName: function() {
-	  console.log(`I'm ${this.name}`);
+	  console.log(`I'm ${this.name}`)
 	}
 	wen: 111
 	*/
@@ -128,7 +128,7 @@ for (let k in tom) {
 ██ ██  ██ ██ ██   ██ ██      ██   ██ ██    ██
 ██ ██   ████ ██   ██ ███████ ██   ██ ██    ██
 */
-// 继承的目的，就是使子类实例拥有父类的实例属性(方法)和原型属性(方法)
+// 继承的目的，就是使子类实例拥有父类的实例成员和原型链成员，更进一步还需要继承静态成员(定义在构造函数对象上的成员)
 // 其中，父类的实例属性应该是子类的实例属性，所有子类实例不共享
 // 父类的原型属性应该是子类之间共享的
 
@@ -145,7 +145,8 @@ function Child1() {
 // 只能继承父类实例属性/方法，不能继承原型属性/方法
 let child1 = new Child1()  // Child1 { name: 'parent', type: 'child1' }
 
-// 2.借助原型链实现继承(继承了父类的实例属性和原型属性，但是父类引用类型的实例属性在子类间是共享的)
+// 2.子类构造函数 prototype 指向一个父类的实例
+// 继承了父类的实例属性和原型属性，但是父类引用类型的实例属性在子类间是共享的
 function Child2() {
 	this.type = 'child2'
 }
@@ -155,8 +156,9 @@ Child2.prototype = new Parent()
 // 父类的实例 __proto__ 又指向父类构造函数 prototype，因此也继承了父类的原型属性/方法
 let child2 = new Child2()
 let child22 = new Child2()
-// 这样的缺点是: 父类的引用型实例属性 保存在子类实例的 __proto__ ，因此是子类实例之间共享的
-// child2没有自己的 arr 属性， 修改 child2.arr 会影响其他的 child
+// 这样的缺点是: 父类的实例属性保存在子类的 prototype 中，因此是子类实例之间共享的
+// 当修改引用型成员的时候就会影响其他子类实例
+// 例如修改 prototype 中的引用类型成员 arr
 child22.arr // [ 1, 2, 3 ]
 child2.arr.push(4)
 child22.arr // [ 1, 2, 3, 4 ]
@@ -188,6 +190,8 @@ let child4 = new Child4()
 // 当然还是有缺陷: 子类构造方法的 prototype 就是父类构造方法的 prototype
 // 那子类构造方法的 prototype 中的 constructor 就是 Parent()
 // 并且我们不能直接修改 Child4.prototype.constructor，因为会影响到 Parent.prototype.constructor
+Child4.prototype.constructor === Child4 // false
+Child4.prototype.constructor === Parent // true
 
 
 // 5.组合继承优化(2)
@@ -202,6 +206,8 @@ Child5.prototype = Object.create(Parent.prototype)
 // 然后更改这个新对象的 constructor 属性，指向 Child5
 Child5.prototype.constructor = Child5
 let child5 = new Child5()
+// 这样基本就完成了实例成员和原型链成员的继承
+// 但是静态成员始终没得到继承
 
 
 // 6.ES6 中使用 Class 继承
@@ -219,7 +225,7 @@ class Parent6 {
 }
 // 类名相当于 ES5 的构造函数
 typeof Parent6 // function
-Parent6 === Parent6.prototype.constructor // true
+Parent6.prototype.constructor === Parent6 // true
 // 使用 extends 关键字进行继承
 class Child6 extends Parent6 {
 	constructor(name, age = 20) {
@@ -260,8 +266,8 @@ Child6.__proto__ === Parent6	// true
 
 // ps: 由于现代 JavaScript 引擎优化属性访问所带来的特性的关系
 // 更改对象的 __proto__ 在各个浏览器和 JavaScript 引擎上都是一个很慢的操作
-// 如果关心性能，你应该避免设置一个对象的 __proto__ 相反
-// 你应该使用 Object.create() 来创建带有你想要的 __proto__ 的新对象
+// 如果关心性能，你应该避免设置一个对象的 __proto__
+// 相反你应该使用 Object.create() 来创建带有你想要的 __proto__ 的新对象
 
 /*
 ██████   ██████  ██   ██    ██ ███    ███  ██████  ██████  ██████  ██   ██ ██  ██████
@@ -286,5 +292,5 @@ class Chicken {
 		console.log('jijiji')
 	}
 }
-shout(new Duck()); // gagaga
-shout(new Chicken()); // jijiji
+shout(new Duck()) // gagaga
+shout(new Chicken()) // jijiji

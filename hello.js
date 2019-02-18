@@ -50,7 +50,7 @@
 	// 当执行一段js代码时，整个代码相当于一个宏任务，所以全局上下文入函数栈执行，执行当前上下文的同步代码
 	// 碰到宏任务(setTimeout、setInterval、setImmediate)就将其异步任务分发到下一个loop的相应宏任务队列(setTimeout/setInterval在同一个队列、setImmediate在后面的队列)
 	// 碰到微任务(nextTick，Promise)就将其异步任务(nextTick的参数、Promise.then)分发到本次 loop 相应微任务队列
-	// 全局执行完后，去检查微任务队列，从nextTick队列开始，将微任务上下文入函数栈执行，同样碰到宏任务就将其异步任务分发到宏任务队列，微任务异步任务分发到'当前'循环的微任务队列(也就是说微任务中分发的微任务仍然在本次loop中执行)；nextTick队列执行完再去执行promise队列，同样进行异步任务分发；promise执行完后还会再重新检查微任务队列，因为每当执行完一个异步队列(不论是宏任务队列还是微任务队列)，都会重新检查微任务队列来执行
+	// 全局执行完后，本次事件循环没有别的宏任务，去检查微任务队列，从nextTick队列开始，将微任务上下文入函数栈执行，同样碰到宏任务就将其异步任务分发到下次loop宏任务队列，微任务异步任务分发到'当前'循环的微任务队列(也就是说微任务中分发的微任务仍然在本次loop中执行)；nextTick队列执行完再去执行promise队列，同样进行异步任务分发；promise执行完后还会再重新检查微任务队列，因为每当执行完一个异步队列(不论是宏任务队列还是微任务队列)，都会重新检查微任务队列来执行
 	// 所有微任务执行完，第一个事件循环就完成了，进入下次事件循环
 	// 下次事件循环从setTimeout/setInterval队列开始，同样进行任务分发。执行完当前loop的setTimeout队列后会先检查微任务队列，执行清空所有的微任务；然后再进入 setImmediate 队列，进行异步任务分发，清空 setImmediate 队列后，执行微任务，微任务执行完后结束当前loop，进入下一个loop
 	// 以上基于node环境分析，node环境中是清空一个宏队列再去检查微任务，而浏览器中是执行完一个宏任务就去检查微任务
@@ -120,16 +120,17 @@ window.a // 1
 
 let 声明的变量属于当前块级作用域，声明不会提前
 let 不允许在相同作用域内用 let 声明重名变量
-暂时性死区：只要块级作用域内存在let命令，它所声明的变量就“绑定”（binding）这个区域，不再受外部的影响作用域内声明的变量，
+暂时性死区：只要块级作用域内存在let命令，它所声明的变量就“ 绑定” 这个区域，不再受外部作用域内声明的变量的影响，
 并且变量在 let 声明前是不可用的
 
-const 实际上保证的，并不是变量的值不得改动，而是变量指向的那个内存地址所保存的数据不得改动。
+对于简单数据类型的变量（ 数值、 字符串、 布尔值）， 变量对应的内存地址中保存的就是实际值
+但对于引用类型的变量（ 主要是对象）， 变量对应的内存地址中保存的只是一个指向实际数据的指针
+
+const 实际上保证的，并不是变量的值不得改动
+因此如果const声明一个引用类型的变量，则变量本身不能重新赋值(地址不能改变)，但是其内部的值可以改变
 const 特性与let相同
 let const class 声明的全局变量不属于顶层变量window/global
 
-
-对于简单数据类型的变量（数值、字符串、布尔值），变量对应的内存地址中保存的就是实际值
-但对于引用类型的变量（主要是对象），变量对应的内存地址中保存的只是一个指向实际数据的指针
 */
 
 
@@ -166,7 +167,6 @@ let const class 声明的全局变量不属于顶层变量window/global
 
 
 	// 用途
-
 	// 1.交换值
 	[x, y] = [y, x]
 
@@ -190,16 +190,16 @@ let const class 声明的全局变量不属于顶层变量window/global
 	const map = new Map()
 	map.set('first', 'hello')
 	map.set('second', 'world')
-	// for iterator of iterable对象
+	// for iterator of iterableObj
 	for (let [key, value] of map) {
 		`${key} is ${value}`
 		// first is hello
 		// second is world
 	}
 
-
-	// 6.加载模块的指定方法
+	// 6.加载模块的指定成员
 	// const { SourceMapConsumer, SourceNode } = require('source-map')
+	// import { mapGetters } from 'vuex'
 
 }
 
@@ -238,7 +238,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 	'helloworld'.search(/l?o/) //3
 	// stringObject.replace(regexp/substr,replacement)
 	'helloworld'.replace('w', 'g') //hellogorld
-	// stringObject.slice(start[, end])  包括 start 不包括 end，不指定 end 则截取到最后
+	// stringObject.slice(start[, end])  [start, end) ，不指定 end 则截取到最后
 	// start 和 end 可以为负数，表示从尾部开始计数
 	'helloworld'.slice(2, 5) // llo
 	// substring的参数不能使用负数，推荐使用slice
@@ -269,15 +269,17 @@ let const class 声明的全局变量不属于顶层变量window/global
 */
 // 数值
 {
-	// 八进制 0o开头
+	// 16进制 0x
+	0x1F7 === 503
+	// 八进制 0o
 	0o767 === 503 // true
-	// 二进制 0b开头
+	// 二进制 0b
 	0b111110111 === 503 // true
 	// 转换为10进制要用Number
 	Number(0o767) // 503
 
 	// 全局方法模块化 Number
-	// 如果参数类型不是数值，Number.isFinite一律返回false
+	// 如果参数类型不是数值，不会进行自动转换
 	Number.isFinite(NaN) // false
 	Number.isFinite('foo') // false
 	Number.isFinite('15') // false 不会自动转换为数字
@@ -360,20 +362,22 @@ let const class 声明的全局变量不属于顶层变量window/global
 			console.log('arrow', this.s1)
 		}, 0)
 		setTimeout(function () {
-			// 此处的this在运行之前，都不确定是谁
+			// setTimeout 中的匿名函数 this 指向
+			// 浏览器环境中一般指向全局对象 window
+			// node 环境中指向一个 Timeout 对象
 			console.log('anonymous', this.s2)
 		}, 0)
 	}
 	let timer = new Timer() // arrow 1    anonymous undefined
 	// 执行new的时候，构造函数中的this指向实例对象，所以箭头函数的this也指向实例对象，输出 1
-	// 而执行构造函数的时候调用setTimeout，里面匿名函数的this指向全局对象，输出 undefined
+	// 而执行构造函数的时候调用setTimeout，里面匿名函数的this指向全局对象或Timeout，输出 undefined
 
 	// 但是如果直接执行 Timer() 函数结果会不一样
 	// 因为直接 Timer() 执行的话，Timer 函数中的 this 指向全局对象
 	// 因此就会先在全局对象中定义 s1 s2
 	// 又因为箭头函数的 this 与 Timer 的 this 绑定，所以箭头函数 this 也指向全局对象，输出 1
-	// Timer() 函数执行时调用 setTimeout，其中匿名函数的 this 仍然指向全局对象
-
+	// setTimeout匿名函数中，如果浏览器环境(this 指向全局对象)则输出 2
+	// 如果 node 环境(this指向Timeout对象)则输出 undefined
 
 
 	// 尾调用:A函数的最后一步是调用另一个函数B
@@ -453,9 +457,17 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// Array.from() 用于将类数组数据结构(包含length属性即可)转换为数组
 	// 例如操作DOM元素的NodeList、arguments、Set、String
 	// 只要实现了Iterator接口的数据结构，都可用Array.from()
+	Array.from('hello') // [ 'h', 'e', 'l', 'l', 'o' ]
+	// 生成 10 个 undefined 组成的数组
+	Array.from({ length: 10 })
+	// 再利用 keys() rest 运算符可以快速生成 0~9
+	arr6 = [...Array.from({ length: 10 }).keys()] // [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
 
-	// Array.of()用来构建新数组，替代Array() new Array()
-	let arr6 = Array.of(...'hello') // [ 'h', 'e', 'l', 'l', 'o' ]
+
+	// Array.of(arg1, arg2, ...)用来构建新数组，替代Array() new Array()
+	// 将每一个参数作为数组的一个元素
+	Array.of(...'hello') // [ 'h', 'e', 'l', 'l', 'o' ]
+	Array.of('hello') // [ 'hello' ]
 
 	// 修改当前数组，将指定位置的成员复制到其他位置，返回修改后的数组
 	// Array.prototype.copyWithin(target, start = 0, end = this.length)
@@ -502,13 +514,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 		return item * item
 	})
 
-	// 生成长度为10的数组
-	// 10 个元素都为 undefined
-	Array.apply(null, { length: 10 })
-	Array.from({ length: 10 })
-	// 再利用 keys() rest 运算符可以快速生成 0~9
-	arr9 = [...Array.from({ length: 10 }).keys()]	// [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
-
+	
 }
 
 
@@ -548,9 +554,10 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// 输出模块更加简洁
 	// module.exports = { getItem, setItem, clear }
 
-	// Object.create(proto, propDescriptors)
+
+	// Object.create(prototype: object[, descriptors: PropertyDescriptorMap])
 	// 创建返回一个新的对象，其 __proto__ 指向 proto ，属性为 propDescriptors 中定义的属性
-	// 第二个参数 propDescriptors 可选，是一个对象，里面包含一到多个属性描述符：
+	// 第二个参数 propDescriptors 可选，是一个对象，里面包含一到多个属性描述符(PropertyDescriptor)：
 	/*
 	{
 		foo: {
@@ -595,7 +602,6 @@ let const class 声明的全局变量不属于顶层变量window/global
 		let originProto = Object.getPrototypeOf(origin)
 		return Object.assign(Object.create(originProto), origin)
 	}
-
 	// 使用 assign 有一个缺陷：不能拷贝属性的 setter 和 getter
 	// 为此 ES6新增两个define函数
 	// Object.defineProperty(obj, propName, propDescriptor) 添加单个属性，主要用来添加getter setter函数
@@ -614,6 +620,23 @@ let const class 声明的全局变量不属于顶层变量window/global
 
 	// 深拷贝
 	// let newObj = JSON.parse(JSON.stringify(oldObj))
+	// 如果 oldObj 里面的引用类型成员都是字面量的话，可以实现深拷贝
+	// 如果 oldObj 里有引用类型的成员直接引用的外部变量，则这个成员仍然是浅拷贝
+	// 如果只考虑自身属性深拷贝，原型链直接继承，可以使用以下实现
+	function deepClone(origin) {
+		let ret = Object.create(Object.getPrototypeOf(origin))
+		Object.keys(origin).forEach(key => {
+			if (origin[key] === null || typeof origin[key] !== 'object') {
+				// typeof 可以识别6中基本类型(除了null, null 判断为 object)和function
+				// 6种基本类型和function都可以直接赋值，所以判断不是 object 的或者 null 都直接赋值
+				ret[key] = origin[key]
+			} else {
+				// 其他引用类型递归调用深拷贝
+				ret[key] = deepClone(origin[key])
+			}
+		})
+		return ret
+	}
 
 	// 遍历
 	// for...in循环: 遍历对象自身的和原型链上的属性（ Symbol: X  不可枚举属性: X）一般配合obj.hasOwnProperty(prop)使用
@@ -627,23 +650,24 @@ let const class 声明的全局变量不属于顶层变量window/global
 	})
 
 
-	// 属性描述符 descriptor
+	// 属性描述符 PropertyDescriptor
 	// {
 	// 	// 成员的值
 	// 	value: any,
 	// 	// 是否可枚举 影响 for...in  Object.keys()
 	// 	enumerable: boolean,
-	// 	// 如果设置为 false 属性不可删除，descriptor 中的 enumerable configurable 不可更改
+	// 	// 如果设置为 false 属性不可删除，descriptor 中除 value writable 之外的其他值不可更改
 	// 	configurable: boolean,
 	// 	// 是否可以更改初始值
 	//   writable: boolean
 	// }
 	
-	// Object.freeze(obj) 冻结一个对象
-	// 冻结后的对象不能添加、修改、删除成员，不能修改成员的 descriptor
 	// Object.seal(obj)  密封一个对象
 	// 密封后的对象不能添加、删除成员，将所有成员的 descriptor.configurable 设置为 false
-	// 密封后的对象其属性的值可以修改
+	// 密封后的对象其属性的值可以修改，descriptor 中的值因 configurable 为 false 而部分无法更改
+	// Object.freeze(obj) 冻结一个对象
+	// 冻结后的对象不能添加、修改、删除成员，将所有成员 descriptor.configurable descriptor.writable 设置为 false
+	// 冻结后的对象其属性的值和 descriptor 都不能修改
 }
 
 
@@ -669,9 +693,9 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// 第二种写法
 	a[mySymbol] = 'Hello!'
 
-	// Symbol作为属性名，不会被for...in for...of循环遍历
-	// 也不会被Object.keys()、Object.getOwnPropertyNames()返回
-	// 可以利用这个特性定义非私有的内部方法
+	// Symbol 作为属性名，不会被 for...in for...of 循环遍历
+	// 也不会被 Object.keys()、Object.getOwnPropertyNames() 返回
+	// 可以利用这个特性定义私有的内部方法
 
 	// 如果希望使用同一个symbol，需要使用Symbol.for()定义
 	// Symbol.for('foo')会把foo登记在全局环境中，
@@ -681,23 +705,9 @@ let const class 声明的全局变量不属于顶层变量window/global
 	let s2 = Symbol.for('foo')
 	s1 === s2 // true
 
-	// 可以利用Symbol实现Singleton单例模式
+	// 可以利用 Symbol 实现 Singleton 单例模式
 	// 单例模式指调用一个类，任何时候返回的都是同一个实例
-	// 例如node中模块文件可以看成一个类，每次执行这个模块想返回同一个实例，可以将实例放入global中
-	// mod.js
-	/*
-	function A() {
-	  this.foo = 'hello'
-	}
-	if (!global._foo) {
-	  global._foo = new A()
-	}
-	module.exports = global._foo
-	*/
-	// 使用时
-	// const a = require('./mod.js')
-	// 以上代码实现的单例模式有缺陷，_foo可能会无意间被覆盖，所以可以使用Symbol来作为键名
-
+	// 例如 node 中模块文件可以看成一个类，每次执行这个模块想返回同一个实例，可以将实例放入 global 中
 	// mod.js
 	/*
 	const FOO_KEY = Symbol.for('foo')
@@ -730,16 +740,16 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// s // Set { 2, 3, 5, 4 }
 
 	// s.size：返回Set实例的成员总数
-	// add(value)：添加某个值，返回 Set 结构本身。
-	// delete(value)：删除某个值，返回一个布尔值，表示删除是否成功。
-	// has(value)：返回一个布尔值，表示该值是否为Set的成员。
-	// clear()：清除所有成员，没有返回值。
+	// s.add(value)：添加某个值，返回 Set 结构本身。
+	// s.delete(value)：删除某个值，返回一个布尔值，表示删除是否成功。
+	// s.has(value)：返回一个布尔值，表示该值是否为Set的成员。
+	// s.clear()：清除所有成员，没有返回值。
 
 	// 遍历Set 遍历顺序就是插入顺序
-	// keys()：因为Set没有键名，所以同 values()
-	// values()：返回值的遍历器
-	// entries()：返回键值对的遍历器
-	// forEach()：使用回调函数遍历每个成员
+	// s.keys()：因为Set没有键名，所以同 values() 返回值的遍历器 // for(let item of s.keys())
+	// s.values()：返回值的遍历器	// for(let item of s.values())
+	// s.entries()：返回键值对的遍历器(键和值一样) // for(let [key, item] of s.entries())
+	// s.forEach()：使用回调函数遍历每个成员
 	// for of，同 values()
 
 	// WeakSet 只能用来存放对象，并且其成员对象不会计入引用计数，其他地方计数为0即被删除
@@ -879,29 +889,40 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// 一共支持13种拦截：
 	// get(target, propKey, receiver)
 	// 拦截对象属性的读取，比如proxy.foo和proxy['foo']。
+
 	// set(target, propKey, value, receiver)
 	// 拦截对象属性的设置，比如proxy.foo = v或proxy['foo'] = v，返回一个布尔值。
+
 	// has(target, propKey)
 	// 拦截propKey in proxy的操作，返回一个布尔值。
+
 	// deleteProperty(target, propKey)
 	// 拦截delete proxy[propKey]的操作，返回一个布尔值。
+
 	// ownKeys(target)
 	// 拦截Object.getOwnPropertyNames(proxy)、Object.getOwnPropertySymbols(proxy)、Object.keys(proxy)、for...in循环，返回一个数组。
-	// 该方法返回目标对象所有自身的属性的属性名，而Object.keys()的返回结果仅包括目标对象自身的可遍历属性。
+	
 	// getOwnPropertyDescriptor(target, propKey)
-	// 拦截Object.getOwnPropertyDescriptor(proxy, propKey)，返回属性的描述对象。
+	// 拦截Object.getOwnPropertyDescriptor() Object.getOwnPropertyDescriptors() 返回属性的描述对象。
+
 	// defineProperty(target, propKey, propDesc)
 	// 拦截Object.defineProperty(proxy, propKey, propDesc)、Object.defineProperties(proxy, propDescs)，返回一个布尔值。
+
 	// preventExtensions(target)
 	// 拦截Object.preventExtensions(proxy)，返回一个布尔值。
-	// getPrototypeOf(target)
-	// 拦截Object.getPrototypeOf(proxy)，返回一个原型对象。
+
 	// isExtensible(target)
 	// 拦截Object.isExtensible(proxy)，返回一个布尔值。
+
+	// getPrototypeOf(target)
+	// 拦截Object.getPrototypeOf(proxy)，返回一个原型对象。
+
 	// setPrototypeOf(target, proto)
 	// 拦截Object.setPrototypeOf(proxy, proto)，返回一个布尔值。如果目标对象是函数，那么还有两种额外操作可以拦截。
+
 	// apply(target, object, args)
 	// 拦截 Proxy 实例作为函数调用的操作，比如proxy(...args)、proxy.call(object, ...args)、proxy.apply(...)。
+
 	// construct(target, args)
 	// 拦截 Proxy 实例作为构造函数调用的操作，比如new proxy(...args)。
 }
@@ -918,18 +939,16 @@ let const class 声明的全局变量不属于顶层变量window/global
 {
 	// Iterator 接口
 	/*
-	// 一个对象如果是可遍历的(for...of)，则应该实现以下接口
+	// 一个对象如果是可遍历的(for...of)，则应该实现 Iterable 接口
 	interface Iterable {
-		// [Symbol.iterator]() 方法返回一个遍历器对象
+		// 该接口有一个以 Symbol.iterator 为键名的方法，返回值类型为 Iterator 遍历器对象
 		[Symbol.iterator](): Iterator,
 	}
-
-	// 该方法返回一个遍历器对象，遍历器的本质特征是具有 next() 方法
 	interface Iterator {
+		// 类型 Iterator 为一个含有 next() 方法的对象
 		next(value ? : any): IterationResult,
 	}
-
-	// next() 方法返回一个标准对象，value 为值，done 表示是否遍历结束
+	// next() 方法的返回值类型为一个对象，该对象拥有 value(值) done(表示是否遍历结束) 成员
 	interface IterationResult {
 		value: any,
 		done: boolean,
@@ -946,12 +965,11 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// NodeList 对象
 
 
-	// 为 obj 对象部署 iterator 接口
-	let obj = {
-		data: ['hello', 'world'],
-		// Iterator 接口部署在数据结构的 [Symbol.iterator] 属性
-		// 一个数据结构只要具有Symbol.iterator属性，就可以认为是“可遍历的”（iterable）
-		// [Symbol.iterator] 属性本身是一个函数，就是当前数据结构默认的遍历器生成函数
+	// myDataset 类实现了 iterator 接口，该类实例可以直接使用 for...of 遍历
+	class myDataset {
+		constructor() {
+			this.data = ['hello', 'world']
+		}
 		// 执行这个函数，就会返回一个遍历器对象
 		[Symbol.iterator]() {
 			const self = this
@@ -974,11 +992,17 @@ let const class 声明的全局变量不属于顶层变量window/global
 				}
 			}
 		}
+		// 因为生成器函数(Generator)返回的是遍历器，所以可以使用 Generator 函数来实现 [Symbol.iterator]
+		*[Symbol.iterator]() {
+			this.data.forEach(item => {
+				yield item
+			})
+		}
 	}
 
 	// 对于类似数组的对象（存在数值index键名和length属性）部署 Iterator 接口，
-	// 有一个简便方法，就是Symbol.iterator方法直接引用Array.prototype中的 Iterator 接口。
-	// obj.prototype[Symbol.iterator] = Array.prototype[Symbol.iterator]
+	// 有一个简便方法，就是直接使用 Array.prototype[Symbol.iterator]
+	// obj[Symbol.iterator] = Array.prototype[Symbol.iterator]
 	let iterable = {
 		0: 'a',
 		1: 'b',
@@ -993,21 +1017,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 		// c
 	}
 
-
-	// 普通对象没有部署Iterator接口，不能使用for...of但可以使用for...in
-	// 因为生成器函数(Generator)返回的是遍历器，所以可以使用 Generator 函数作为普通对象的 Iterator 接口
-	let myIterable = {
-		a: 'a',
-		b: 'b',
-		c: 'c',
-		[Symbol.iterator]: function*() {
-			let keys = Object.keys(this)
-			for (let key of keys) {
-				yield [key, this[key]]
-			}
-		},
-	}
-
+	// 普通对象没有实现 Iterator 接口，不能使用 for...of 但可以使用 for...in
 
 }
 
@@ -1023,12 +1033,22 @@ let const class 声明的全局变量不属于顶层变量window/global
 {
 	// function关键字与函数名之间有一个星号，紧跟在function关键字后面
 	// Generator 函数可以理解为一个状态机，可以依次遍历其中的"状态"
-	// 执行 Generator 函数会返回一个遍历器对象
+	// 执行 Generator 函数会返回一个遍历器对象，该对象接口定义如下
+	/*
+	interface Iterator {
+		// 类型 Iterator 为一个含有 next() 方法的对象
+		next(value ? : any): IterationResult,
+	}
+	// next() 方法的返回值类型为一个对象，该对象拥有 value(值) done(表示是否遍历结束) 成员
+	interface IterationResult {
+		value: any,
+		done: boolean,
+	}
+	*/
 	// 使用遍历器的 next() 函数可以依次遍历 Generator 函数内部的每一个状态
-	// next() 函数返回一个对象，value 为值 done 表示是否遍历结束
 
-	// 调用 Generator 函数后，该函数并不执行，返回的是一个指向内部状态的指针对象
-	// 调用 next() 会执行到 yield() 暂停，并返回 yield 后面的值，再次调用 next() 继续执行
+	// 调用 Generator 函数后，该函数体并不执行，先返回遍历器对象
+	// 调用 iterator.next() 会执行到 yield() 暂停，并返回 yield 后面的值，再次调用 next() 继续执行
 	function* helloWorldGenerator() {
 		yield 'hello'
 		yield 'world'
@@ -1095,7 +1115,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// 2.async 函数的 await 命令后面，可以是 Promise 对象和原始类型的值（数值、字符串和布尔值，但这时等同于同步操作）
 	// 3.返回值是 Promise。async函数完全可以看作多个异步操作，包装成的一个 Promise 对象，而await命令就是内部then命令的语法糖
 
-	// async函数返回一个 Promise 对象，可以使用then方法添加回调函数。
+	// async 函数返回一个 Promise 对象，可以使用 then 方法添加回调函数。
 	// 当函数执行的时候，一旦遇到 await 就会先返回，等到异步操作完成，再接着执行函数体内后面的语句。
 
 
@@ -1179,16 +1199,15 @@ let const class 声明的全局变量不属于顶层变量window/global
 			// }
 
 		}
-		// ES6规定不能定义静态属性，以下定义会报错
+		// ES6 不能在 class 中直接定义实例属性，以下定义会报错，ts 支持这种语法
 		// xy = 41
-		// 只能在外部使用Point.xy = 41来定义
-
+		
 		// 类内直接定义的方法属于原型对象 Point.prototype.toString()
 		// 类内定义方法不用加function关键字
 		toString() {
 			return `(${this.x}, ${this.y})`
 		}
-		// 如果是私有方法可以在前面加一个下划线标识，但是仍然可以被外部访问
+		// 如果是私有方法可以在前面加一个下划线标识，这只是一种形式上的标记，仍然可以被外部访问
 		_privateFunc() {}
 		// 可以使用Symbol来定义私有方法，类作为模块导出时外部就没法访问
 		[privateAttr]() {}
@@ -1216,7 +1235,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 		// 也可以在外部定义静态方法
 		// Point.staticFunc()
 
-		// 静态属性提案
+		// 静态属性提案，ES6还不支持，ts支持这种语法
 		// static staticAttr = 'staticAttr'
 		// 也可以在外部定义静态属性
 		// Point.six = 6
@@ -1246,7 +1265,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// 实例的 __proto__ 指向类(构造函数)的原型对象
 	p.__proto__ === Point.prototype // true
 
-	// in 运算符会遍历所有可枚举属性，包括原型链上继承的
+	// in 运算符会遍历所有可枚举属性(不包括Symbol)，包括原型链上继承的
 	for (var k in p) {
 		// hasOwnProperty只检测自身，不检测原型链
 		if (p.hasOwnProperty(k)) {
@@ -1288,7 +1307,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 	let cp = new colorPoint(1, 2, 'red')
 	cp.toString() // red (1, 2)
 	// 继承的内部实现
-	// setPrototypeOf(obj, prototype) 方法将 obj.__proto__ 指向 prototype
+	// setPrototypeOf(obj, prototype) 等同于 obj.__proto__ = prototype
 	// 下面实现了原型链 属性/方法 的继承
 	Object.setPrototypeOf(colorPoint.prototype, Point.prototype)
 	// 下面实现了静态 属性/方法 的继承
@@ -1335,7 +1354,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 */
 // ArrayBuffer(byteLength)
 {
-	// ArrayBuffer提供直接操作连续内存的途径
+	// ArrayBuffer提供直接操作连续内存的途径，类似于 c 中的 malloc
 	// ArrayBuffer本身不能直接操作内存，需要通过在其上建立“视图”
 	// 同一段内存，不同数据有不同的解读方式，这就叫做“视图”（view）
 	// 视图就是如何看待、解析这一片内存，是8位无符号整数还是32位浮点等
@@ -1383,7 +1402,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 
 
 
-	// ArrayBuffer 在 Web Worker 中的应用
+	// SharedArrayBuffer 在 Web Worker 中的应用
 	// 主线程与用户交互，worker线程进行运算。他们之间通过postMessage/onmessage交互
 	// 这种数据交互是通过复制实现的，如果有大量数据非常耗时
 	// SharedArrayBuffer开辟一片共享内存，实现数据的快速交互
@@ -1419,8 +1438,8 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// 为实现线程间的同步，提供了 Atomics.wait() Atomics.wake() 方法
 	// Atomics.wait(sharedArray, index, value, time)
 	// 当满足条件 sharedArray[index] === value 时，在该函数进入休眠
-	// 并将线程保存到 sharedArray[index] 队列
-	// time 是可选参数，表示 time 时间后自动唤醒。time 默认为 Infinity，只能被 wake 唤醒
+	// 并将线程保存到 index 对应的等待队列
+	// time 是可选参数，表示 time 时间后自动唤醒。time 默认为 Infinity，表示无限等待，只能被 wake 唤醒
 	// wait() 返回值为字符串
 		// 如果未满足条件从而没有进入休眠，直接返回 not-equal
 		// 如果被 wake 唤醒，返回 ok
@@ -1510,7 +1529,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// CommonJS模块是执行到require语句才跳到脚本进行加载的，因此过程如下
 	// 假设a.js先执行，a执行到一半，去require('b.js')，这时候跳到b执行
 	// b.js执行到一半发现需要加载a，就去内存中找a的缓存
-	// 因为此时a只执行了一半，所以exports属性中只有前一半的输出，后面代码的变化是没有的
+	// 因为此时a只执行了一半，所以exports属性中只有前一半的输出，后面代码的输出是没有的
 	// b取到a的缓存后继续执行，直到b执行完，再把执行权交还给a
 
 	// ES6模块的循环加载: a中import from 'b.mjs' b中import from 'a.mjs'
@@ -1561,7 +1580,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// 使用Array.from()将类数组转换为数组
 
 	// 需要使用函数表达式的场合，尽量用箭头函数代替。因为这样更简洁，而且绑定了this。
-	// 箭头函数取代Function.prototype.bind，不应再用 self/_this/that 绑定 this
+	// 箭头函数取代Function.prototype.bind()，不应再用 self/_this/that 绑定 this
 	// 简单的、单行的、不会复用的函数，建议采用箭头函数。如果函数复杂，还是应该采用传统的函数写法
 	// 函数的配置项参数应该集中放在一个对象里，作为最后一个参数；布尔值不可以直接作为参数
 	// function divide(a, b, { option = false } = {}) { }
@@ -1571,8 +1590,9 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// 使用extends进行继承
 
 	// Module语法是js的标准语法，使用import/export代替require/module.exports
-	// 如果模块只有一个输出值，使用export default；有多个输出值，使用export
-	// export default不要与export同时使用
+	// 如果模块只有一个输出值，使用export default propName
+	// 有多个输出值，使用 export declaration
+	// export default 不要与 export 同时使用
 	// 如果默认输出一个函数，首字母小写；默认输出一个对象，首字母大写
 }
 
@@ -1590,7 +1610,6 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// 哪些内存存在泄漏的风险
   // 1.全局作用域下的变量
   // 2.console.log()的对象不会被回收，在生产环境中不要保留console.log()
-
 
   // 3.closure闭包
   // 闭包会携带包含它的函数的作用域，因此会比其他函数占用更多的内存。
@@ -1613,34 +1632,32 @@ let const class 声明的全局变量不属于顶层变量window/global
   }
   // bar 是对 getData() 的引用，形成了闭包
   let bar = f()
-  // 形成闭包后，作用域中会保留被所有内部函数引用过变量和内部函数引用过的内部函数
-  // 虽然 unused() 没有被外部引用，并且 getData() 没有使用 str 变量，
-  // 但是因为形成了闭包，而且 unused() 内引用了 str ，所以 str 会被保留，unused函数不会保留
+  // 形成闭包后，作用域中会保留 内部函数引用过的变量 和 内部函数引用过的内部函数
+	// 虽然 unused() 没有被外部引用，并且 getData() 没有使用 str 变量，
+	// 因此在以上闭包中， str 会被保留， foo 和 unused() 不会保留
   // 如果注释掉 str = 'unused: ' + str 则 str 就不会被保留了
-
 
   // 4.DOM元素
   // 当一个DOM多次用到，我们一般用一个变量引用 let e = querySelector('#id')
-  // 只调用 removeChild(e) 只会将 e 为根的 DOM 树从 DOM 中删除，
-  // 但是由于存在 e 的引用，内存不会被回收。调用 e = null 解决该问题
+  // 只调用 removeChild(e) 只会将 e 为根的 DOM 子树从 DOM 中删除，
+  // 但是由于存在 e 的引用，内存不会被回收。remove后再添加一局 e = null 解决该问题
 
   // 另一种情况
   /*
     // refA 为 refB 的父节点
     var refA = document.querySelector('#refA')
     var refB = document.querySelector('#refB')
-    // #refA 从DOM树种删除，但是不能GC回收，因为存在变量refA对它的引用。
+    // 按照以上方法移除 refA
     document.body.removeChild(refA)
-    // 将其对 #refA 引用释放，但还是无法回收 #refA。
-    refA = null
+		refA = null
+		// 以上操作仍然不能讲 refA 从内存中删除
     // 还存在变量 refB 对 #refA 的间接引用(refB.parent)。
     // 将变量 refB 对 #refB 的引用释放，#refA 就可以被GC回收。
     refB = null
   */
 
-
-  // 5.setInterval() 注意 clearInterval()  链式调用的 setTimeout() 注意终止逻辑
-
+	// 5.setInterval() 注意 clearInterval()
+	// 链式调用的 setTimeout() 注意终止逻辑
 
   // 6.addEventListener()
   // 如果添加监听器的回调是匿名函数，那多次调用addEventListener则会添加多个事件处理回调，事件触发时会执行多个回调

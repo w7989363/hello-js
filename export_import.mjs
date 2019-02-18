@@ -5,10 +5,11 @@
 let firstName = "wen"
 let lastName = "dabei"
 
+
 function sayName() {
 	console.log(`I'm ${firstName} ${lastName}`)
 }
-
+// 可以先声明，再在一个对象中 export
 export {
 	firstName,
 	lastName,
@@ -16,11 +17,16 @@ export {
 	// 可以使用as更换名字
 	// sayName as myName,
 }
+// 也可以直接 export 声明
+export const middleName = 'wtl'
+// export 可以多次使用
+
 
 // import时需要知道模块输出的变量名是什么，很不方便
 // 用户未必愿意阅读文档去了解模块有哪些属性和方法。
 // 用export default命令，为模块指定一个默认输出对象。
 // 一个模块只能有一个默认输出，因此export default命令只能使用一次
+// 一般一个模块只有一个输出对象时要用 export default
 // import命令后面不用加大括号，因为只可能唯一对应export default命令
 export default {
 	firstName,

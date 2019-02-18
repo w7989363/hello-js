@@ -93,11 +93,13 @@ reg3.exec('http:xxx:') //["http:xxx:", "xxx:"]
 let reg4 = /(?:\/([^?#]*))/
 reg4.exec('www.wtl.cn/personal/sss?a=6') // [ '/personal/sss', 'personal/sss' ]
 
-// ES8 命名分组  (?<name>)
+// ES8 命名分组  (?<groupName>)
 let re1 = /(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/u
 re1.exec('2018-10-21')
 // [
-//   '2018-10-21', '2018', '10', '21', index: 0, input: '2018-10-21',
+//   '2018-10-21', '2018', '10', '21',
+//   index: 0,
+//   input: '2018-10-21',
 //   groups: {
 //     year: '2018',
 //     month: '10',
@@ -120,14 +122,17 @@ let re2 = /(?<firstName>[A-Za-z]+) (?<lastName>[A-Za-z]+$)/u
   \t 制表符
   \b 指定一个字边界，方便用于对文本字边界进行匹配  /\bt/会匹配'%&_tes'中的t
   \d 表示数字，等同于[0-9] \D表示相反 [^0-9]
-  \s  等同于[\f\n\r\t\u000B\u0020\u00A0\u2028\u2029] 这是Unicode空白符的一个不完全子集。\S 则表示与其相反：[^\f\n\r\t\u000B\u0020\u00A0\u2028\u2029]
-  \w [0-9A-Z_a-z]  \W相反 [^0-9A-Z_a-z]
+  \s  等同于[\f\n\r\t\u000B\u0020\u00A0\u2028\u2029] 这是Unicode空白符的一个不完全子集
+  \S 则表示与其相反：[^\f\n\r\t\u000B\u0020\u00A0\u2028\u2029]
+  \w [0-9A-Z_a-z]
+  \W 相反 [^0-9A-Z_a-z]
   [A-Za-z\u00C0-\u1FFF\u2800-\uFFFD],包括了所有的Unicode字母，但也包括成千上万非字母的字符
 
-  \1 是指向分组1所捕获到的文本的一个引用，所以能再次被匹配，\2指向分组2的引用，\3以此类推
+  \1 是指向分组1所捕获到的文本的具体内容，并不是分组的正则。\2指向分组2匹配的具体内容，以此类推
 */
 let reg5 = /(\w+)\s+\1/g
 reg5.exec('hello hello') // [ 'hello hello', 'hello' ]
+reg5.exec('hello world') // null
 
 let reg6 = /\w、/
 reg6.exec('asf可是、hi、') // [ 'i、' ]
@@ -140,7 +145,6 @@ reg7.exec("123.tes") // [ 't' ]
 // stringObject.match(searchvalue)
 // stringObject.match(regexp)
 let reee = 'helloworld'.match(/l/g) // ["l", "l", "l"]
-console.log(reee)
 
 
 // search会忽略g标志，并且永远从头开始搜索，返回第一个匹配的index

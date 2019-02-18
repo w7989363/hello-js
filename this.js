@@ -45,7 +45,7 @@ var obj = {
 
 // 调用时确定普通函数内的 this 为 obj
 obj.print1()  // print1: 0
-// 箭头函数没有 this，他内部的 this 与外层的 this 绑定，此时外层就是全局作用于，没有 num 所以为 undefined
+// 箭头函数没有 this，他内部的 this 与外层的 this 绑定，此时外层就是全局作用域，没有 num 所以为 undefined
 obj.arrowFunc.call(obj)   // arrowFunc: undefined
 // 执行 print2 返回一个箭头函数，该箭头函数的 this 与外层 print2 的 this 绑定
 // 执行 obj.print2() 时的 this 为 obj，因此返回的箭头函数 this 指向 obj

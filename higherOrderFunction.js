@@ -81,8 +81,8 @@ hello
 
 
 // 函数柯里化
-// 例如我们需要一个函数，传入参数的时候只是保存参数值，不传入参数的时候才进行运算输出结果
-// 柯里化函数：
+// 柯里化函数，该函数可以将传入参数(一个函数)柯里化
+// 柯里化后的函数，传入参数的时候只是保存参数值，不传入参数的时候才执行
 var curry = function(fn) {
 	// 保存参数
 	var myArgs = []
@@ -93,34 +93,27 @@ var curry = function(fn) {
 		} else {
 			// 保存参数，可能不止一个
 			myArgs.push(...args)
-			// Array.prototype.push.apply(myArgs, args);
+			// Array.prototype.push.apply(myArgs, args)
 		}
-	};
-};
-// 自调用实现对sum的闭包
-var calc = (function() {
-	var sum = 0
-	return function() {
-		for (var i = 0, len = arguments.length; i < len; i++) {
-			sum += arguments[i]
-		}
-		return sum
 	}
-})()
-calc = curry(calc)
-calc(1)
-calc(2, 3)
-calc()	// 6
+}
+let add = curry(function(...args) {
+	return args.reduce((sum, cur) => sum + cur)
+})
+add(1)
+add(2, 3)
+add()	// 6
 
 // 使用lodash.curry
 // var curry = require('lodash.curry')
 // 策略性地把要操作的数据（String， Array）放到最后一个参数里。
 // 传入前面的参数会返回函数，直到传入最后一个参数(一般是需要处理的数据)才会执行回调函数
 // var match = curry(function(what, str) {
-//   return str.match(what);
-// });
-// var hasSpaces = match(/\s+/g);
-// hasSpaces("hello world");		// [ ' ' ]
+//   return str.match(what)
+// })
+// var hasSpaces = match(/\s+/g)
+// hasSpaces("hello world")		// [ ' ' ]
+// 体现了函数式编程的思想
 
 
 
@@ -131,16 +124,13 @@ function debounce(fn, wait) {
 	// 使用闭包定义内部的 timer
 	let timer = null
 	return function(...args) {
-		let that = this
 		// 设置了定时器，说明在wait时间内又触发了一次事件，因此清除定时器，重新设定
 		if (timer) {
-			clearTimeout(timer);
+			clearTimeout(timer)
 			timer = null
 		}
 		// wait毫秒后执行fn
-		timer = setTimeout(function() {
-			fn.apply(that, args)
-		}, wait)
+		timer = setTimeout(() => fn.apply(this, args), wait)
 	}
 }
 
@@ -166,11 +156,10 @@ var debouncedFn1 = debounce(fn1, 1000)
 function throttle(fn, gapTime) {
 	let _lastTime = null
 	return function(...args) {
-		let that = this
 		let _nowTime = new Date().getTime();
 		// 如果没有执行过，或者现在时间到上次时间间隔大于gap，则执行fn
 		if (!_lastTime || _nowTime - _lastTime > gapTime) {
-			fn.apply(that, args)
+			fn.apply(this, args)
 			_lastTime = _nowTime
 		}
 	};
