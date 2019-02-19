@@ -10,7 +10,7 @@ var listener2 = function listener2() {
 	console.log('监听器2执行。');
 }
 
-// addListener和on方法没有区别
+// addListener 和 on 方法没有区别
 // 绑定connection事件 处理函数为listener1
 eventEmitter.addListener('connection', listener1);
 // 绑定connection事件 处理函数为listener2
@@ -21,14 +21,13 @@ eventEmitter.once('connection', function() {
 	console.log("只监听一次");
 });
 
-// 某事件的监听器个数
+// 某事件的监听器个数 静态函数
 var eventListeners = require('events').EventEmitter.listenerCount(eventEmitter, 'connection');
-// 三个
-console.log(eventListeners + "个监听器监听connection事件");
+console.log(eventListeners + "个监听器监听connection事件") // 3
 
 // emit(event, [arg1], [arg2], [...])
 // 如果事件有注册监听返回 true，否则返回 false
-// 触发connection事件，后面跟回调参数
+// 触发 connection 事件，后面跟回调参数
 eventEmitter.emit('connection', 'hello', 'world');
 
 // removeListener(event, listener)
@@ -43,8 +42,8 @@ console.log('listener1 不再监听');
 
 // listeners(event)
 // 返回指定事件的监听器数组。
-var eventListeners = eventEmitter.listeners('connection').length;
+var eventListeners = eventEmitter.listeners('connection')
 // 只剩listener2一个
-console.log(eventListeners + "个监听器监听connection事件");
+console.log(eventListeners.length + "个监听器监听connection事件");
 
 console.log('程序执行完毕');

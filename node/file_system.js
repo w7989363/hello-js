@@ -18,7 +18,7 @@ fs.readFile('input.txt', function(err, data) {
 console.log('end of async');
 
 
-// stream流对象都是 EventEmitter 的实例，常用事件：
+// stream 流对象都是 EventEmitter 的实例，常用事件：
 // data - 当有数据可读时触发。
 // end - 没有更多的数据可读时触发。
 // error - 在接收和写入过程中发生错误时触发。
@@ -26,9 +26,7 @@ console.log('end of async');
 var rs = fs.createReadStream("input.txt");
 rs.setEncoding("utf-8")
 
-const {
-	sep
-} = require('path');
+const { sep } = require('path');
 console.log(`${sep}`);
 
 fs.stat("input.txt", (err, stats) => {

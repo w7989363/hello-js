@@ -6,7 +6,7 @@
 
 
 // 创建Buffer
-// 1.Buffer.from(字符串、数组、Buffer)，使用已有数据创建buffer
+// 1.Buffer.from(o: string | array | Buffer)，使用已有数据创建buffer
 var buf1 = Buffer.from("hello world", "utf-8");
 console.log(buf1.toString()); //hello world
 // 2.Buffer.alloc(size[, fill[, encoding]])，安全分配指定大小的buffer，默认初始化为0，不会有历史遗留数据，慢速
@@ -43,7 +43,7 @@ for (var i = 0; i < 26; i++) {
 console.log(buf3.toString("utf-8")); //abcdefghijklmnopqrstuvwxyz
 console.log(buf3.toString('ascii', 0, 5)); //abcde
 
-// 缓冲区比较，结果类似于strcmp
+// 缓冲区比较，结果类似于 c 中的 strcmp
 // 1.Buffer.compare(buf1, buf2)
 // 2.buf.compare(target[, targetStart[, targetEnd[, sourceStart[, sourceEnd]]]])
 console.log(buf1.compare(buf2));
