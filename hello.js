@@ -619,17 +619,19 @@ let const class 声明的全局变量不属于顶层变量window/global
 
 
 	// 深拷贝
+	// 1.JSON.parse
+	// 只能拷贝自身的可枚举属性，并且不包括 symbol，另外描述符也没有拷贝(只拷贝了值)
 	// let newObj = JSON.parse(JSON.stringify(oldObj))
-	// 如果 oldObj 里面的引用类型成员都是字面量的话，可以实现深拷贝
-	// 如果 oldObj 里有引用类型的成员直接引用的外部变量，则这个成员仍然是浅拷贝
-	// 如果只考虑自身属性深拷贝，原型链直接继承，可以使用以下实现
+	// 2.自己实现
+	// 只考虑自身属性深拷贝，原型链直接继承
 	function deepClone(origin) {
 		let ret = Object.create(Object.getPrototypeOf(origin))
-		Object.keys(origin).forEach(key => {
+		// Reflect.ownKeys() 返回的是自身的所有属性，包括不可枚举属性和symbol
+		Reflect.ownKeys(origin).forEach(key => {
 			if (origin[key] === null || typeof origin[key] !== 'object') {
 				// typeof 可以识别6中基本类型(除了null, null 判断为 object)和function
 				// 6种基本类型和function都可以直接赋值，所以判断不是 object 的或者 null 都直接赋值
-				ret[key] = origin[key]
+				Object.defineProperty(ret, key, Object.getOwnPropertyDescriptor(origin, key))
 			} else {
 				// 其他引用类型递归调用深拷贝
 				ret[key] = deepClone(origin[key])

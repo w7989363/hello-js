@@ -9,6 +9,7 @@
 </head>
 
 <body>
+  <input type="text">
   <script>
     // document.querySelector("input").addEventListener('keydown', function(e){
     //   console.log(e);
@@ -33,22 +34,24 @@
     window.addEventListener('offline', function() {
       console.log('网络断了');
     })
-
-    // window事件 适用于body标签
+    window.addEventListener('storage', function() { console.log('storage change')})
+    let input = document.querySelector('input')
+    input.addEventListener('onblur', function() {console.log('blur')})
+    // window事件
     // load 当文档加载时运行脚本
     // unload 当用户离开文档时运行脚本
     // beforeonload 在文档加载之前运行脚本
     // focus 当窗口获得焦点时运行脚本
     // blur 当窗口失去焦点时运行脚本
-    // online 上线
-    // offline 离线
+    // online 网络在线
+    // offline 网络离线
     // pagehide 当窗口隐藏时运行脚本
     // pageshow 当窗口可见时运行脚本
     // resize 当调整窗口大小时运行脚本
-    // storage 当 Web Storage 区域更新时（存储空间中的数据发生变化时）运行脚本
+    // storage 当 LocalStorage 更新时 同源下的别的页面可以监听到该事件，同一个页面监听不到
 
-    // 表单事件 适用于form标签
-    // focus onblur
+    // 表单事件 适用于 form 标签
+    // focus blur
     // change 当元素改变时运行脚本
     // formchange 当表单改变时运行脚本
     // input 当元素获得用户输入时运行脚本
@@ -56,7 +59,7 @@
     // select 当选取元素中文字时运行脚本
     // submit 当提交表单时运行脚本
 
-    // 键盘事件 window input textarea等
+    // 键盘事件 适用于 window input textarea 等标签
     // keydown 当按下按键时运行脚本
     // keyup 当松开按键时运行脚本
     // keypress 当按下并松开按键时运行脚本

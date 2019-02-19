@@ -23,7 +23,7 @@
   <p>在两个矩形之间拖动p元素</p>
 
   <div class="droptarget">
-    <p id="dragtarget" draggable="true">拖动我</p>
+    <span id="dragtarget" draggable="true">拖动我</span>
   </div>
 
   <div class="droptarget">
@@ -34,71 +34,71 @@
 
 
   <script>
+    let dragtarget = document.querySelector('#dragtarget')
     // 拖动开始
-    document.addEventListener('dragstart', function(e) {
-      console.log('dragstart 拖动开始');
+    dragtarget.addEventListener('dragstart', function(e) {
+      console.log('dragstart 拖动开始')
       // 在数据存储中存储被拖动元素的id，方便拖动结束后操作
       // dataTransfer专门为drag事件设置的数据存储
       // dataTransfer.setData(type, data);设置拖放操作的数据data到指定类型type
       // 如果type不存在，则添加至list尾部；存在则覆盖原数据
-      e.dataTransfer.setData('text', e.target.id);
+      e.dataTransfer.setData('text', this.id)
       // 设置被拖动元素透明度0.4
-      e.target.style.opacity = '0.4';
-    });
+      this.style.opacity = '0.4'
+    })
 
     // 拖动过程(只要不松开鼠标就一直触发，可以设置第三个参数的once只触发一次{once:true})
-    document.addEventListener('drag', function(e) {
-      console.log(`drag 元素 ${e.target.localName} 正在被拖动`);
+    dragtarget.addEventListener('drag', function(e) {
+      console.log(`drag 元素 ${this.localName} 正在被拖动`)
     }, {
       once: true
-    });
+    })
 
     // 拖动结束(在drop放置元素之后被触发)
-    document.addEventListener('dragend', function(e) {
-      console.log('dragend 拖动结束');
+    dragtarget.addEventListener('dragend', function(e) {
+      console.log('dragend 拖动结束')
       // 恢复透明度
-      e.target.style.opacity = '1';
-    });
+      this.style.opacity = '1'
+    })
 
     // 拖动目标被拖进某个元素
     document.addEventListener('dragenter', function(e) {
       // 判断是不是拖进了div，设置border
       if (e.target.className === 'droptarget') {
-        console.log('dragenter 拖动目标进入div');
-        e.target.style.borderColor = 'red';
+        console.log('dragenter 拖动目标进入 div')
+        e.target.style.borderColor = 'red'
       }
-    });
+    })
 
     // 默认情况下,数据/元素不能在其他元素中被拖放，over一般用来阻止浏览器的默认处理(跟drag一样会一直触发)
     document.addEventListener('dragover', function(e) {
-      console.log('dragover');
-      e.preventDefault();
-    });
+      console.log(`dragover 经过元素 .${e.target.className || e.target.localName}`)
+      e.preventDefault()
+    })
 
     // 拖动目标离开某个元素
     document.addEventListener('dragleave', function(e) {
       // 判断是不是拖离了div，重置border
       if (e.target.className === 'droptarget') {
-        console.log('dragleave 拖动目标离开div');
-        e.target.style.border = '';
+        console.log('dragleave 拖动目标离开 div')
+        e.target.style.border = ''
       }
-    });
+    })
 
     // drop对元素进行放置(在dragend之前被触发)
-    document.addEventListener('drop', function(e) {
-      console.log('drop 放置元素');
+    window.addEventListener('drop', function(e) {
+      console.log('drop 放置元素')
       // 防止浏览器默认操作：打开链接
-      e.preventDefault();
+      e.preventDefault()
       if (e.target.className === 'droptarget') {
-        // 因为没有拖离，所以在这里要重置border
-        e.target.style.border = '';
+        // 重置容器的 border
+        e.target.style.border = ''
         // 获取被拖动的元素id
-        let oId = e.dataTransfer.getData('text');
-        // 向当前div添加被拖动的元素
-        e.target.appendChild(document.getElementById(oId));
+        let oId = e.dataTransfer.getData('text')
+        // 向当前容器添加被拖动的元素
+        e.target.appendChild(document.getElementById(oId))
       }
-
-    });
+    })
   </script>
 </body>
 
