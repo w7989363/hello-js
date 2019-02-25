@@ -4,6 +4,8 @@
 <head>
   <meta charset="utf-8">
   <title>Vue</title>
+  <!-- 如果是直接引用 Vue 而不是通过 webpack 等工具构建，则在生产环境中需要引用 .min.js 版本来取消警告信息 -->
+  <!-- webpack 中则是根据 process.env.NODE_ENV 来决定是否启用生产环境模式 -->
   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 
   <style>
@@ -46,7 +48,21 @@
     		mytitle: '页面加载于 ' + new Date().toLocaleString(),
     		isActive: true,
     	}
-    });
+    })
+    // Vue 执行异步 DOM 更新，在一个事件循环中收集所有变化
+    // 对所有更新去重之后计算实际的变化，在下一次事件循环中更新 DOM
+    // 因此更改一个属性之后，只有 VNode 的数据立即更新了，
+    app.isActive = false
+    app.isActive === false // true
+    // 但是 DOM 并没有立即响应式更新
+    app.$el.className === 'active' // true
+    // 可以使用 vm.$nextTick() 放到下一个事件循环
+    app.$nextTick(function() {
+      app.$el.className === '' // true
+    })
+    // 也可以使用 async await
+    // 更新数据后，await 一个空的 $nextTick()，后面 DOM 就已经更新了
+
   </script>
 
 
@@ -63,19 +79,25 @@
     		seen: false,
     	}
     });
+    // v-if 是“真正”的条件渲染，因为它会确保在切换过程中条件块内的事件监听器和子组件适当地被销毁和重建。
+    // v-if 也是惰性的：如果在初始渲染时条件为假，则什么也不做——直到条件第一次变为真时，才会开始渲染条件块。
+    // 相比之下，v-show 就简单得多——不管初始条件是什么，元素总是会被渲染，并且只是简单地基于 CSS display 进行切换。
+    // 一般来说，v-if 有更高的切换开销，而 v-show 有更高的初始渲染开销。
+    // 因此，如果需要非常频繁地切换，则使用 v-show 较好；
+    // 如果在运行时条件很少改变，则使用 v-if 较好
   </script>
 
 
   <!-- v-for="(item, index) in array" 或者用 of 代替 in -->
   <!-- v-for="(value, key, index) in object" -->
-  <!-- 遍历是按照Object.keys()的结果进行的 -->
-  <!-- 用 v-bind:key="item.id" 来让Vue跟踪每个节点的身份 -->
+  <!-- 对象的遍历是按照Object.keys()的结果进行的 -->
+  <!-- 用 v-bind:key="uniqueKey" 来让Vue跟踪每个节点的身份 -->
   <!-- v-for:"n in 10"  1~10 -->
   <!-- v-for 和 v-if 在同级时，for 优先级高，if会在每个for中执行 -->
   <div id="app-3">
     <ol>
       <li v-for="todo in todos">
-        {{ todo.text }}
+        {{ todo }}
       </li>
     </ol>
   </div>
@@ -84,18 +106,21 @@
     let app3 = new Vue({
     	el: '#app-3',
     	data: {
-    		todos: [{
-    				text: '学习 JavaScript'
-    			},
-    			{
-    				text: '学习 Vue'
-    			},
-    			{
-    				text: '学习 aaa'
-    			},
-    		]
+        todos: [
+          '学习 JavaScript',
+          '学习 Vue',
+          '学习 React'
+        ]
     	}
     });
+    // 注意:
+    // 利用索引直接设置数组项时 app3.todos[0] = 'another' 不能触发重渲染
+    // 修改数组长度 app3.todos.length = 2 不能触发重渲染
+    // 对象添加、删除属性不能触发重渲染，新添加的属性不是响应式的(因为属性在实例初始化的时候转换为 getter/setter)
+    // 解决:
+    // vm.$set(vm.todos, indexOfItem, newValue)
+    // 修改数组长度可以使用 splice 函数
+    // 给对象添加属性可以使用 vm.$set(obj, key, value)
   </script>
 
 
@@ -103,7 +128,14 @@
   <!-- v-on缩写 @click="reverse" -->
   <div id="app-4">
     <p> {{ message }} </p>
-    <button type="button" name="button" v-on:click="reverse" v-bind:disabled="isDisabled">倒置</button>
+    <!-- 可以使用 $event 为函数注入事件参数 -->
+    <button
+      type="button"
+      name="button"
+      v-on:click="reverse($event)"
+      v-bind:disabled="isDisabled">
+      倒置
+    </button>
   </div>
   <script>
     // v-on
@@ -114,11 +146,12 @@
     		isDisabled: false,
     	},
     	methods: {
-    		reverse: function() {
+    		reverse: function(event) {
     			this.message = this.message.split('').reverse().join('');
     		},
     	},
     });
+    // html 是大小写不敏感的，因此 @myEvent 会变为 @myevent，所以事件命名推荐使用 kebab-case
   </script>
 
 
@@ -239,12 +272,13 @@
 
   <!-- 事件修饰符 可以串联，可以只有修饰符-->
   <!-- @click.stop="doThis" 阻止事件继续传播 -->
-  <!-- @submit.prevent="onSubmit" 提交事件不再重载页面 阻止默认事件-->
+  <!-- @submit.prevent="onSubmit" 提交事件不再重载页面 阻止默认事件 相当于调用preventDefault()-->
   <!-- @click.capture="doThis" 在事件捕获阶段处理 -->
   <!-- @click.self="doThat" event.target是当前元素时触发处理函数 -->
   <!-- @click.once="doThis" 点击事件只触发一次 -->
   <!-- @scroll.passive="onScroll"  相当于addEventListener中的passive选项， -->
   <!-- 告诉浏览器在事件处理函数中不会调用preventDefault()，以提升滚动性能 -->
+  <!-- @input.native .native 修饰符一般用在组件上，希望监听组件根元素的原生 input 事件 -->
 
   <!-- 按键修饰符 .keyCode 或 .别名 -->
   <!-- @keyup.enter="submit"  -->
@@ -263,6 +297,10 @@
   <!-- v-model.lazy="msg" 使用change事件对数据进行同步，而不是默认的input事件 -->
   <!-- v-model.number="age" 自动转换为数值类型 -->
   <!-- v-model.trim="msg" 自动过滤首尾空白符 -->
+
+  <!-- v-bind:prop.sync="myProp" .sync 修饰符是语法糖 -->
+  <!-- 当子组件中 prop 发生变化时，会通知父组件中同时更新 myProp -->
+  <!-- 我们也可以使用 v-bind.sync="obj" 将一个对象中的所有属性都设置为 "双向绑定的" -->
 
   <script>
   // 由于 JavaScript 的限制，Vue 不能检测以下变动的数组：
@@ -359,11 +397,12 @@
 
     // 基础组件自动化全局注册https://cn.vuejs.org/v2/guide/components-registration.html#%E5%9F%BA%E7%A1%80%E7%BB%84%E4%BB%B6%E7%9A%84%E8%87%AA%E5%8A%A8%E5%8C%96%E5%85%A8%E5%B1%80%E6%B3%A8%E5%86%8C
 
-    // 可以通过 ref 特性为子组件赋予一个 ID 引用 <base-input ref="usernameInput"></base-input>
-    // 在父组件中使用 this.$refs.usernameInput 来访问这个子组件
+    // 可以为使用的组件添加一个 ref 属性 <base-input ref="usernameInput"></base-input>
+    // 然后使用 this.$refs.usernameInput 来访问这个子组件。可以调用这个组件中的方法 使用组件的变量
+    // $refs 在渲染完成后生效，并且不是响应式的，因此不要再模板和 computed 中使用它
     </script>
 
-  <!-- 通过props向子组件传递数据 v-bind -->
+  <!-- 通过 v-bind props 向子组件传递数据  -->
   <!-- @enlarge-text="onEnlargeText" 监听组件内部触发的事件，可通过$event访问到传递的参数 -->
   <div id="blog-post-demo">
     <div :style="{ fontSize: postFontSize+'em'}">
@@ -409,6 +448,16 @@
     		}
     	}
     });
+    // 如果想将一个对象中的所有属性都单个传入组件，例如
+    // myobj: {
+    //   id: 12,
+    //   name: 'wtl'
+    // }
+    // 可以使用不带参数的 v-bind 
+    // <component v-bind="myobj"></component>
+    // 等价于
+    // <component :id="myobj.id" :name="myobj.name"></component>
+
     // 通过props传递数据，数据流是单向的，只能由父组件到子组件
     // 如果想要实现双向绑定，可以用 .sync 修饰符
     // v-bind:name.sync="myName"  v-bind.sync="obj"
@@ -418,40 +467,34 @@
     // props中的变量名出现在html属性中，而属性不区分大小写，所以用kebab-case(短横线分隔)命名
     // 可以指定变量的类型、验证要求，没有满足要求会在控制台发出警告
     // props: {
-    // 	title: String,
-    // 	likes: [Number, Date, Function, Symbol],
-    // 	isPublished: Boolean,
-    // 	commentIds: Array,
-    // 	author: Object,
     // 	propA: {
-    // 		type: Number, // 类型，可以是个构造函数
+    //    类型，可以是数组 [Number, String, Array, Date, Function, Symbol, Boolean, Object]
+    //    也可以是自定义类
+    //    type: Number,
     // 		required: true, // 必填字段
     // 		default: 100, // 默认值，如果是对象、数组，必须从一个函数返回
     // 		validator: function(value) {
     // 			// 自定义验证函数，value必须是数组中的一个
-    // 			// 验证失败时，开发环境下回再控制台产生警告
+    // 			// 验证失败时，开发环境下在控制台产生警告
     // 			// props会在实例创建之前进行验证，所以validator和default里不能用data、computed等
     // 			return ['success', 'warning', 'danger'].indexOf(value) !== -1;
     // 		}
     // 	},
-    // 	propB: {
-    // 		type: Object,
-    // 		defaut: function() {
-    // 			return {};
-    // 		},
-    // 	}
     // }
+
+    // props 会在组件实例创建之前进行验证，所以实例属性例如 data computed 在 default validator 中是不可用的
 
     // 不应该在一个子组件内部修改prop的值，最好定义一个本地data属性接受prop传来的初始值，然后改变data中的值
     // 数组、对象通过引用传入，直接赋值再修改还是会导致父组件内容被修改
   </script>
 
-  <!-- 在组件上使用v-model -->
+  <!-- 在组件上使用 v-model 以及 $attrs $listeners 的作用 -->
   <div id="custom-input-demo">
     <!-- placeholder 没有在 props 中接受，默认情况下会被组件的根元素 label 继承 -->
-    <!-- 如果设置了 inherritAttrs=false 后 label 就不会继承 placeholder  -->
+    <!-- 如果设置了 inherritAttrs=false 后 组件的根元素 label 就不会默认继承 placeholder  -->
     <!-- 而子元素 input 有 v-bind="$attrs" 所以 placeholder 属性会被组件内的 input 继承 -->
-    <!-- 子元素监听事件可以用 v-on="$listeners" 包含了父作用域中v-on的监听器，不包括.native -->
+    <!-- 如果我们想监听根元素的原生事件，可以加修饰符 .native 但是本例中并不是想监听 label 元素的事件 -->
+    <!-- 所以需要使用 $listeners 变量来实现 -->
     <custom-input
       v-model="searchText"
       :label="label"
@@ -466,38 +509,38 @@
     // 在组件中使用v-model
     // <input v-model="searchText">
     // 等价于
-    // <input v-bind:value="searchText" v-on:input="searchText = $event.target.value">
+    // <input :value="searchText" @input="searchText = $event.target.value">
     // 而用在组件上时， v-model则会这样
-    // <custom-input v-bind:value="searchText" v-on:input="searchText = $event"></custom-input>
+    // <custom-input :value="searchText" @input="searchText = $event"></custom-input>
     // 为了让其正常工作，这个组件内的input必须：
     // 1.将其 value 属性绑定到一个名叫 value 的 prop 上
     // 2.在其 input 事件被触发时，将新的值通过自定义的 input 事件抛出
     Vue.component('custom-input', {
-    	// 默认情况下，不被props识别的属性将会自动继承到组件的根元素上，设置为false时，跟元素不会继承这些属性
+    	// 默认情况下，不被props识别的属性将会自动继承到组件的根元素上，设置为false时，根元素将不会继承这些属性
     	inheritAttrs: false,
     	props: ['label', 'value'],
-    	// 如果需要发出多个事件，可以和$listeners合并到一个对象里，然后v-on="listeners"
-    	computed: {
-    		listeners() {
-    			return {
-            ...this.$listeners,
-    				input: event => {
-    					this.$emit('input', event.target.value);
-    				},
-            // 因为focus只是触发了focus事件，没有任何改动，所以可以不显式的声明
-    				// focus: event => {
-    				// 	this.$emit('focus');
-    				// }
-    			}
-    		}
-    	},
-    	// 使用 v-bind=$attrs 可以在非根元素上继承不被props识别的属性(一般配合inheritAttrs:false使用)
+      // $attrs 保存了传入组件的不被 props 识别的属性
+    	// 使用 v-bind="$attrs" 可以在非根元素上继承不被props识别的属性(一般配合inheritAttrs:false使用)
     	// input不是根元素，所以想在 custom-input 标签中监听输入框的原生事件(例如input)时使用$listeners
     	template: `
         <label>
           {{label}}
-          <input v-bind="$attrs" :value="value" v-on="listeners" />
-        </label>`
+          <input v-bind="$attrs" :value="value" v-on="myListeners" />
+        </label>`,
+      // $listeners 包含的是组件上监听的的非 .native 事件
+      // 另外有的加了 .native 的事件并不是根元素所拥有的事件，也会包含在 $listeners 中
+      // 此例中 组件根元素是 label 但是我们想监听的是 input 元素的 focus 和 input 事件
+      // 所以我们可以定义一个 computed 计算属性，将想要监听的自定义事件都放入其中
+      // 这样在组件上监听的事件就是 input 元素的事件了
+    	computed: {
+    		myListeners() {
+    			return {
+            ...this.$listeners,
+            // 其他想要监听的事件
+            // ...
+    			}
+    		}
+      },
     });
     Vue.component('custom-checkbox', {
     	// 默认情况下v-model会把实例的属性绑定到value，event为input
@@ -532,18 +575,41 @@
 
   <!-- slot插槽分发内容 -->
   <div id="alert-box-demo">
-    <alert-box> <span slot="my-slot">Something bad happened.</span> </alert-box>
+    <alert-box>
+      <!-- v-slot指令 v-slot:slot-name="slotProps" -->
+      <!-- slot-name 为具名插槽的 name 可以指定为 default 分配给默认插槽 -->
+      <!-- 插槽名可以使用动态属性 v-slot:[dynamicSlotName] -->
+      <!-- ="slotProps" 可选，在想要访问组件内作用域提供的属性时使用，推荐使用解构赋值语法 -->
+      <!-- v-slot 指令只能使用在 template 标签。只有一种情况例外：当只有默认插槽时，v-slot 可以写在组件标签上 -->
+      <!-- <alert-box v-slot="slotProps">{{ slotProps.user.lastName }}</alert-box> -->
+      <!-- 提供了缩写形式 v-slot: 缩写为 # 并且 # 后必须提供插槽名 #default -->
+      <template v-slot:my-slot="{ user }">
+        <span>{{ `${user.firstName} ${user.lastName}, Something bad happened.` }}</span>
+      </template>
+    </alert-box>
   </div>
   <script>
-    // slot插槽分发内容
-    // 插槽可以有多个，这时需要为slot指定name，
-    // 在使用组件时，需要指定slot="slot-name"来分配到不同插槽，没有分配到的会分配到默认插槽(没有name的插槽)
+    // 插槽可以有多个，这时需要为 slot 指定 name，
     Vue.component('alert-box', {
+      data: function() {
+        return {
+          user: {
+            firstName: 'dabei',
+            lastName: 'Wen'
+          }
+        }
+      },
+      // 有时需要在组件外访问组件内的数据，例如 user
+      // 可以将 user 用 v-bind 绑定到 slot
+      // 这样就可以在组件外使用 v-slot:slot-name="slotProps" 指令时，使用 slotProps.user 访问到
+      // 或者使用解构语法 v-slot:slot-name="{ user }"
+      // 甚至可以使用解构重命名或者默认值(防止组件没有提供作用域属性)：
+      // v-slot:slot-name="{ user: myUser = { firstName: 'default', lastName: 'default' } }"
     	template: `
-            <div class="demo-alert-box">
-                <strong>Error!</strong>
-                <slot name="my-slot">default contents</slot>
-            </div>`
+        <div class="demo-alert-box">
+          <strong>Error!</strong>
+          <slot name="my-slot" :user="user">default contents</slot>
+        </div>`
     });
     let alertBoxDemo = new Vue({
     	el: '#alert-box-demo'
@@ -551,56 +617,10 @@
   </script>
 
 
-  <!-- 可以通过slot-scope来获取插槽里v-bind的变量作用域 -->
-  <!-- 相当于从组件里获取数据 -->
-  <div id="todo-list-demo">
-    <todo-list :todos="todos">
-      <template slot-scope="slotProps">
-        <span v-if="slotProps.mytodo.isComplete">✔️</span>{{ slotProps.mytodo.text }}
-      </template>
-    </todo-list>
-  </div>
-  <script>
-    Vue.component('todo-list', {
-    	props: ['todos'],
-    	template: `
-        <ul>
-          <li
-          v-for="todo in todos"
-          v-bind:key="todo.id">
-            <slot v-bind:mytodo="todo">
-              {{ todo.text }}
-            </slot>
-          </li>
-        </ul>`
-    });
-    let todoListDemo = new Vue({
-    	el: '#todo-list-demo',
-    	data: {
-    		todos: [{
-    				id: 1,
-    				text: '学习 JavaScript',
-    				isComplete: true,
-    			},
-    			{
-    				id: 2,
-    				text: '学习 Vue',
-    				isComplete: false,
-    			},
-    			{
-    				id: 3,
-    				text: '学习 aaa',
-    				isComplete: true,
-    			},
-    		]
-    	}
-    });
-  </script>
-
-
   <!-- 动态组件 -->
-  <!-- v-bind:is="computedAttr" 来绑定显示哪个组件 -->
-  <!-- 可以用 keep-alive 标签包裹 component 标签，这样切换回来不会重构 -->
+  <!-- <component :is="currentTabComponent"></component> 来绑定显示哪个组件 -->
+  <!-- 可以用 keep-alive 标签包裹 component 标签，这样失活的组件会被缓存，切换回来不会重构 -->
+  <!-- keep-alive 包裹的组件必须有 name -->
   <div id="dynamic-component-demo">
     <button v-for="tab in tabs" @click="currentTab=tab">{{tab}}</button>
     <component v-bind:is="currentTabComponent"></component>
@@ -634,18 +654,19 @@
 
   <script>
 
-    // provide和inject实现依赖注入。
-    // provide指定我们想要提供给后代组件的数据/方法
+    // provide 和 inject 实现依赖注入。
+    // provide 指定我们想要提供给后代组件的数据/方法
     // provide: function() {
     // 	return {
     // 		getMap: this.getMap
     // 	}
     // }
-    // 在后代组件里可以用inject来接收指定的属性
+    // 在后代组件里可以用 inject 来接收指定的属性
     // inject: ['getMap']
+    // 依赖注入是非响应式的，加深了组件之间的耦合，更推荐使用 Vuex
 
 
-    // 在Vue实例中可以手动监听事件
+    // 在 Vue 实例中可以手动监听事件
     // 通过 vm.$on(eventName, eventHandler) 侦听一个事件
     // 通过 vm.$once(eventName, eventHandler) 一次性侦听一个事件
     // 通过 vm.$off(eventName, eventHandler) 停止侦听一个事件
@@ -665,51 +686,22 @@
 
 
     // 组件可以递归引用，通过实例中的 name 选项，注意设定递归终止条件
-
     // 组件之间可以循环调用，如果使用全局注册组件，可以自动解除悖论；使用webapck模块导入时，会报错组件未定义
     // 可以在生命周期钩子beforeCreate去注册子组件来解决
     // beforeCreate: function() {
     //   this.$options.components.TreeFolderContents = require('./tree-folder-contents.vue').default;
     // }
-    // 或者使用webpack异步import
+    // 或者使用 webpack 异步 import
     // components: {
     //   TreeFolderContents: () => import('.tree-folder-contents.vue');
     // }
 
+    // 强制更新
+    // vm.$forceUpdate() 只影响本组件和插入插槽的子组件
+
   </script>
 
 
-  <!-- 过滤器 filters -->
-  <!-- msg | filterA  接受msg的值为第一个参数 -->
-  <!-- msg | filter('arg1', arg2) 接受三个参数 msg值 'arg1'字符串 arg2值 -->
-  <div id="filter-demo">
-    <input type="text" v-model="msg" id="ip">
-    <br>
-    <label for="ip">{{ msg | capitalize }}</label>
-  </div>
-  <script>
-    // 全局注册过滤器
-    // Vue.filter('capitalize', function(value) {
-    //     if (!value) return '';
-    //     value = value.toString();
-    //     return value.charAt(0).toUpperCase() + value.slice(1);
-    // });
-
-    // 定义本地过滤器
-    new Vue({
-    	el: '#filter-demo',
-    	data: {
-    		msg: 'tom',
-    	},
-    	filters: {
-    		capitalize: function(value) {
-    			if (!value) return '';
-    			value = value.toString();
-    			return value[0].toUpperCase() + value.slice(1);
-    		}
-    	}
-    })
-  </script>
 </body>
 
 </html>

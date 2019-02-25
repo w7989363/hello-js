@@ -48,8 +48,8 @@
 	// 2.微任务入函数栈执行
 
 	// 当执行一段js代码时，整个代码相当于一个宏任务，所以全局上下文入函数栈执行，执行当前上下文的同步代码
-	// 碰到宏任务(setTimeout、setInterval、setImmediate)就将其异步任务分发到下一个loop的相应宏任务队列(setTimeout/setInterval在同一个队列、setImmediate在后面的队列)
-	// 碰到微任务(nextTick，Promise)就将其异步任务(nextTick的参数、Promise.then)分发到本次 loop 相应微任务队列
+	// 碰到宏任务(setTimeout、setInterval、setImmediate、MessageChannel、postMessage)就将其异步任务分发到下一个loop的相应宏任务队列(setTimeout/setInterval在同一个队列、setImmediate在后面的队列)
+	// 碰到微任务(nextTick、Promise、MutationObserver)就将其异步任务(nextTick的参数、Promise.then)分发到本次 loop 相应微任务队列
 	// 全局执行完后，本次事件循环没有别的宏任务，去检查微任务队列，从nextTick队列开始，将微任务上下文入函数栈执行，同样碰到宏任务就将其异步任务分发到下次loop宏任务队列，微任务异步任务分发到'当前'循环的微任务队列(也就是说微任务中分发的微任务仍然在本次loop中执行)；nextTick队列执行完再去执行promise队列，同样进行异步任务分发；promise执行完后还会再重新检查微任务队列，因为每当执行完一个异步队列(不论是宏任务队列还是微任务队列)，都会重新检查微任务队列来执行
 	// 所有微任务执行完，第一个事件循环就完成了，进入下次事件循环
 	// 下次事件循环从setTimeout/setInterval队列开始，同样进行任务分发。执行完当前loop的setTimeout队列后会先检查微任务队列，执行清空所有的微任务；然后再进入 setImmediate 队列，进行异步任务分发，清空 setImmediate 队列后，执行微任务，微任务执行完后结束当前loop，进入下一个loop

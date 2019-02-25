@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <title>可复用性</title>
+</head>
+<body>
+  <!-- 混入 mixin 用于分发 Vue 组件中可复用功能-->
+  <script>
+    // 定义一个混入对象
+    let myMixin = {
+      created: function () {
+        this.hello()
+      },
+      data: function () {
+        return {
+          message: 'hello',
+          foo: 'abc'
+        }
+      },
+      methods: {
+        hello: function () {
+          console.log('hello from mixin!')
+        }
+      }
+    }
+    // 定义一个使用混入对象的组件
+    let app = new Vue({
+      // 混入有冲突时，以组件定义为准
+      mixins: [myMixin],
+      data: function () {
+        return {
+          message: 'goodbye',
+          bar: 'def'
+        }
+      },
+      // 同名钩子函数会混合为一个数组，都会被调用，混入的钩子函数先调用
+      created: function () {
+        console.log(this.$data)
+      }
+      // => hello from mixin!
+      // => { message: "goodbye", foo: "abc", bar: "def" }
+    })
+    
+    // 全局混入 谨慎使用，因为会影响到所有 Vue 实例
+    Vue.mixin({
+      // mixins
+    })
+  </script>
+
+
+  <!-- 自定义指令 -->
+  <script>
+    // 注册全局指令   <xxx v-fovus:arg.modifiers="value">
+    Vue.directive('focus', {
+      // 只调用一次，指令第一次绑定到元素时调用。进行一次性的初始化设置
+      bind: function(el) {},
+      // 当被绑定的元素插入到 DOM 时的钩子
+      inserted: function(el) {
+        el.focus();
+      },
+      // 所在组件的 VNode 更新时调用
+      // 指令的值可能发生了改变，也可能没有，可以通过比较来忽略不必要的模板更新
+      update: function(el, binding, vnode, oldVnode) {
+        // 参数说明：除了el之外，其他都是只读的，如果需要共享数据，建议通过dataset
+        // el: 指令绑定的元素，可直接操作DOM
+        // binding: 一个对象，包含以下属性
+        // {
+        //   name: 指令名
+        //   value: 指令的绑定。例如 v-my-directive="1+1" 中为 2
+        //   oldValue: 指令绑定的前一个值，仅update/componentUpdated可用
+        //   expression: 字符串形式的指令表达式。例如 v-my-directive="1+1" 中 "1+1"
+        //   arg: 传给指令的参数，可选。例如 v-my-directive:foo 中的 foo
+        //   modifiers: 一个包含修饰符的对象。 例如 v-my-directive.foo.bar 中 {foo:true, bar:true}
+        // }
+        // vnode: Vue 编译生成的虚拟节点
+        // oldVnode: 上一个虚拟节点。 update/componentUpdated 中可用
+      },
+      // 指令所在组件的 VNode 及其子 VNode 全部更新后调用
+      componentUpdated: function(el) {},
+      // 指令与元素解绑时调用
+      unbind: function(el) {}
+    })
+
+    // 组件中 directives 选项注册局部指令
+    // directives: {
+    // 	focus: {
+    // 		inserted: function(el) {
+    // 			el.focus();
+    // 		}
+    // 	}
+    // }
+  </script>
+
+
+  <!-- render 函数 -->
+  <script>
+    // VNode: VirtualNode  NodeDescription
+    // 它所包含的信息会告诉 Vue 页面上需要渲染什么样的节点，及其子节点
+    
+    // createElement(
+    //   name: string | object | function,
+    //   option?: object,
+    //   children?: string | Array< string | VNode >
+    // ): Vnode
+    // 该函数返回一个 VNode，是 render 函数的参数，一般可简写为 h
+    Vue.component('render-demo', {
+      name: 'render-demo',
+      data() {
+        return {
+          firstName: 'dabei'
+        }
+      },
+      props: {},
+      render(createElement) {
+        return createElement(
+          // string | object | function
+          // 一个 HTML 标签字符串，组件对象，或者
+          // 解析上述任何一种的一个 async 异步函数，必要参数。
+          'div',
+
+          // object
+          // 一个包含模板相关属性的数据对象
+          // 这样，您可以在 template 中使用这些属性。可选参数。
+          {
+            // 和`v-bind:class`一样的 API
+            // 接收一个字符串、对象或字符串和对象组成的数组
+            'class': {
+              foo: true,
+              bar: false
+            },
+            // 和`v-bind:style`一样的 API
+            // 接收一个字符串、对象或对象组成的数组
+            style: {
+              color: 'red',
+              fontSize: '14px'
+            },
+            // 正常的 HTML 特性
+            attrs: {
+              id: 'foo'
+            },
+            // 组件 props
+            props: {
+              myProp: 'bar'
+            },
+            // DOM 属性，注意与 attrs 的区别
+            domProps: {
+              innerHTML: 'baz'
+            },
+            // 事件监听器基于 `on`
+            // 所以不再支持如 `v-on:keyup.enter` 修饰器
+            // 需要手动匹配 keyCode。
+            on: {
+              click: this.clickHandler
+            },
+            // 仅对于组件，用于监听原生事件，而不是组件内部使用
+            // `vm.$emit` 触发的事件。
+            nativeOn: {
+              // 修饰符 .passive &  .capture !  .once ~  .capture.once ~!
+              '~click': this.nativeClickHandler
+            },
+            // 自定义指令。注意，你无法对 `binding` 中的 `oldValue`
+            // 赋值，因为 Vue 已经自动为你进行了同步。
+            directives: [
+              {
+                name: 'my-custom-directive',
+                value: '2',
+                expression: '1 + 1',
+                arg: 'foo',
+                modifiers: {
+                  bar: true
+                }
+              }
+            ],
+            // 为当前组件的作用域插槽提供内容
+            // (slotName): slotProps => Array<VNode> | undefined
+            scopedSlots: {
+              // 相当于为当前元素添加
+              // <template #default="props">
+              //   <span>{{props.text}}</span>
+              // </template>
+              default: props => createElement('span', props.text)
+            },
+            // 为当前元素指定插槽，相当于 <div #name-of-slot></div>
+            // 建议使用 scopedSlots，易于向 Vue3 靠拢，在 Vue3 里所有 slot 都是函数
+            slot: 'name-of-slot',
+            // 其他特殊顶层属性
+            key: 'myKey',
+            ref: 'myRef',
+            // 如果你在渲染函数中向多个元素都应用了相同的 ref 名，
+            // 那么 `$refs.myRef` 会变成一个数组。
+            refInFor: true
+          },
+
+          // string | Array<string | VNode>
+          // 子节点构成的数组，可以为 VNode 或 字符串(文本节点) 可选参数
+          [
+            '先写一些文字',
+            createElement('h1', '一则头条'),
+          ]
+          // 注意，不能使用重复的 VNode，可以用工厂函数批量生成
+          // Array.from({length:20}).map(() => createElement('span', 'duplicateVNode'))
+        )
+      }
+    })
+
+
+    // 实现 v-if v-for v-model
+    Vue.component('v-if-for-model-demo', {
+      // 实现以下模板的渲染
+      // <ul v-if="items.length">
+      //     <li v-for="item in items">{{ item.name }}</li>
+      // </ul>
+      // <p v-else>No items found.</p>
+      render (h) {
+        if (this.items.length) {
+          return h('ul', this.items.map(function(item) {
+            return h('li', item.name);
+          }))
+        } else {
+          return h('p', 'No items found.')
+        }
+      },
+      // 实现一个可以使用 v-model 的组件，该组件只有一个 input 元素
+      props: ['value'],
+      render (h) {
+        return h('input', {
+          domProps: {
+            // input 的 value 属性绑定到 props 传进来的 value
+            value: this.value
+          },
+          on: {
+            // 监听 input 元素的 input 事件，向组件外发送 input 事件和新值
+            input(event) {
+              this.$emit('input', event.target.value)
+            }
+          }
+        })
+      }
+    })
+  </script>
+  <!-- 使用插槽 -->
+  <div id="slot-demo">
+    <slot-demo>
+      <template #header>
+        <h1>About Me</h1>
+      </template>
+      <p>main: something insert into default slot</p>
+      <template #footer="{ user }">
+        <p>Copyright 2016 {{user}}</p>
+      </template>
+    </slot-demo>
+  </div>
+  <script>
+    // 以上模板可以使用以下渲染函数代替
+    // 使用 render 函数第二个参数中的 scopedSlots 属性定义插入到插槽的具体内容
+    // h('slot-demo', {
+    //   scopedSlots: {
+    //     header: (props) => h('h1', 'About Me'),
+    //     default: (props) => h('p', 'main: something insert into default slot'),
+    //     footer: ({user}) => h('p', `Copyright 2016 ${user}`)
+    //   }
+    // })
+    // vm.$scopedSlots 返回当前组件接受到的插槽具体内容的渲染函数，即上面我们实现的 scopedSlots
+    // { [slotName: string]: props => Array<VNode> | undefined }
+    Vue.component('slot-demo', {
+      data() {
+        return {
+          myUser: 'dabei wen'
+        }
+      },
+      // <div>
+      //   <header><slot name="header"></slot></header>
+      //   <main><slot></slot></main>
+      //   <footer><slot name="footer" :user="myUser"></slot></footer>
+      // </div>
+      render (h) {
+        let header = this.$scopedSlots.header()
+        let main = this.$scopedSlots.default()
+        let footer = this.$scopedSlots.footer({ user: this.myUser })
+        return h('div', [
+          h('header', header),
+          h('main', main),
+          h('footer', footer),
+        ])
+      }
+    })
+    new Vue({
+      el: '#slot-demo'
+    })
+  </script>
+
+
+  <!-- 过滤器 filters -->
+  <!-- 可被用于一些常见的文本格式化，可以用在双花括号插值和 v-bind 表达式 -->
+  <!-- {{ msg | filterA }}  filterA 接受 msg 为第一个参数 -->
+  <!-- {{ msg | filter('arg1', arg2) }} filter 接受三个参数：msg 'arg1'字符串 arg2 -->
+  <div id="filter-demo">
+    <input type="text" v-model="msg" id="ip">
+    <br>
+    <label for="ip">{{ msg | capitalize }}</label>
+  </div>
+  <script>
+    // 定义本地过滤器
+    new Vue({
+    	el: '#filter-demo',
+    	data: {
+    		msg: 'tom',
+    	},
+    	filters: {
+    		capitalize (value) {
+    			if (!value) return '';
+    			value = value.toString();
+    			return value[0].toUpperCase() + value.slice(1);
+    		}
+    	}
+    })
+
+    // 全局注册过滤器
+    Vue.filter('capitalize', function(value) {
+      if (!value) return '';
+      value = value.toString();
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    })
+  </script>
+  
+
+</body>
+</html>
