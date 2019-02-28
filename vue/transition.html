@@ -12,6 +12,12 @@
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/2.0.5/velocity.min.js"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/1.2.3/velocity.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.14.1/lodash.min.js"></script>
+  <style>
+    body > div {
+      padding: 10px 0;
+      border-bottom: 1px solid grey;
+    }
+  </style>
 </head>
 
 <body>
@@ -30,6 +36,19 @@
     // 3.如果没有找到 JavaScript 钩子并且也没有检测到 CSS 过渡/动画，DOM 操作 (插入/删除) 在下一帧中立即执行。(注意：此指浏览器逐帧动画机制，和 Vue 的 nextTick 概念不同)
   </script>
 
+  <!-- transition 标签 -->
+  <!-- name 指定过渡的名称，用于自动生成过渡类名，例如 name-enter name-enter-active -->
+  <!-- appear 在初始渲染时使用过渡。默认 false -->
+  <!-- css 是否使用 css 过渡。默认 true -->
+  <!-- type 指定过渡类型，侦听过渡何时结束。有效值为 transition animation -->
+  <!-- mode 指定进入/离开的时间序列。有效值 out-in in-out 默认为同时进行  -->
+
+  <!-- transition-group 标签 -->
+  <!-- tag 指定 transition-group 的标签类型，默认为 span -->
+  <!-- move-class="class-name" 移动过渡期间存在的类，也可以定义 name-move 类来自动绑定 -->
+  <!-- 没有 mode 属性，其他属性与 transition 相同 -->
+
+  
   <!-- css 过渡(transition) -->
   <style>
     .fade-enter-active, .fade-leave-active {
@@ -54,7 +73,7 @@
       <!-- trasitionend 过渡结束事件 animationend 动画结束事件  动画的根元素结束时自动捕获 -->
       <!-- 如果动画根元素结束而子元素还未结束，可以在transition标签显式的设定duration毫秒 :duration="1000" -->
       <!-- 闭合的内联元素不支持 css transform，因此有些动画不生效，需要设置成 inline-block 或 block 元素 -->
-      <span v-show="show" style="display:inline-block" @trasitionend="log">transition</span>
+      <p v-show="show" style="display:inline-block" @trasitionend="log">transition</p>
     </transition>
   </div>
   <script>
@@ -65,6 +84,25 @@
       },
       methods: {
         log() {console.log(456)}
+      }
+    })
+  </script>
+
+
+  <!-- 可以利用 :key 绑定某个值，当值发生变化的时候，触发 transition -->
+  <!-- 因为 key 不一样，会被认为是不同元素，不会重用元素(只修改内容)，进而触发重新渲染，就会触发 transition -->
+  <!-- 例如火车票两个站点切换时的动画，key 绑定为站点，mode 设置为 out-in -->
+  <div id="key-demo">
+    <input v-model="test">
+    <transition name="fade" mode="out-in">
+      <p :key="test">{{test}}</p>
+    </transition>
+  </div>
+  <script>
+    let keyDemo = new Vue({
+      el: '#key-demo',
+      data: {
+        test: 'test'
       }
     })
   </script>
@@ -241,8 +279,10 @@
     <button @click="add">Add</button>
     <button @click="remove">Remove</button>
     <button @click="shuffle">Shuffle</button>
-    <!-- transition-group标签会以一个真实的标签存在，默认为span，可以通过tag属性来设定 -->
-    <!-- 过渡模式 mode 不可用，内部每个元素都需要提供key-->
+    <!-- transition-group 标签会以一个真实的标签存在，默认为 span，可以通过 tag 属性来设定 -->
+    <!-- 过渡模式 mode 不可用，内部每个元素都需要提供 key -->
+    <!-- transition-group 接受 :move-class="class-name"，指定的类会覆盖整个移动过渡期间 -->
+    <!-- 也可以通过定义 name-move 类自动绑定 -->
     <transition-group name="list" tag="p">
       <span v-for="item in items" :key="item" class="list-item">{{item}}</span>
     </transition-group>
