@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <title>Vue Lint</title>
+</head>
+<body>
+  <script>
+    // A 优先级 必要的
+
+    // 组件名为多个单词，避免跟现在以及未来的 HTML 标签冲突
+
+    // 组件中 data 始终为函数，方便组件的重用
+
+    // props 定义应该尽量详细，最起码指定类型。易于表现组件的 API 和用法，在开发环境下会得到友好的警告
+
+    // 组件上使用 v-for 适中添加 key。
+
+    // v-for 与 v-if 不要写在一个元素上，利用计算属性过滤不想渲染的部分或者写在不同级元素上
+
+    // 使用单文件组件时，尽量为组件样式设置作用域。
+    // 使用作用域 <style scoped> 
+    // 或者 CSS Modules <style module> 该模式下会为组件注入一个名为 $style 的计算属性
+    // vm.$style 包含了组件中定义的类，可以在 template 中进行类的绑定
+    /*
+    <style module>
+      .red {}
+    </style>
+    <template>
+      <div :class="$style.red"></div>
+    </template>
+    */
+    
+    // 在插件、混入等扩展中，使用 $_ 前缀来标志私有属性。
+    // 因为 _ 前缀是 Vue 使用的私有属性前缀，可能导致冲突；$ 是用来标志暴露给用户的特殊实例属性
+    // 所以两个符号结合起来使用来表示用户自己的私有属性
+
+  </script>
+
+  <script>
+    // B 优先级 强烈推荐的
+
+    // 如果使用了构建系统，就把每个组件单独分成文件
+
+    // 单文件组件的文件名 MyComponent 或 my-component
+
+    // 基础组件名
+    // 应用特定样式和约定的基础组件 (也就是展示类的、无逻辑的或无状态的组件) 
+    // 应该全部以一个特定的前缀开头，比如 Base、App 或 V
+    // BaseButton.vue AppButton.vue VButton.vue
+
+    // 单例组件名
+    // 单例组件指的是只有单个活跃实例的组件，要以 The 开头，TheSidebar.vue
+    // 单例组件每个页面只使用一次，并且没有任何 porps
+    // 有 porps 说明基于页面的上下文，是可复用的组件
+
+    // 紧密耦合的组件名
+    // 和父组件紧密耦合的子组件应该以父组件名作为前缀命名
+    // 例如 TodoList.vue TodoListItem.vue TodoListItemButton.vue
+
+    // 组件名中的单词顺序
+    // 应该以一般化的表述开头，以描述性的修饰词结尾
+    // SearchButtonClear.vue SearchButtonRun.vue
+
+    // 自闭合组件
+    // 在单文件组件、字符串模板、JSX中，没有内容的组件应该是自闭合的
+    // <MyComponent />
+    // 而在 DOM 模板里(HTML) 并不支持自闭合的自定义元素，所以在 DOM 模板里不能使用自闭合
+    // <my-component></my-component>
+
+    // 模板中组件名的大小写
+    // 在单文件组件、字符串模板、JSX中组件名应该尽量是 PascalCase 的 <MyComponent></MyComponent>
+    // 但是在 DOM 模板中总是 kebab-case 的 <my-component></my-component>
+
+    // 组件名应该尽量使用完整的单词
+    // 编辑器的自动补全功能使得写完整单词代价非常小，然而带来的明确性却是非常宝贵的
+
+    // props 名大小写
+    // 声明 props 时始终使用 camelCase，而在模板和 JSX 中应该始终使用 kebab-case
+    /* 
+    porps: {
+      greetingText: String
+    }
+    <WelcomeMessage greeting-text="hi" />
+    */
+
+    // 多个特性的元素应该分多行，每行一个特性
+    /* 
+    <MyComponent
+      foo="a"
+      bar="b"
+      baz="c"
+    /> 
+    */
+
+    // 模板中只应该包含简单的表达式，复杂的应该使用 computed 代替
+
+    // 应该把复杂计算属性分解为多个简单的计算属性
+    // 易于测试 易于阅读 更好的拥抱变化
+
+  </script>
+
+  <script>
+    // C 优先级 推荐
+
+    // 组件/实例选项的顺序
+    // 副作用
+    el,
+    // 全局感知
+    name
+    parent
+    // 组件类型
+    functional
+    // 模板修改器
+    delimiters
+    comments
+    // 模板依赖
+    components
+    directives
+    filters
+    // 组合
+    extends
+    mixins
+    // 接口
+    inheritAttrs
+    model
+    props
+    // 本地状态
+    data
+    computed
+    // 事件
+    watch
+    // 生命周期钩子...
+    // 非响应式
+    methods
+    // 渲染
+    template / render
+    renderError
+
+
+    // 元素特性顺序
+    // 定义
+    is
+    // 列表渲染
+    v-for
+    // 条件渲染
+    v-if v-show v-cloak
+    // 渲染方式
+    v-pre v-once
+    // 全局感知
+    id
+    // 唯一的特性
+    ref key slot
+    // 双向绑定
+    v-model
+    // 事件
+    v-on
+    // 内容
+    v-html v-text
+
+  </script>
+
+  
+  <script>
+    // D 优先级 谨慎使用
+
+    // v-if v-else 中使用 key
+    // 因为 vue 总会高效的重复利用 DOM，如果你想要在相同元素之间切换时重构 DOM，则为他们添加不同的 key
+
+    // 元素选择器应该尽量避免在 scoped 中使用
+    // 为了给样式设置作用域，Vue 会为元素添加独一无二的特性，例如 data-v-f3f3eg9
+    // 然后修改选择器，使得带此特性的元素才会生效
+    // 问题在于，元素+特性选择器(例如 button[data - v - f3f3eg9]) 比 类+特性选择器 慢
+    // 所以尽量少用元素选择器
+
+    // 理想的 Vue 应用是 props 向下传递，事件向上传递的。尽量不要使用 $parent 破坏这种流向
+    // 尽量使用 Vuex
+
+  </script>
+</body>
+</html>
