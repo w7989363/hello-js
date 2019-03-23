@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+  <title>Document</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    /* #wrapper {
+      width: 100%;
+      height: 100vh;
+      background: #ccc;
+      overflow: hidden;
+    } */
+    .page {
+      width: 100%;
+      height: 100vh;
+      position: absolute;
+      margin: 0;
+      overflow: hidden;
+      transition: all 0.5s;
+    }
+    #page1 {
+      background: #E4E6CE;
+    }
+    #page2 {
+      background: #6CE26C;
+    }
+    #page3 {
+      background: #BF4938;
+    }
+    #page4 {
+      background: #2932E1;
+    }
+    .hide-down {
+      transform: translateY(100%);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="page1" class="page">
+    <h1>Page 1</h1>
+  </div>
+  <div id="page2" class="page hide-down">
+    <h1>Page 2</h1>
+  </div>
+  <div id="page3" class="page hide-down">
+    <h1>Page 3</h1>
+  </div>
+  <div id="page4" class="page hide-down">
+    <h1>Page 4</h1>
+  </div>
+
+
+  <script>
+    // 主要利用绝对定位和 translateY 来实现
+    let touchStartY, percentage, startFlag
+    let threshold = 0.15
+    $('.page').on('touchstart', function(event) {
+      console.log(event.target)
+      if (event.touches) event = event.touches[0]
+      touchStartY = event.clientY
+    })
+    $('.page').on('touchmove', function(event) {
+      let target = $(event.currentTarget)
+      percentage = 0.5*(touchStartY-event.touches[0].clientY)/window.innerHeight
+      if (percentage > 0) {
+        // 向上拖动
+        // 把当前元素和下一个元素上移
+        target.css('transform', `translateY(${-percentage*100}%)`)
+        target.next().css('transform', `translateY(${100-percentage*100}%)`)
+      } else {
+        // 向下拖动
+        // 当前元素和上一个元素下移
+        target.css('transform', `translateY(${-percentage*100}%)`)
+        target.prev().css('transform', `translateY(${-percentage*100-100}%)`)
+        console.log(percentage*100-100)
+      }
+      console.log(percentage)
+    })
+    $('.page').on('touchend', function(event) {
+      let target = $(event.currentTarget)
+      if (percentage > threshold && target.next().length) {
+        // 向上拖动超过阈值
+        // 当前元素去上面
+        target.css('transform', 'translateY(-100%)')
+        // 后一个元素到屏幕中
+        target.next().css('transform', 'translateY(0)')
+      } else if (percentage < -threshold && target.prev().length) {
+        // 向下拖动超过阈值
+        // 当前元素去下面
+        target.css('transform', 'translateY(100%)')
+        // 前一个元素到屏幕中
+        target.prev().css('transform', 'translateY(0)')
+      } else {
+        // 没有超过阈值 复位当前元素
+        target.css('transform', 'translateY(0)')
+        // 上拉没超过阈值 下面的元素回到下方
+        target.next().css('transform', 'translateY(100%)')
+        target.prev().css('transform', 'translateY(-100%)')
+      }
+    })
+  </script>
+  
+</body>
+
+</html>

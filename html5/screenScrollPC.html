@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100vh;
+      background: #ccc;
+      overflow: scroll;
+    }
+
+    .page {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+    #page1 {
+      background: #E4E6CE;
+    }
+    #page2 {
+      background: #6CE26C;
+    }
+    #page3 {
+      background: #BF4938;
+    }
+    #page4 {
+      background: #2932E1;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 每一元素大小为浏览器视窗大小 -->
+  <div id="page1" class="page">
+    <h1>Page 1</h1>
+  </div>
+  <div id="page2" class="page">
+    <h1>Page 2</h1>
+  </div>
+  <div id="page3" class="page">
+    <h1>Page 3</h1>
+  </div>
+  <div id="page4" class="page">
+    <h1>Page 4</h1>
+  </div>
+
+
+  <script>
+    let body = document.querySelector('body')
+    let height = body.clientHeight, startTime = 0
+    // 监听鼠标滚轮事件改变 body 的 scrollTop 到下/上一个元素
+    document.addEventListener('wheel', wheelCallback, { passive:false })
+    function wheelCallback(event) {
+      event.preventDefault()
+      let endTime = new Date().getTime()
+      // 防止在滑动触摸板结束后继续触发 wheel 事件
+      if (endTime - startTime > 1500) {
+        // wheelDelta 负数为向后翻页 正数为向前翻页
+        if (event.wheelDelta < 0) {
+          body.scrollTop = body.scrollTop + height
+        } else if (event.wheelDelta > 0) {
+          body.scrollTop = body.scrollTop - height
+        }
+        startTime = endTime
+      }
+    }
+    
+  </script>
+</body>
+
+</html>

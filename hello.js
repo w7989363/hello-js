@@ -500,8 +500,9 @@ let const class 声明的全局变量不属于顶层变量window/global
 		return item < 7
 	}) // [1, 2, 3, 4]
 	// 检测数组中元素是否都满足条件
-	arr8.every((item, index) => item < 5) // true
-	// 检测数组中元素是否有满足条件的 arr.some(callback, thisArg)
+	arr8.every((value, index) => value < 5) // true
+	// 检测数组中元素是否有满足条件的 
+	arr8.some((v, i) => v < 2) // true
 
 	// “累加器” 依次对数组元素处理，最后缩减为一个值
 	// reduce(callback, initValue)
