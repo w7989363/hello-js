@@ -81,38 +81,56 @@ hello
 
 
 // 函数柯里化
-// 柯里化函数，该函数可以将传入参数(一个函数)柯里化
-// 柯里化后的函数，传入参数的时候只是保存参数值，不传入参数的时候才执行
-var curry = function(fn) {
+// 柯里化后的函数，传入参数的时候只是保存参数值，参数足够或不传入参数的时候才执行
+
+// curry1() 是把传入的函数 fn 按照其形参个数进行柯里化，直到传入最后一个参数才调用原函数
+let curry1 = function (fn) {
 	// 保存参数
-	var myArgs = []
-	return function(...args) {
+	let _args = []
+  let curriedFn = function (...args) {
+    _args.push(...args)
+    if (_args.length >= fn.length) {
+			// 参数足够则调用
+      return fn.apply(this, _args)
+    } else {
+      return curriedFn
+    }
+  }
+  return curriedFn
+}
+// curry2() 直到传入参数为空才调用原函数
+let curry2 = function(fn) {
+	// 保存参数
+	let _args = []
+	let curriedFn = function(...args) {
+		// 保存参数，可能不止一个
+		_args.push(...args)
+		// Array.prototype.push.apply(_args, args)
 		if (args.length === 0) {
-			// 计算
-			return fn.apply(this, myArgs)
+			// 不传参数则调用
+			return fn.apply(this, _args)
 		} else {
-			// 保存参数，可能不止一个
-			myArgs.push(...args)
-			// Array.prototype.push.apply(myArgs, args)
+			return curriedFn
 		}
 	}
+	return curriedFn
 }
-let add = curry(function(...args) {
-	return args.reduce((sum, cur) => sum + cur)
+
+let add = curry2(function(...args) {
+	return args.reduce((pre, cur) => pre + cur, 0)
 })
-add(1)
-add(2, 3)
-add()	// 6
+add(1)(2,3)(4,5,6)() // 21
+
 
 // 使用lodash.curry
-// var curry = require('lodash.curry')
+// let curry1 = require('lodash.curry')
 // 策略性地把要操作的数据（String， Array）放到最后一个参数里。
 // 传入前面的参数会返回函数，直到传入最后一个参数(一般是需要处理的数据)才会执行回调函数
-// var match = curry(function(what, str) {
-//   return str.match(what)
-// })
-// var hasSpaces = match(/\s+/g)
-// hasSpaces("hello world")		// [ ' ' ]
+let match = curry1(function(what, str) {
+  return str.match(what)
+})
+let hasSpaces = match(/\s+/g)
+hasSpaces('hello world')		// [ ' ' ]
 // 体现了函数式编程的思想
 
 

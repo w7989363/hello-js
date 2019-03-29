@@ -26,8 +26,44 @@
 	Object.prototype.toString.call(new Number()).slice(8, -1)	// Number
 	Object.prototype.toString.call(3).slice(8, -1)	// Number
 
-
 	NaN === NaN // false
+
+
+	// JavaScript 中数值都是按照 64 位浮点数的形式存储的
+	// 做位运算的时候会以 32 位有符号整数来运算
+
+	// ~ 位运算，按位取反。会先将表达式的值传入 ToInt32() 转为 32 位有符号整数，再按位取反
+	// ~~ 相当于把表达式转为 32 位有符号整数类型，会损失小数部分精度。省略了两次按位取反
+	~~ null // 0
+	~~ undefined // 0
+	~~ NaN // 0
+	~~ {} // 0
+	~~ '' // 0
+	~~ 'string' // 0
+	~~ Infinity // 0
+	
+	~~ true // 1
+	~~ '1' // 1
+	~~ 1.2 // 1
+	~~ -1.2 // -1
+	~~ 1.6 // 1
+	~~ -1.6 // -1
+
+	// & 位运算 与
+	// | 位运算 或
+	// ^ 位运算 异或
+
+	// ! 逻辑运算，取非。会先将表达式传入 ToBoolean()，然后取非
+	// !! 把表达式转为 boolean 类型。省略了两次取非。
+	!! null // false
+	!! undefined // false
+	!! '' // false
+	!! 0 // false
+
+	!! {} // true
+	!! 'hello' // true
+	!! 5 // true
+
 
 }
 
@@ -238,6 +274,10 @@ let const class 声明的全局变量不属于顶层变量window/global
 	'helloworld'.search(/l?o/) //3
 	// stringObject.replace(regexp/substr,replacement)
 	'helloworld'.replace('w', 'g') //hellogorld
+	// replacement 可以为函数，其返回值为替换值。replacement(match, $1, $2..., offset, originalString)
+	// match 为匹配的值；$1 $2... 为正则表达式匹配的分组；offset 为匹配值的开始 index；originalString 为原字符串
+	// 例子可以查看 ./re.js
+	
 	// stringObject.slice(start[, end])  [start, end) ，不指定 end 则截取到最后
 	// start 和 end 可以为负数，表示从尾部开始计数
 	'helloworld'.slice(2, 5) // llo
@@ -343,6 +383,21 @@ let const class 声明的全局变量不属于顶层变量window/global
 	foo.length // 1
 	mypush.length // 1
 	mypush.name // foo 函数名
+	mypush.caller // 函数的调用者。如果在顶层调用则为 null，如果在某个函数中调用则返回外层函数
+	/* 
+	// arguments 为函数内置的一个对象
+	{
+		// callee 指向函数本身，可以用于递归调用。在严格模式下不能使用该参数，可以使用命名函数
+		callee: ƒ ()
+		// 传入参数的个数
+		length: 0
+		// 实现了 Iterator 接口，所以可以使用 for...of 进行遍历
+		Symbol(Symbol.iterator): ƒ values()
+		// 是一个对象，而不是一个数组，又因为有 length 属性，所以是一个类数组的对象
+		__proto__: Object
+	}
+ */
+
 
 	// 箭头函数 如果函数多于一条语句，则在箭头后面加大括号，里面写函数语句
 	var f = (x, y) => x + y
@@ -1135,17 +1190,17 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// async函数内部抛出错误，会导致返回的 Promise 对象变为reject状态，被catch回调函数接收
 	const asyncReadFile = async function () {
 		const [a, b] = await Promise.all([
-			readFile('./.babelrc').catch(err => console.log(err)),
+			readFile('./closure.js').catch(err => console.log(err)),
 			readFile('./test.js').catch(err => console.log(err))
 		])
 		// async函数return返回的值会被then方法的回调函数接收到
 		return {
-			babelrc: a.toString(),
+			closure: a.toString(),
 			test: b.toString()
 		}
 	}
 	asyncReadFile().then(res => {
-		// console.log(res.babelrc, res.test)
+		// console.log(res.closure, res.test)
 	})
 
 	// 或者用 await asyncReadFile
@@ -1459,89 +1514,32 @@ let const class 声明的全局变量不属于顶层变量window/global
 
 
 /*
-███    ███  ██████  ██████  ██    ██ ██      ███████
-████  ████ ██    ██ ██   ██ ██    ██ ██      ██
-██ ████ ██ ██    ██ ██   ██ ██    ██ ██      █████
-██  ██  ██ ██    ██ ██   ██ ██    ██ ██      ██
-██      ██  ██████  ██████   ██████  ███████ ███████
+d8888b. d88888b d88888b d88888b d8888b.       .d8b.  .d8888. db    db d8b   db  .o88b.
+88  `8D 88'     88'     88'     88  `8D      d8' `8b 88'  YP `8b  d8' 888o  88 d8P  Y8
+88   88 88ooooo 88ooo   88ooooo 88oobY'      88ooo88 `8bo.    `8bd8'  88V8o 88 8P
+88   88 88~~~~~ 88~~~   88~~~~~ 88`8b        88~~~88   `Y8b.    88    88 V8o88 8b
+88  .8D 88.     88      88.     88 `88.      88   88 db   8D    88    88  V888 Y8b  d8
+Y8888D' Y88888P YP      Y88888P 88   YD      YP   YP `8888Y'    YP    VP   V8P  `Y88P'
 */
-// ES6模块
-// 见export_import.mjs
+// 浏览器对 <script> 标签的加载
 {
-	// 浏览器对ES6模块的加载
-
 	// 默认情况下浏览器中加载js脚本，遇到<script>标签就会停止渲染，转而下载执行js脚本
 	// js脚本下载完就执行，执行完毕才会继续渲染页面，可能会导致页面加载时间过长
 	// 可以添加 defer async 属性加以控制
-	// defer属性: 等到DOM结构完全生成，以及其他脚本执行完成，才会执行
-	// <script src='path/to/myModule.js' defer></script>
-	// async属性: 脚本下载完后当页面继续进行解析，脚本将异步执行
+	// async: 碰到 script 标签，继续解析 HTML，同时下载脚本，脚本下载完后暂停解析，转而执行脚本，执行完毕后恢复解析 HTML
 	// <script src='path/to/myModule.js' async></script>
+	// defer: 碰到 script 标签，继续解析 HTML，同时下载脚本，等到解析完成才会执行脚本，并且保证按标签出现顺序执行
+	// <script src='path/to/myModule.js' defer></script>
+	// 可以看图 ./async-defer.png 理解
 
-	// 浏览器中加载ES6模块，type属性要设置为module
-	// 对于type为module的标签默认打开defer 异步加载
+	// 浏览器中加载ES6模块，要设置 type 属性为 module
+	// 对于 type 为 module 的标签默认打开 defer
 	// <script type='module' src='./module_export.js'>
 
 	// 浏览器还不支持ES6模块，可以用babel进行转码到ES5
 	// 或者用es6-module-transpiler转为CommonJS的书写方法
 	// 或者使用SystemJS垫片库
 
-
-	// Node对ES6模块的加载
-
-	// 因为Node有自己的CommonJS模块格式，与ES6模块不兼容
-	// ES6模块(export/import 后缀.mjs)与CommonJS(module.exports/require 后缀.js)模块的区别
-	// 1.CommonJS 模块输出的是一个值的拷贝，ES6 模块输出的是值的引用
-	// CommonJS 模块输出的是值的拷贝，也就是说，一旦输出一个值，模块内部的变化就影响不到这个值
-	// ES6 模块import会生成一个只读引用，等到脚本真正执行时，再根据这个只读引用，到被加载的那个模块里面去取值
-	// 2.CommonJS 模块是运行时加载，ES6模块是编译时输出接口
-
-	// 目前，Node 的import命令只支持加载本地模块（file:协议），不支持加载远程模块。加载顺序如下
-	// 1.如果模块名不含路径，那么import命令会去node_modules目录寻找这个模块
-	// 2.如果模块名包含路径，那么import命令会按照路径去寻找这个名字的脚本文件
-	// 3.如果脚本文件省略了后缀名，比如import './foo'，Node 会依次尝试四个后缀名：
-	// ./foo.mjs、./foo.js、./foo.json、./foo.node。
-	// 4.如果这些脚本文件都不存在，Node 就会去加载./foo/package.json的main字段指定的脚本。
-	// 5.如果./foo/package.json不存在或者没有main字段，那么就会依次加载
-	// ./foo/index.mjs、./foo/index.js、./foo/index.json、./foo/index.node
-
-	// ES6模块引入CommonJS模块时，直接使用default的格式
-	// import defaultObj from './commonjs.js'
-	// CommonJS引入ES6模块，使用import()函数
-	// const es_namespace = await import('./es6.mjs')
-
-
-
-
-	// CommonJS模块的加载
-	// require命令第一次加载该脚本，就会执行整个脚本，然后在内存生成一个对象
-	/*
-	{
-		// 模块名
-		id: '...',
-		// 模块输出的各个接口
-		exports: { '...' },
-		// 该模块脚本是否执行完毕
-		loaded: true,
-		// ...
-	}
-	*/
-	// 以后用到该模块时就直接到exports属性中取缓存值，这也就是为什么CommonJS输出后不会反映实时情况
-
-	// CommonJS循环加载的情况：a.js执行一半，中间require('b.js')；b.js执行一半又require('a.js')
-	// CommonJS模块是执行到require语句才跳到脚本进行加载的，因此过程如下
-	// 假设a.js先执行，a执行到一半，去require('b.js')，这时候跳到b执行
-	// b.js执行到一半发现需要加载a，就去内存中找a的缓存
-	// 因为此时a只执行了一半，所以exports属性中只有前一半的输出，后面代码的输出是没有的
-	// b取到a的缓存后继续执行，直到b执行完，再把执行权交还给a
-
-	// ES6模块的循环加载: a中import from 'b.mjs' b中import from 'a.mjs'
-	// ES6模块是引用，加载的变量没有缓存，需要开发者自己保证真正取值的时候能取到值
-	// 先执行a，发现需要import from b，于是转去执行b
-	// 执行b的时候发现又要import foo from a，发生循环加载，
-	// 这时引擎会默认foo接口已经存在了(开发者自己保证，多利用变量/函数提升在import之前)
-	// 继续b往下执行，下面用到foo时如果发现没定义就会报错，否则执行完返回a继续执行
-	// http://es6.ruanyifeng.com/#docs/module-loader#Node-%E5%8A%A0%E8%BD%BD
 }
 
 

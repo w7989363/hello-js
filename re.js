@@ -68,7 +68,10 @@ urlReg.test(url) // true
 // ()是一个分组，分组序号从1开始，按照左括号出现的顺序排序
 // (?:)前面加上?:表示非捕获分组，正常进行匹配，但匹配的分组字符串不会出现在结果数组中
 // 例如url例中的 (?:([A-Za-z]+):) 外层分组匹配 http: 但没出现在结果中，内层分组匹配 http 出现在结果中
-// ()? 后面 ? 表示此分组可以出现0次或1次，即这个分组是可选的
+
+// (?=str) 匹配任何后面紧跟 str 的字符串，并且这是一个非捕获分组
+// 例如 /is(?=( all))/ 匹配一个 'is' ，这个 'is' 后面要紧跟 ' all' 这个字符串
+
 
 // 量词 
 // ? 零次或一次
@@ -152,6 +155,33 @@ let reee = 'helloworld'.match(/l/g) // ["l", "l", "l"]
 'helloworld'.search(/l/)  // 2
 
 
-// replace返回替换后的新字符串，有g标志会替换所有，没有g则替换第一个
-// stringObject.replace(regexp/substr,replacement)
+// replace 返回替换后的新字符串，有g标志会从左到右替换所有，没有g则替换第一个
+// stringObject.replace(regexp/substr, replacement)
 'helloworld'.replace(/l/g, '*') // he**owor*d
+
+// replacement 可以为一个回调函数，返回值为替换值
+// replacement(match, [$1, $2, ...], index, originalString)
+// match 为匹配到的值
+// [$1, $2, ...] 只有 replace 第一个参数为正则表达式时才会有，表示正则匹配的分组
+// index 为匹配值的开始 index
+// originalString 为原始字符串
+// 例如，将 9123456789.213435 改写为整数部分每 3 个以逗号分隔的形式 9,123,456,789.213435
+function commafy(num) {
+  return num && num.toString().replace(/(\d)(?=(\d{3})+\.)/g, function(match, $1, $2, index, str) {
+    console.log(`round => match:${match}, $1:${$1}, $2:${$2}, index:${index}, str:${str}`)
+    return match + ','
+  })
+}
+let num = 9123456789.213435
+console.log(commafy(num))
+
+// replacement 使用字符串时可以使用以下特殊变量名
+// $$ 表示字符 $
+// $& 表示匹配的字符串
+// $` 匹配的字符串左边的内容
+// $' 匹配的字符串右边的内容
+// $1 $2 ... 表示正则表达式的分组
+
+// 所以上面的例子还可以写成
+num.toString().replace(/(\d)(?=(\d{3})+\.)/g, '$&,')
+num.toString().replace(/(\d)(?=(\d{3})+\.)/g, '$1,')
