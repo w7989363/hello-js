@@ -1,14 +1,15 @@
 {
-	// 6种原始数据类型 undefined null boolean string number symbol
+	// 6种原始数据类型 Undefined Null Boolean String Number Symbol
 	// 1种引用数据类型 Object，又区分为Array Function Date RegExp等
 
-	// typeof 可以区别除了 null 之外的其他原始数据类型 以及Object中的Function
-	typeof null // object
-	typeof undefined // 'undefined'
+	// typeof 可以区别除了 null 之外的其他原始数据类型 以及 Object 中的 Function
+	typeof null // object 搞笑。。。原始数据类型竟然判断为 object
+	typeof undefined // undefined
 	typeof true		// boolean
 	typeof '1' // string
 	typeof 1 // number
 	typeof NaN // number
+	NaN === NaN // false
 	typeof Symbol() // symbol
 	typeof {} // object
 	typeof function() {} // function
@@ -19,20 +20,28 @@
 	new Number() instanceof Number // true
 	new String() instanceof String // true
 
-	// Object.prototype.toString()方法 返回 [object 类型] 模式的字符串
-	Object.prototype.toString.call(null).slice(8, -1)	// Null
-	Object.prototype.toString.call(undefined).slice(8, -1)	// Undefined
-	Object.prototype.toString.call(true).slice(8, -1)	// Boolean
-	Object.prototype.toString.call(new Number()).slice(8, -1)	// Number
-	Object.prototype.toString.call(3).slice(8, -1)	// Number
-
-	NaN === NaN // false
+	// Object.prototype.toString()方法 返回 [object 类型] 模式的字符串，可以准确判断类型
+	// 数值: [object Number]
+	// 字符串: [object String]
+	// 布尔值: [object Boolean]
+	// undefined: [object Undefined]
+	// null 对象: [object Null]
+	// 数组 对象: [object Array]
+	// arguments 对象: [object Arguments]
+	// 函数 对象: [object Function]
+	// Error 对象: [object Error]
+	// Date 对象: [object Date]
+	// RegExp 对象: [object RegExp]
+	// 其他 对象: [object Object]
 
 
 	// JavaScript 中数值都是按照 64 位浮点数的形式存储的
 	// 做位运算的时候会以 32 位有符号整数来运算
+	// 正数的补码等于本身
+	// 负数的补码等于 除符号位的其他位取反+1，再连上符号位(最高位)
 
 	// ~ 位运算，按位取反。会先将表达式的值传入 ToInt32() 转为 32 位有符号整数，再按位取反
+	// 一个数与自己的取反值相加 等于 -1，例如  ~3 === -4    ~3 + 3 === -1
 	// ~~ 相当于把表达式转为 32 位有符号整数类型，会损失小数部分精度。省略了两次按位取反
 	~~ null // 0
 	~~ undefined // 0
@@ -52,6 +61,9 @@
 	// & 位运算 与
 	// | 位运算 或
 	// ^ 位运算 异或
+	// << 左移 右边补0 相当于乘以 2
+	// >> 右移 正数补0 负数补1 相当于除以 2
+	// >>> 左边始终补0的右移 
 
 	// ! 逻辑运算，取非。会先将表达式传入 ToBoolean()，然后取非
 	// !! 把表达式转为 boolean 类型。省略了两次取非。
@@ -64,6 +76,21 @@
 	!! 'hello' // true
 	!! 5 // true
 
+	// 一般运算符都是左结合的，即从左到右计算
+	// 右结合的主要有三个   赋值运算符 =    三元条件运算符 ? :    幂运算 **
+
+
+	// 对象的强制类型转换
+	// Number(obj)
+	// 1.先调用 valueOf()，如果返回原始类型则转换为 Number
+	// 2.如果还是对象，再调用 toString()，如果返回原始类型则转换为 Number
+	// 3.如果还是对象 报错
+	// String(obj)
+	// 1.先调用 toString()，如果返回原始类型则转换为 String
+	// 2.如果还是对象，再调用 valueOf()，如果返回原始类型则转换为 String
+	// 3.如果还是对象 报错
+	// Boolean(obj)
+	// 出于性能考虑，规定所有对象转换为 Boolean 都为 true
 
 }
 
@@ -255,16 +282,29 @@ let const class 声明的全局变量不属于顶层变量window/global
 	 可以通过“+”来连接字符串，生成一个新的字符串
 	 两个字符串包含着完全相同的字符且字符顺序相同，则认为这两个字符串相同
 	*/
-	//字符串的一些方法
+
+	// 静态方法
+	String.fromCharCode(101) // unicode转字符 e，只能识别16位2字节存储格式
+	String.fromCodePoint(134071) // unicode转字符 𠮷，可以识别32位4字节存储格式 ES6
+	// 原型方法
 	'helloworld'.charAt(1) // e
 	'helloworld'.charCodeAt(1) // 十进制的unicode 101，只能识别16位2字节存储格式
 	'𠮷'.codePointAt(0) // 十进制的unicode 134071，可以识别32位4字节存储格式 ES6
-	String.fromCharCode(101) // unicode转字符 e，只能识别16位2字节存储格式
-	String.fromCodePoint(134071) // unicode转字符 𠮷，可以识别32位4字节存储格式 ES6
 	// 一般使用+运算符代替concat
 	'hello'.concat(' ', 'world') // hello world
+	// stringObject.slice(from[, to]) 截取字符串，前闭后开，数字可为负数
+	'JavaScript'.slice(0, 4) // 'Java'
+	// stringObject.split(separator[, howmany])  howmany指定返回数组的最大长度，不指定则返回全部
+	'hello,world'.split(',', 2) //['hello', 'world']
+	'hello,world'.split(',', 1) //['hello']
+	// 去除字符串前后的空白(空格、制表符、换行、回车)
+	'\r\nabc \t'.trim() // 'abc'
+	// 大小写转换
+	'Hello World'.toLowerCase() // "hello world"
+	'Hello World'.toUpperCase() // "HELLO WORLD"
+	// stringObject.indexOf(searchvalue[, fromindex]) 从fromindex开始往后搜，搜不到返回-1
 	'helloworld'.indexOf('o', 1) // 4
-	// stringObject.lastIndexOf(searchvalue,fromindex) 从fromindex开始往前搜，搜不到返回-1
+	// stringObject.lastIndexOf(searchvalue[, fromindex]) 从fromindex开始往前搜，搜不到返回-1
 	'helloworld'.lastIndexOf('l', 5) // 3
 	// match返回匹配字符串
 	'helloworld'.match(/l/) // ['l']
@@ -275,17 +315,8 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// stringObject.replace(regexp/substr,replacement)
 	'helloworld'.replace('w', 'g') //hellogorld
 	// replacement 可以为函数，其返回值为替换值。replacement(match, $1, $2..., offset, originalString)
-	// match 为匹配的值；$1 $2... 为正则表达式匹配的分组；offset 为匹配值的开始 index；originalString 为原字符串
 	// 例子可以查看 ./re.js
 	
-	// stringObject.slice(start[, end])  [start, end) ，不指定 end 则截取到最后
-	// start 和 end 可以为负数，表示从尾部开始计数
-	'helloworld'.slice(2, 5) // llo
-	// substring的参数不能使用负数，推荐使用slice
-	'helloworld'.substring(2, 5) //llo
-	// stringObject.split(separator[, howmany])  howmany指定返回数组的最大长度，不指定则全部
-	'hello,world'.split(',', 2) //['hello', 'world']
-	'hello,world'.split(',', 1) //['hello']
 
 	// ES6补充
 	'hello'.repeat(2) // hellohello
@@ -309,6 +340,15 @@ let const class 声明的全局变量不属于顶层变量window/global
 */
 // 数值
 {
+	// JavaScript 内部，所有数值都是以 64 位浮点数存储的，没有整数，所有数字都是小数
+	// 只有特殊的几个位运算才会自动转换为 32 位整数再进行运算
+
+	// 第1位：符号位，0表示正数，1表示负数
+	// 第2位到第12位（共11位）：指数部分(以2位底)，限制了数值的范围，(2^-1023, 2^1024)
+	// 第13位到第64位（共52位）：小数部分，即有效数字，限制了数值的精度，超出 2^53 的数进行运算都不准确）
+
+	// 一个数 = ± 1.小数部分 * 2^指数部分
+
 	// 16进制 0x
 	0x1F7 === 503
 	// 八进制 0o
@@ -318,7 +358,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// 转换为10进制要用Number
 	Number(0o767) // 503
 
-	// 全局方法模块化 Number
+	// 静态方法
 	// 如果参数类型不是数值，不会进行自动转换
 	Number.isFinite(NaN) // false
 	Number.isFinite('foo') // false
@@ -327,21 +367,53 @@ let const class 声明的全局变量不属于顶层变量window/global
 	Number.isNaN(NaN) // true
 	Number.isNaN('NaN') // false
 	Number.isNaN('15') // false
-	Number.parseInt('12.34') // 12
+	Number.parseInt('12.34', 10) // 12
 	Number.parseFloat('123.45#') // 123.45
 	Number.isInteger(25) // true
 	Number.isInteger(25.0) // true 整数和浮点数采用的是同样的储存方法，所以 25 和 25.0 被视为同一个值
 	Number.isInteger('15') // false
-	Number.EPSILON // js能表示的最小精度，2E-52
+
+	// 原型方法
+	// (number).toString(radix) 将十进制数 number 转换为 radix 进制的数(字符串)
+	(8).toString(2) // '1000'
+	// (number).toFix(num) 将十进制数 number 四舍五入为 num 位小数(字符串)
+	(10.005).toFixed(2) // '10.01'
+	// (number).toPrecision(num) 转换为 num 位有效数字(字符串)，四舍五入的时候不精确
+	// (number).toExponential(num) 转换为 num 位小数的科学计数法形式(字符串)
+	
+
+	// parseInt(string, radix = 10) 将 string 转换为 10 进制整数，radix 指定 string 的进制
+	// 会自动过滤前后空格
+	// parseFloat(string) 转换为小数
+
+	// 由 64 位浮点数中 52 位有效数字部分决定的安全计算的数字范围
+	Number.MAX_SAFE_INTEGER // 9007199254740991
+	Number.MIN_SAFE_INTEGER // -9007199254740991
+	// js能表示的最小精度
+	Number.EPSILON //  2.220446049250313e-16
+	// 由 64 位浮点数中 11 位指数部分决定的可表示数字范围
+	Number.MAX_VALUE // 1.7976931348623157e+308
+	Number.MIN_VALUE // 5e-324
+
+
 
 	// Math
+	Math.abs() // 绝对值
+	Math.ceil() // 向上取整
+	Math.floor() // 向下取整
+	Math.round() // 四舍五入 注意负数
+	// Math.round(-1.5) // -1
+	// Math.round(-1.6) // -2
+	Math.pow(2, 3) // 8 指数运算
+	Math.exp(1) // e 计算 e 的次方
+	Math.log(Math.E) // 1 以 e 为底的自然对数
+	Math.random() // [0, 1) 随机数 
 	Math.trunc(4.9) // 4 去除小数部分
 	Math.trunc(-4.9) // -4
 	Math.trunc('123.456') // 123
 	Math.sqrt(4) // 2 平方根 square root
 	Math.cbrt('8') // 2 立方根 cube root
 	Math.hypot(3, 4) // 5 计算直角三角形斜边 hypotenuse
-
 }
 
 
@@ -361,8 +433,6 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// 参数默认值，有默认值的参数一般写在后面，如果写在前面根本无法省略
 	function foo(x, y = 'world', z = x) {
 		// 不能再let const声明x y变量
-		// let x  // error
-		// const y  // error
 		console.log(`${x} ${y} ${z}`)
 
 		// 函数调用的时候会形成一个单独的作用域，把传入的x给z
@@ -613,30 +683,29 @@ let const class 声明的全局变量不属于顶层变量window/global
 
 	// Object.create(prototype: object[, descriptors: PropertyDescriptorMap])
 	// 创建返回一个新的对象，其 __proto__ 指向 proto ，属性为 propDescriptors 中定义的属性
-	// 第二个参数 propDescriptors 可选，是一个对象，里面包含一到多个属性描述符(PropertyDescriptor)：
+	// 第二个参数 propDescriptors 可选，是属性描述符组成的对象
 	/*
 	{
 		foo: {
 			value: 'hello'
+			// 通过属性描述符定义属性，配置默认都为 false；直接定义属性，配置默认为 true
 			writable: true,
 			enumerable: true,
 			configurable: true
 		},
 		bar: {
-			// writable 默认为 false，不可写
-			// enumerable 默认为 false 不可枚举
-			configurable: false,
 			get: function () {
 				return 10
 			},
 			set: function (value) {
 				console.log('Setting `o.bar` to', value)
 			}
+			configurable: true,
 		}
 	}
 	*/
 
-	// Object.assign(target, source) 浅拷贝，将 source 中所有可枚举属性(enumerable)复制到 target
+	// Object.assign(target, source) 浅拷贝，将 source 中所有可枚举属性(enumerable===true)复制到 target
 	// 并且只会克隆自身的值，不会克隆原型链上继承的值
 	const target = {
 		a: 1,
@@ -658,13 +727,47 @@ let const class 声明的全局变量不属于顶层变量window/global
 		let originProto = Object.getPrototypeOf(origin)
 		return Object.assign(Object.create(originProto), origin)
 	}
-	// 使用 assign 有一个缺陷：不能拷贝属性的 setter 和 getter
-	// 为此 ES6新增两个define函数
+	// 使用 assign 有缺陷：
+		// 1.只能拷贝可枚举属性
+		// 2.并且如果一个属性定义了 set get 且它是可枚举的，则会被拷贝为 value 的形式
+		// 3.属性描述符中的配置都会丢失，并且设置为 true
+	// 可以使用 defineProperty 来解决
 	// Object.defineProperty(obj, propName, propDescriptor) 添加单个属性，主要用来添加getter setter函数
 	// Object.defineProperties(obj, propDescriptors)				批量添加属性
 	// 其中 descriptor 是属性描述符，可以用以下函数获取
 	// Object.getOwnPropertyDescriptor(obj, propName)
 	// Object.getOwnPropertyDescriptors(obj)
+	/*
+	// 属性描述符 PropertyDescriptor
+	{
+		// 有两种类型的属性
+			// 1.data property，使用 value writable 定义
+			// 2.accessor property，使用 get/set 定义
+		// 两种是互斥的，不能同时存在
+
+		// 1.data property
+		value: 10,  // 设置属性的初始值
+		writable: true,  // 是否可以更改初始值，通过描述符定义默认为 false
+
+		// 2.accessor property
+		get() {
+			return this._propName
+		},
+		set(val) {
+			this._propName = val
+		},
+
+		// 通用配置项 enumerable configurable
+		// 属性是否可枚举，通过描述符定义默认为 false。影响 for...in  Object.keys()
+		enumerable: true,
+		// 是否可配置，通过描述符定义默认为 false。
+		// 如果设置为 false 则属性不可删除且描述符中的内容不可更改(除了 value)
+		// 其中 writable 可以由 true 改为 false，但是不能由 false 改为 true
+		// 并且不能将 data properties 改为 accessor properties，反之亦然
+		// 将该配置设置为 false 是个不可逆的过程
+		configurable: true,
+	}
+	*/
 	// 以上的 clone 函数可以改写为以下形式
 	function clone2(origin) {
 		return Object.create(
@@ -678,7 +781,7 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// 1.JSON.parse
 	// 只能拷贝自身的可枚举属性，并且不包括 symbol，另外描述符也没有拷贝(只拷贝了值)
 	// let newObj = JSON.parse(JSON.stringify(oldObj))
-	// 2.自己实现
+	// 2.自己实现，需要考虑递归引用的问题(这里暂未实现，可以设置一个对象来缓存已经拷贝的引用对象)
 	// 只考虑自身属性深拷贝，原型链直接继承
 	function deepClone(origin) {
 		let ret = Object.create(Object.getPrototypeOf(origin))
@@ -708,24 +811,21 @@ let const class 声明的全局变量不属于顶层变量window/global
 	})
 
 
-	// 属性描述符 PropertyDescriptor
-	// {
-	// 	// 成员的值
-	// 	value: any,
-	// 	// 是否可枚举 影响 for...in  Object.keys()
-	// 	enumerable: boolean,
-	// 	// 如果设置为 false 属性不可删除，descriptor 中除 value writable 之外的其他值不可更改
-	// 	configurable: boolean,
-	// 	// 是否可以更改初始值
-	//   writable: boolean
-	// }
-	
+	// Object.preventExtensions(obj)  将一个对象设为不可扩展的，该过程不可逆
+	// 该对象将不能添加新的属性，且 __proto__ 是不可变的
+	// Object.isExtensible(obj) 返回是否可扩展
+
 	// Object.seal(obj)  密封一个对象
-	// 密封后的对象不能添加、删除成员，将所有成员的 descriptor.configurable 设置为 false
-	// 密封后的对象其属性的值可以修改，descriptor 中的值因 configurable 为 false 而部分无法更改
+	// 密封后的对象不能添加、删除属性
+	// 实际上是在 Object.preventExtensions() 基础上再将所有成员的 descriptor.configurable 设置为 false
+	// 因此密封后的对象所有属性描述符的 value writable 可以修改，其他无法修改，且属性不能删除
+	// Object.isSealed(obj) 返回是否被密封
+
 	// Object.freeze(obj) 冻结一个对象
-	// 冻结后的对象不能添加、修改、删除成员，将所有成员 descriptor.configurable descriptor.writable 设置为 false
-	// 冻结后的对象其属性的值和 descriptor 都不能修改
+	// 冻结后的对象不能添加、修改、删除属性
+	// 实际上是在 Object.freeze() 的基础上再将所有成员 descriptor.writable 设置为 false
+	// 冻结后的对象完全不可变
+	// Object.isFrozen(obj) 返回是否被冻结
 }
 
 
@@ -1180,8 +1280,35 @@ let const class 声明的全局变量不属于顶层变量window/global
 	const fs = require('fs')
 	const readFile = function (fileName) {
 		return new Promise((resolve, reject) => {
-			fs.readFile(fileName, (error, data) => {
-				if (error) return reject(error)
+			fs.readFile(fileName, (/*
+			fs.readFile(fileName, (d88888b d8888b. d8888b.  .d88b.  d8888b.
+			fs.readFile(fileName, (88'     88  `8D 88  `8D .8P  Y8. 88  `8D
+			fs.readFile(fileName, (88ooooo 88oobY' 88oobY' 88    88 88oobY'
+			fs.readFile(fileName, (88~~~~~ 88`8b   88`8b   88    88 88`8b
+			fs.readFile(fileName, (88.     88 `88. 88 `88. `8b  d8' 88 `88.
+			fs.readFile(fileName, (Y88888P 88   YD 88   YD  `Y88P'  88   YD
+
+
+			fs.readFile(fileName, (*/, data) => {
+				if (/*
+				if (d88888b d8888b. d8888b.  .d88b.  d8888b.
+				if (88'     88  `8D 88  `8D .8P  Y8. 88  `8D
+				if (88ooooo 88oobY' 88oobY' 88    88 88oobY'
+				if (88~~~~~ 88`8b   88`8b   88    88 88`8b
+				if (88.     88 `88. 88 `88. `8b  d8' 88 `88.
+				if (Y88888P 88   YD 88   YD  `Y88P'  88   YD
+
+
+				if (*/) return reject(/*
+				if (error) return reject(d88888b d8888b. d8888b.  .d88b.  d8888b.
+				if (error) return reject(88'     88  `8D 88  `8D .8P  Y8. 88  `8D
+				if (error) return reject(88ooooo 88oobY' 88oobY' 88    88 88oobY'
+				if (error) return reject(88~~~~~ 88`8b   88`8b   88    88 88`8b
+				if (error) return reject(88.     88 `88. 88 `88. `8b  d8' 88 `88.
+				if (error) return reject(Y88888P 88   YD 88   YD  `Y88P'  88   YD
+
+
+				if (error) return reject(*/)
 				resolve(data)
 			})
 		})
@@ -1511,6 +1638,102 @@ let const class 声明的全局变量不属于顶层变量window/global
 
 }
 
+
+/*
+d88888b d8888b. d8888b.  .d88b.  d8888b.
+88'     88  `8D 88  `8D .8P  Y8. 88  `8D
+88ooooo 88oobY' 88oobY' 88    88 88oobY'
+88~~~~~ 88`8b   88`8b   88    88 88`8b
+88.     88 `88. 88 `88. `8b  d8' 88 `88.
+Y88888P 88   YD 88   YD  `Y88P'  88   YD
+*/
+{
+	// Error 类是所有错误类型的父类，标准里只有 message 属性
+	// 但一般引擎还会实现 name stack 属性
+	// SyntaxError 代码解析出错
+	// ReferenceError 引用不存在的变量
+	// RangeError 一个值超出有效范围(数组长度为负，函数堆栈溢出)
+	// TypeError 对象是变量或参数不是预期类型
+	// URIError  URI 相关函数的参数不正确
+		// encodeURI()
+		// decodeURI()
+		// encodeURIComponent()
+		// decodeURIComponent()
+		// escape()
+		// unescape())
+	
+
+	// try catch finally
+	// try 中 return 仍然会执行 finally，但是返回值已经固定好了，只是等 finally 执行完再返回
+	let count = 0
+	function countUp() {
+		try {
+			// 这里会先获取 count 的值 0 等待返回
+			return count
+		} finally {
+			// return 返回之前先执行 finally
+			count++
+		}
+	}
+	// 返回的值仍是 0
+	countUp() // 0
+	// 但是 count 已经变成 1
+	count // 1
+
+
+	// catch 中的 return 也会延迟到 finally 执行完返回
+	function f() {
+		try {
+			console.log(0)
+			throw 'bug'
+		} catch (e) {
+			console.log(1)
+			// 这句原本会延迟到 finally 代码块结束再返回 true，但是被 finally 里的 return 覆盖
+			return true
+			// 由于前一句是 return 所以转去 finally 执行，这句不会运行
+			console.log(2)
+		} finally {
+			console.log(3)
+			return false // 这句会覆盖掉前面那句 return
+			console.log(4) // 不会运行
+		}
+		console.log(5) // 不会运行
+	}
+	
+	let result = f()
+	// 输出
+	// 0
+	// 1
+	// 3
+	result // false
+
+	// catch 中的 throw 会延迟到 finally 执行完才执行
+	function g() {
+		try {
+			throw '出错了！' // 转到 catch 执行
+		} catch (e) {
+			console.log('捕捉到内部错误')
+			// 这句原本会等到 finally 结束再执行，然而被提前 return 所以不会抛出错误
+			throw e
+		} finally {
+			return false // 直接返回
+		}
+	}
+
+
+	// 实例 写文件
+	/* 
+	openFile()
+	try {
+		writeFile(Data)
+	} catch(e) {
+		handleError(e)
+	} finally {
+		closeFile()
+	}
+ */
+
+}
 
 
 /*

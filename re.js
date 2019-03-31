@@ -1,5 +1,5 @@
-// 静态创建 /re/;
-// 动态创建 new RegExp('re', 'gimus');
+// 静态创建 /re/; 在引擎编译代码时建立正则表达式，效率高，但不能动态创建
+// 动态创建 new RegExp('re', 'gimus'); 在运行时建立正则表达式，可以动态创建
 
 // new RegExp('\\\\', 'gi') 与 /\\\\/gi 的区别
 // 双引号代表是字符串，其中反斜杠需要转义，因此左边 '\\\\' 变成Regex后相当于 /\\/ 匹配的是两个反斜杠
@@ -10,7 +10,7 @@
 // 修饰符
 // g global，全局匹配多次
 // i ignoreCase，忽略大小写
-// m multiline，匹配多行
+// m multiline，多行模式。默认情况下 ^$ 只匹配字符串首尾，加了 m 则 ^$ 还会匹配行首行位。
 // u ES6 . \S可以匹配4字节unicode
 // y ES6 sticky粘连匹配，与g类似，都是从lastIndex往后匹配
 // 但是g只要后面存在即可匹配，y确保匹配必须从lastIndex后第一个字符开始就要匹配
@@ -18,22 +18,23 @@
 // s ES6 使通配符.可以匹配任何字符 包括换行\n、回车\r
 
 let reg = /abc/gimy;
-// reg对象具有属性
+// RegExp 对象具有以下原型属性
 reg.global // true
 reg.ignoreCase // true
 reg.multiline // true
 reg.sticky // true
 // 原正则表达式
 reg.source // abc
-// 下一次exec开始匹配的索引，初始是0
+// 下一次 exec 开始匹配的索引，初始是 0，可读写，只在连续搜索时有意义
 reg.lastIndex
 
 // 相关的方法：
-// RegExp.exec(string)    执行一次匹配，可多次执行
-// RegExp.test(string)    测试string里是否有匹配，返回Boolean
-// string.match(RegExp)   用RegExp匹配string，返回匹配结果的数组，带 g 则返回所有匹配结果
-// string.search(RegExp)  查询string中的匹配，返回第一个匹配的开始 index
+// RegExp.exec(string)    从 lastIndex 开始执行一次匹配，可多次执行
+// RegExp.test(string)    从 lastIndex 开始测试 string 里是否有匹配，返回 Boolean
+// string.match(RegExp)   用 RegExp 从头匹配 string，返回匹配结果数组，带 g 则返回所有匹配结果。lastIndex 无效
+// string.search(RegExp)  查询 string 中的匹配，返回第一个匹配的 index，没有则返回 -1。lastIndex 无效
 // string.replace(RegExp, replacement)  替换，带 g 全部替换
+// string.split(RegExp)  按照指定匹配规则分割为数组
 
 // ^开头  $结束
 let urlReg = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/
@@ -69,14 +70,16 @@ urlReg.test(url) // true
 // (?:)前面加上?:表示非捕获分组，正常进行匹配，但匹配的分组字符串不会出现在结果数组中
 // 例如url例中的 (?:([A-Za-z]+):) 外层分组匹配 http: 但没出现在结果中，内层分组匹配 http 出现在结果中
 
-// (?=str) 匹配任何后面紧跟 str 的字符串，并且这是一个非捕获分组
-// 例如 /is(?=( all))/ 匹配一个 'is' ，这个 'is' 后面要紧跟 ' all' 这个字符串
+// x(?=y) 先行断言。匹配 x 它后面必须紧跟着 y。这是一个非捕获分组
+// 例如 /is(?= all)/ 匹配一个 'is' ，它后面要紧跟 ' all' 这个字符串
+// x(?!y) 先行否定断言。匹配 x 它后面必须不是 y。这是一个非捕获分组
+// 例如 /is(?! all)/ 匹配一个 'is'，它后面不能是 ' all' 这个字符串
 
 
 // 量词 
-// ? 零次或一次
-// * 零次或多次
-// + 一次或多次
+// ? 零次或一次； ?? 非贪婪模式
+// * 零次或多次； *? 非贪婪模式
+// + 一次或多次； +? 非贪婪模式
 // {m,n} m到n次
 // 默认情况下尽量多的匹配 如果量词后面加 ? 则是非贪婪匹配 匹配尽可能短
 let reg1 = /abc.*d/   // 贪婪模式 . 尽量多的匹配，即到最后一个 d 才会停止
@@ -116,8 +119,9 @@ let re2 = /(?<firstName>[A-Za-z]+) (?<lastName>[A-Za-z]+$)/u
 'Dwyane Wade'.replace(re2, '$<lastName> $<firstName>') // Wade Dwyane
 
 
-
-//正则表达式转义
+// 使用 \ 来表示转义，如果写在字符串中需要使用 \\ 来表示单反斜杠
+// 需要转义的字符  ^ . [ $ ( ) | * + ? { \
+// 其他转义
 /*
   \f 换页符
   \n 换行符
@@ -125,7 +129,7 @@ let re2 = /(?<firstName>[A-Za-z]+) (?<lastName>[A-Za-z]+$)/u
   \t 制表符
   \b 指定一个字边界，方便用于对文本字边界进行匹配  /\bt/会匹配'%&_tes'中的t
   \d 表示数字，等同于[0-9] \D表示相反 [^0-9]
-  \s  等同于[\f\n\r\t\u000B\u0020\u00A0\u2028\u2029] 这是Unicode空白符的一个不完全子集
+  \s 等同于[\f\n\r\t\u000B\u0020\u00A0\u2028\u2029] 这是Unicode空白符的一个不完全子集
   \S 则表示与其相反：[^\f\n\r\t\u000B\u0020\u00A0\u2028\u2029]
   \w [0-9A-Z_a-z]
   \W 相反 [^0-9A-Z_a-z]
