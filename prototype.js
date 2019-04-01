@@ -32,6 +32,7 @@ let s = new Student('wtl', 22)
 // constructor.apply(tempObj, arguments)
 // 4.返回对象实例
 // return tempObj
+// 如果构造函数内部有 return 语句，后面是对象的话返回这个对象，否则忽略 return，仍然返回新构造的对象
 
 
 /*

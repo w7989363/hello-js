@@ -433,6 +433,8 @@ let const class 声明的全局变量不属于顶层变量window/global
 	// 参数默认值，有默认值的参数一般写在后面，如果写在前面根本无法省略
 	function foo(x, y = 'world', z = x) {
 		// 不能再let const声明x y变量
+		// let x  // error
+		// const y  // error
 		console.log(`${x} ${y} ${z}`)
 
 		// 函数调用的时候会形成一个单独的作用域，把传入的x给z
@@ -1280,35 +1282,8 @@ let const class 声明的全局变量不属于顶层变量window/global
 	const fs = require('fs')
 	const readFile = function (fileName) {
 		return new Promise((resolve, reject) => {
-			fs.readFile(fileName, (/*
-			fs.readFile(fileName, (d88888b d8888b. d8888b.  .d88b.  d8888b.
-			fs.readFile(fileName, (88'     88  `8D 88  `8D .8P  Y8. 88  `8D
-			fs.readFile(fileName, (88ooooo 88oobY' 88oobY' 88    88 88oobY'
-			fs.readFile(fileName, (88~~~~~ 88`8b   88`8b   88    88 88`8b
-			fs.readFile(fileName, (88.     88 `88. 88 `88. `8b  d8' 88 `88.
-			fs.readFile(fileName, (Y88888P 88   YD 88   YD  `Y88P'  88   YD
-
-
-			fs.readFile(fileName, (*/, data) => {
-				if (/*
-				if (d88888b d8888b. d8888b.  .d88b.  d8888b.
-				if (88'     88  `8D 88  `8D .8P  Y8. 88  `8D
-				if (88ooooo 88oobY' 88oobY' 88    88 88oobY'
-				if (88~~~~~ 88`8b   88`8b   88    88 88`8b
-				if (88.     88 `88. 88 `88. `8b  d8' 88 `88.
-				if (Y88888P 88   YD 88   YD  `Y88P'  88   YD
-
-
-				if (*/) return reject(/*
-				if (error) return reject(d88888b d8888b. d8888b.  .d88b.  d8888b.
-				if (error) return reject(88'     88  `8D 88  `8D .8P  Y8. 88  `8D
-				if (error) return reject(88ooooo 88oobY' 88oobY' 88    88 88oobY'
-				if (error) return reject(88~~~~~ 88`8b   88`8b   88    88 88`8b
-				if (error) return reject(88.     88 `88. 88 `88. `8b  d8' 88 `88.
-				if (error) return reject(Y88888P 88   YD 88   YD  `Y88P'  88   YD
-
-
-				if (error) return reject(*/)
+			fs.readFile(fileName, (error, data) => {
+				if (error) return reject(error)
 				resolve(data)
 			})
 		})
@@ -1377,17 +1352,19 @@ let const class 声明的全局变量不属于顶层变量window/global
 			// this.toString = () => {}
 			// 这样的一个变化是 toString 变成了实例方法，而在类中定义的方法是定义在 prototype 中的
 
-			// new.target，返回当前 Class，如果子类继承则返回子类Class
+			// new.target，返回当前 Class 也即构造函数，如果子类继承则返回子类 Class
+			// 如果不是使用 new 命令调用，则 new.target === undefined
 			// 可以利用这个特性写出不能实例化的类(虚类)
 			// if(new.target === Point){
 			//     throw new Error('本类不能实例化')
 			// }
 
 		}
-		// ES6 不能在 class 中直接定义实例属性，以下定义会报错，ts 支持这种语法
+		// ES6 不能在 class 中直接定义原型属性，以下定义会报错，ts 支持这种语法
 		// xy = 41
 		
 		// 类内直接定义的方法属于原型对象 Point.prototype.toString()
+		// class 中直接定义的原型方法的 enumerable 默认是 false 不可枚举的
 		// 类内定义方法不用加function关键字
 		toString() {
 			return `(${this.x}, ${this.y})`
