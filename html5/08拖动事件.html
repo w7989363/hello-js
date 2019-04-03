@@ -16,6 +16,14 @@
       padding: 10px;
       border: 1px solid #aaaaaa;
     }
+    .upload {
+      display: inline-block;
+      width: 200px;
+      height: 200px;
+      line-height: 200px;
+      text-align: center;
+      border: 1px dotted grey;
+    }
   </style>
 </head>
 
@@ -32,6 +40,8 @@
 
   <p style="clear:both;">IE8 及更早版本或 Safari 5.1 及更早版本的浏览器不支持 drag 事件。</p>
 
+  <div class="upload">将文件拖动到此处上传</div>
+
 
   <script>
     let dragtarget = document.querySelector('#dragtarget')
@@ -45,6 +55,8 @@
       e.dataTransfer.setData('text', this.id)
       // 设置被拖动元素透明度0.4
       this.style.opacity = '0.4'
+      e.dataTransfer.effectAllowed = 'copy'
+      console.log(e.dataTransfer.effectAllowed, e.dataTransfer.dropEffect)
     })
 
     // 拖动过程(只要不松开鼠标就一直触发，可以设置第三个参数的once只触发一次{once:true})
@@ -73,7 +85,11 @@
     // 默认情况下,数据/元素不能在其他元素中被拖放，over一般用来阻止浏览器的默认处理(跟drag一样会一直触发)
     document.addEventListener('dragover', function(e) {
       console.log(`dragover 经过元素 .${e.target.className || e.target.localName}`)
-      e.preventDefault()
+      if (e.target.className === 'droptarget') {
+        e.preventDefault()
+        e.stopPropagation()
+        e.dataTransfer.dropEffect = 'copy'
+      }
     })
 
     // 拖动目标离开某个元素
@@ -99,6 +115,38 @@
         e.target.appendChild(document.getElementById(oId))
       }
     })
+  </script>
+
+  <script>
+    let uploadDiv = document.querySelector('.upload')
+    uploadDiv.addEventListener('dragenter', function (e) {
+      e.target.style.opacity = 0.5
+    })
+    uploadDiv.addEventListener('dragleave', function (e) {
+      e.target.style.opacity = 1
+    })
+    uploadDiv.addEventListener('dragover', function (e) {
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'copy'
+    })
+    uploadDiv.addEventListener('drop', function (e) {
+      e.preventDefault()
+      e.stopPropagation()
+      e.target.style.opacity = 1
+      let files = Array.from(e.dataTransfer.files)
+      files.forEach(file => {
+        console.log(file.name)
+        let fileReader = new FileReader()
+        fileReader.addEventListener('load', readFinish)
+        fileReader.readAsText(file)
+      })
+
+    })
+
+    function readFinish(event) {
+      console.log(event.target.result)
+    }
+    
   </script>
 </body>
 
