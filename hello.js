@@ -1725,12 +1725,12 @@ Y88888P 88   YD 88   YD  `Y88P'  88   YD
 
 
 /*
-d8888b. d88888b d88888b d88888b d8888b.       .d8b.  .d8888. db    db d8b   db  .o88b.
-88  `8D 88'     88'     88'     88  `8D      d8' `8b 88'  YP `8b  d8' 888o  88 d8P  Y8
-88   88 88ooooo 88ooo   88ooooo 88oobY'      88ooo88 `8bo.    `8bd8'  88V8o 88 8P
-88   88 88~~~~~ 88~~~   88~~~~~ 88`8b        88~~~88   `Y8b.    88    88 V8o88 8b
-88  .8D 88.     88      88.     88 `88.      88   88 db   8D    88    88  V888 Y8b  d8
-Y8888D' Y88888P YP      Y88888P 88   YD      YP   YP `8888Y'    YP    VP   V8P  `Y88P'
+.d8888.  .o88b. d8888b. d888888b d8888b. d888888b
+88'  YP d8P  Y8 88  `8D   `88'   88  `8D `~~88~~'
+`8bo.   8P      88oobY'    88    88oodD'    88
+  `Y8b. 8b      88`8b      88    88~~~      88
+db   8D Y8b  d8 88 `88.   .88.   88         88
+`8888Y'  `Y88P' 88   YD Y888888P 88         YP
 */
 // 浏览器对 <script> 标签的加载
 {
@@ -1738,6 +1738,7 @@ Y8888D' Y88888P YP      Y88888P 88   YD      YP   YP `8888Y'    YP    VP   V8P  
 	// js脚本下载完就执行，执行完毕才会继续渲染页面，可能会导致页面加载时间过长
 	// 可以添加 defer async 属性加以控制
 	// async: 碰到 script 标签，继续解析 HTML，同时下载脚本，脚本下载完后暂停解析，转而执行脚本，执行完毕后恢复解析 HTML
+	// async 不能保证按照标签的顺序执行脚本，因为下载的速度是不确定的
 	// <script src='path/to/myModule.js' async></script>
 	// defer: 碰到 script 标签，继续解析 HTML，同时下载脚本，等到解析完成才会执行脚本，并且保证按标签出现顺序执行
 	// <script src='path/to/myModule.js' defer></script>
@@ -1751,6 +1752,17 @@ Y8888D' Y88888P YP      Y88888P 88   YD      YP   YP `8888Y'    YP    VP   V8P  
 	// 或者用es6-module-transpiler转为CommonJS的书写方法
 	// 或者使用SystemJS垫片库
 
+	// script 标签可以添加一个 integrity 属性，用于完整性校验，验证不通过则不会执行该脚本
+	// 第一部分指定哈希值的生成算法
+	// 第二部分是经过 base64 编码的哈希值
+	// 两部分用短横线 - 连起来
+	// <script src="./re.js" integrity="SHA256-ZB6l1OeN9awHC1q9potvJd0v0sjxBbqSu9Zw7h00BtY="></script>
+	// 可以使用 shasum 命令来生成
+	// shasum -b -a 256 FILENAME | xxd -r -p | base64
+
+	// script 标签属性 crossorigin="anonymous" 
+	// anonymous 表示读取文件不需要身份信息，即不需要 cookie 和 HTTP 认证信息。需要服务器设置 Access-Control-Allow-Origin: *
+	// use-credentials 会发送 cookie 和 HTTP 认证信息。需要服务器设置 Access-Control-Allow-Credentials
 }
 
 

@@ -40,7 +40,8 @@
 
   <p style="clear:both;">IE8 及更早版本或 Safari 5.1 及更早版本的浏览器不支持 drag 事件。</p>
 
-  <div class="upload">将文件拖动到此处上传</div>
+  <div class="upload">将图片拖动到此处上传</div>
+  <img class="pic"></img>
 
 
   <script>
@@ -135,15 +136,19 @@
       e.target.style.opacity = 1
       let files = Array.from(e.dataTransfer.files)
       files.forEach(file => {
+        if(!/image/.test(file.type)) return
         console.log(file.name)
         let fileReader = new FileReader()
         fileReader.addEventListener('load', readFinish)
-        fileReader.readAsText(file)
+        fileReader.readAsDataURL(file)
       })
 
     })
 
     function readFinish(event) {
+      let pic = document.querySelector('.pic')
+      // pic.setAttribute('src', event.target.result)
+      pic.src = event.target.result
       console.log(event.target.result)
     }
     
