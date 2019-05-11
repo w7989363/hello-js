@@ -216,6 +216,8 @@ $.getJSON('http://example.com/jsonp?callback=?', function(json) {
 
 // $.noConflict() 释放 $ 符号对 jQuery 的简写引用，使不与其他框架冲突
 
+// $.extend() 扩展 jquery 静态属性和方法
+// $.fn === $.prototype
 // $.fn.extend() 扩展 jquery 的实例属性和方法
 $.fn.extend({
 	check: function () {
