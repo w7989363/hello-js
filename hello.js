@@ -167,6 +167,7 @@
 	// setTimeout 是等到本次事件循环结束时，查看是否到了定时器设定的时间，到了就进入异步队列等待执行。
 	// 因为一轮事件循环的执行时间是不确定的，所以 setTimeout 的时间是不准确的。
 	// 所以 setTimeout(fn, 0) 不是立即执行，而是在 CPU 空闲时“尽早”执行
+	// 注意，如果第一个参数穿 fn(arg)，不关第二个参数设为多少都会立即执行，应该传 fn 或者 () => fn(arg)
 
 	// setInterval 是在开始执行回调时开始下一轮计时，所以不会考虑回调函数的执行时间。
 	// 如果回调函数的执行时间超过 interval 时间，则会在回调函数执行完后才立即执行下一次回调，然后开始下一轮计时。
@@ -1760,9 +1761,10 @@ db   8D Y8b  d8 88 `88.   .88.   88         88
 	// 可以使用 shasum 命令来生成
 	// shasum -b -a 256 FILENAME | xxd -r -p | base64
 
-	// script 标签属性 crossorigin="anonymous" 
-	// anonymous 表示读取文件不需要身份信息，即不需要 cookie 和 HTTP 认证信息。需要服务器设置 Access-Control-Allow-Origin: *
-	// use-credentials 会发送 cookie 和 HTTP 认证信息。需要服务器设置 Access-Control-Allow-Credentials
+	// script 标签属性 crossorigin 表示使用 cors 来获取跨域脚本
+	// 不加 crossorigin 的情况下，外域脚本出错只会给出很少的出错信息；使用 crossorigin 可以给出详细出错信息
+	// crossorigin="anonymous" 表示读取文件不需要身份信息，即不需要 cookie 和 HTTP 认证信息。需要服务器设置 Access-Control-Allow-Origin: *
+	// crossorigin="use-credentials" 会发送 cookie 和 HTTP 认证信息。需要服务器设置 Access-Control-Allow-Credentials
 }
 
 
