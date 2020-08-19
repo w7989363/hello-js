@@ -46,6 +46,11 @@ var p = new Promise(function(resolve, reject) {
 	console.log('rejected timeout: ' + value)
 })
 
+// 如果then里面return会跳到下一个then或直接resolve返回
+// 如果then里面throw一个错误会进入下一个catch
+// 如果catch里面return会跳到下一个then或直接resolve返回
+// 如果catch里面throw一个错误会进入下一个catch
+
 
 // 利用Promise执行并行任务
 // 例如从两个url获取信息，使用Promise.all实现

@@ -1336,6 +1336,10 @@ let const class 声明的全局变量不属于顶层变量window/global
 		// 如果直接循环，log出来是三个promise对象
 	}
 
+	// async函数其实就是一个promise
+	// async函数内部抛出的错误需要使用then/catch等promise的方法来捕获，使用try/catch无法捕获
+	// 因为内部的错误被promise拦截掉了，返回的是一个rejection状态的promise，并没有对外抛出错误
+
 }
 
 
