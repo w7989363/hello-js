@@ -118,61 +118,88 @@
 	// 下次事件循环从setTimeout/setInterval队列开始，同样进行任务分发。执行完当前loop的setTimeout队列后会先检查微任务队列，执行清空所有的微任务；然后再进入 setImmediate 队列，进行异步任务分发，清空 setImmediate 队列后，执行微任务，微任务执行完后结束当前loop，进入下一个loop
 	// 以上基于node环境分析，node环境中是清空一个宏队列再去检查微任务，而浏览器中是执行完一个宏任务就去检查微任务
 
-
-	setImmediate(function() {
-		setImmediate(function() {
-			console.log('setImmediate2')
-		})
-		console.log('setImmediate1')
-	})
-	setTimeout(() => {
-		setTimeout(() => {
-			console.log('TIMEOUT2')
-		})
-		console.log('TIMEOUT1')
-	})
-	new Promise((resolve, reject) => {
-		resolve()
-		new Promise(resolve2 => {
-			resolve2()
-		}).then(() => {
-			console.log('p1')
-		})
-	}).then(()=>{
-		console.log('p2')
-		new Promise(resolve => {
-			resolve()
-		}).then(()=>{console.log('p3')})
-	})
-	process.nextTick(() => {
-		console.log('nextTick1')
-		process.nextTick(() => {
-			console.log('nextTick2')
-		})
-	})
-
-
-
-	// nextTick1
-	// nextTick2
-	// p1
-	// p2
-	// p3
-	// TIMEOUT1
-	// setImmediate1
-	// TIMEOUT2 和 setImmediate2 不一定
-
-
-
 	// setTimeout 是等到本次事件循环结束时，查看是否到了定时器设定的时间，到了就进入异步队列等待执行。
 	// 因为一轮事件循环的执行时间是不确定的，所以 setTimeout 的时间是不准确的。
 	// 所以 setTimeout(fn, 0) 不是立即执行，而是在 CPU 空闲时“尽早”执行
-	// 注意，如果第一个参数穿 fn(arg)，不关第二个参数设为多少都会立即执行，应该传 fn 或者 () => fn(arg)
 
 	// setInterval 是在开始执行回调时开始下一轮计时，所以不会考虑回调函数的执行时间。
 	// 如果回调函数的执行时间超过 interval 时间，则会在回调函数执行完后才立即执行下一次回调，然后开始下一轮计时。
 	// setInterval 不会产生累积效应。以上问题可以使用 setTimeout 递归调用解决
 	// 另外也是由于事件循环执行时间的问题，间隔的时间不准确。
+
+	// 例题
+	async function async1(){
+	    console.log('async1 start')
+	    await async2()
+	    console.log('async1 end')
+	}
+	async function async2(){
+	    console.log('async2')
+	}
+
+	console.log('script start')
+
+	setTimeout(function(){
+	    console.log('setTimeout')
+	},0)
+
+	async1();
+
+	new Promise(function(resolve){
+	    console.log('promise1')
+	    resolve();
+	}).then(function(){
+	    console.log('promise2')
+	})
+
+	console.log('script end')
+
+	// await async 怎么解析？
+	// async function f(){
+	//   await p
+	//   console.log(1);
+	// }
+	// 新版V8应该会解析成下面这样
+	// function f(){
+	//   Promise.resolve(p).then(()=>{
+	//     console.log(1)
+	//   })
+	// }
+
+	// Promise.resolve()参数为Promise对象时，会直接返回这个Promise对象
+	// 但构造函数中的resolve()参数为Promise对象时，会按以下进行替换
+	// resolve(resolvedPromise)  等同于：
+	// Promise.resolve().then(() => resolvedPromise.then(resolve, reject));
+
+	// 1. 两个函数声明，跳过
+	// 2. 输出 script start
+	// 3. setTimeout回调函数放入宏任务队列
+	// 4. 执行async1，输出 async1 start，下面两句
+	// await async2()
+	// console.log('async1 end')
+	// 相当于
+	// Promise.resolve(async2()).then(() => {
+	// 	console.log('async1 end')
+	// })
+	// 执行async2，输出 async2，async2()此时为fulfilled状态，所以将console.log('async1 end')放入微任务队列
+	// 5. new Promise执行构造函数同步代码，输出 promise1，此时 new Promise 为fulfilled状态，将console.log('promise2')放入微任务队列
+	// 6. 输出 script end
+	// 7. 同步任务执行完，执行微任务
+	// 8. 第一个微任务是console.log('async1 end')，输出async1 end
+	// 9. 第二个微任务是console.log('promise2')，输出promise2
+	// 10. 没有微任务了，本轮EventLoop结束，进行下一轮
+	// 11. 执行宏任务setTimeout，输出 setTimeout
+
+	// 最终结果
+	// script start
+	// async1 start
+	// async2
+	// promise1
+	// script end
+	// async1 end
+	// promise2
+	// setTimeout
+
 }
 
 
