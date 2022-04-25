@@ -12,6 +12,7 @@
 // this 既不指向函数自身也不指向函数的词法作用域
 // this 代表的是当前行为执行的主体
 // this 实际上是在函数被调用时才能确定，它指向什么完全取决于函数在哪里被调用
+// 构造函数中的this指向new出来的对象实例
 
 
 // 函数有四种调用方式
@@ -57,7 +58,7 @@ function fn () {
 }
 var arr = [fn, obj.print1]
 arr[0]() // 这里面的 this 是 arr
-arr[1]() // 这里的 this 还是 arr, 输出 print1, this.num: undefined
+arr[1]() // 这里的 this 还是 arr, 输出 print1: undefined
 
 // obj.child.method(arg)  this 绑定到 obj.child
 
@@ -74,7 +75,7 @@ af.call({ num: 4 })  // arrowFunc: undefined
 var pt2 = obj.print2
 // print2 内部的箭头函数的 this 在定义时与 print2 的 this 绑定
 // 此时 print2 的 this 为 { num: 4 }，所以箭头函数的 this 也是他
-pt2.call({ num: 4 })  // print2: 4
+pt2.call({ num: 4 })()  // print2: 4
 
 
 // 3.call/apply调用模式，第一个参数指定this的值
@@ -110,3 +111,34 @@ printPair.apply({ key: 'age' }, [6]);	// age: 6
 
 
 // 在构造函数模式中 this 是当前类的一个实例
+
+
+// 例题
+let home = 'home0';
+this.home = 'home1';
+let logInfo = () => {
+  console.log(`${home}/${this.home}`);
+};
+function createHomeObj(x) {
+  let home = x;
+  return {
+    home: `home${x}`,
+    logInfo() {
+      console.log(`${home}/${this.home}`);
+    }
+  };
+}
+logInfo();											// home0/home1
+logInfo.call(window);							// home0/home1
+let homeObj1 = new createHomeObj(10);
+let homeObj2 = new createHomeObj(20);
+homeObj1.logInfo();								// 10/home10
+logInfo.call(homeObj1);							// home0/home1
+homeObj1.logInfo.call(homeObj2);				// 10/home20
+homeObj1.logInfo = homeObj2.logInfo;
+homeObj1.logInfo();								// 20/home10
+homeObj2.logInfo = logInfo;
+homeObj2.logInfo();								// home0/home1
+
+
+

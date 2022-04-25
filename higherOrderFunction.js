@@ -116,10 +116,12 @@ let curry2 = function(fn) {
 	return curriedFn
 }
 
-let add = curry2(function(...args) {
+function sum(...args) {
 	return args.reduce((pre, cur) => pre + cur, 0)
-})
-add(1)(2,3)(4,5,6)() // 21
+}
+
+let currySum = curry2(sum)
+currySum(1)(2,3)(4,5,6)() // 21
 
 
 // 使用lodash.curry
