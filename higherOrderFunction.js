@@ -81,59 +81,50 @@ hello
 
 
 // 函数柯里化
-// 柯里化后的函数，传入参数的时候只是保存参数值，参数足够或不传入参数的时候才执行
+// 柯里化是一种函数的转换，它是指将一个函数从可调用的 f(a, b, c) 转换为可调用的 f(a)(b)(c)。
+// 柯里化不会调用函数。它只是对函数进行转换。
 
-// curry1() 是把传入的函数 fn 按照其形参个数进行柯里化，直到传入最后一个参数才调用原函数
-let curry1 = function (fn) {
-	// 保存参数
-	let _args = []
-  let curriedFn = function (...args) {
-    _args.push(...args)
-    if (_args.length >= fn.length) {
-			// 参数足够则调用
-      return fn.apply(this, _args)
-    } else {
-      return curriedFn
-    }
-  }
-  return curriedFn
-}
-// curry2() 直到传入参数为空才调用原函数
-let curry2 = function(fn) {
-	// 保存参数
-	let _args = []
-	let curriedFn = function(...args) {
-		// 保存参数，可能不止一个
-		_args.push(...args)
-		// Array.prototype.push.apply(_args, args)
-		if (args.length === 0) {
-			// 不传参数则调用
-			return fn.apply(this, _args)
-		} else {
-			return curriedFn
+const curry = (fn) => {
+	// 对fn进行柯里化，最终返回一个可调用的函数，该函数接受不定个数的参数
+	const curriedFn = (...args) => {
+		// 如果传入的参数个数已经大于等于原函数所接受的参数个数，则直接执行原函数
+		if (args.length >= fn.length) {
+			return fn.apply(this, args);
+		}
+		// 如果传入的参数个数小于原函数所接受的参数个数
+		// 则需要返回一个继续接受参数的函数，将接受到的新参数与args合并，继续递归调用curriedFn并返回
+		return (...args2) => {
+			return curriedFn.apply(this, args.concat(args2));
 		}
 	}
-	return curriedFn
+
+	return curriedFn;
 }
 
-function sum(...args) {
-	return args.reduce((pre, cur) => pre + cur, 0)
-}
-
-let currySum = curry2(sum)
-currySum(1)(2,3)(4,5,6)() // 21
 
 
-// 使用lodash.curry
-// let curry1 = require('lodash.curry')
-// 策略性地把要操作的数据（String， Array）放到最后一个参数里。
-// 传入前面的参数会返回函数，直到传入最后一个参数(一般是需要处理的数据)才会执行回调函数
-let match = curry1(function(what, str) {
-  return str.match(what)
-})
-let hasSpaces = match(/\s+/g)
-hasSpaces('hello world')		// [ ' ' ]
-// 体现了函数式编程的思想
+// 或者使用lodash.curry
+// let curry = require('lodash.curry')
+
+
+// 举个实际应用的🌰 函数式编程的思想
+// 使用method(GET/POST)请求url接口，并传入params参数
+const fetch = (method, url, params) => {
+	// 具体实现省略...
+	console.log(method, url, params);
+};
+
+// 柯里化后的fetch
+const curriedFetch = curry(fetch);
+
+// 可以得到 get post 方法
+const get = curriedFetch('GET');
+const post = curriedFetch('POST');
+
+// 可以得到 get/post 请求某个具体接口的方法
+const getUserInfo = get('/user/info');
+const postAddUser = post('/user/add');
+
 
 
 
